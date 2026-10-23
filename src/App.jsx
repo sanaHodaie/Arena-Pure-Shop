@@ -133,6 +133,7 @@ export default function App() {
         setSearchTerm={setSearchTerm}
         selectedCategory={selectedCategory}
         onSelectCategory={handleSelectCategory}
+        onSelectProduct={setQuickViewProduct}
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}

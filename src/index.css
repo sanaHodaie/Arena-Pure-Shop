@@ -442,3 +442,24 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
  .middle-campaign-copy p { max-width: 320px; font-size: 11px; margin-top: 8px; }
  .middle-campaign-copy .arena-shop { margin-top: 12px; }
 }
+/* Accessible live product suggestions in the header. */
+.arena-header { position: relative; z-index: 35; }
+.arena-search { position: relative; }
+.arena-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.search-clear { display: grid; place-items: center; flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; color: #9c85a9; }
+.search-clear:hover { background: #e9dfee; }
+.search-suggestions { position: absolute; top: calc(100% + 9px); right: 0; width: max(100%,420px); max-width: calc(100vw - 32px); z-index: 60; background: #fff; border: 1px solid #eadfed; border-radius: 17px; box-shadow: 0 15px 45px #3b204126; overflow: hidden; animation: campaign-enter .16s ease-out; }
+.search-suggestions-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 15px; border-bottom: 1px solid #f3edf6; font-size: 10px; color: #93789f; }
+.search-results-list { list-style: none; margin: 0; padding: 5px; max-height: min(48dvh,365px); overflow-y: auto; overscroll-behavior: contain; }
+.search-result { display: flex; align-items: center; gap: 10px; min-height: 80px; padding: 9px; border-radius: 11px; cursor: pointer; color: #7c5b8e; transition: background .15s; }
+.search-result.is-active { background: #f5eff8; }
+.search-result > svg { flex-shrink: 0; }
+.search-result-image { flex-shrink: 0; width: 52px; height: 58px; object-fit: contain; padding: 3px; background: #faf7fc; border-radius: 9px; }
+.search-result-copy { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 3px; }
+.search-result-brand { font-size: 9px; color: #a388b1; }
+.search-result-title { font-size: 11px; color: #3a2c43; line-height: 1.8; overflow-wrap: anywhere; }
+.search-result-price { font-size: 10px; color: #80539b; font-weight: 600; }
+.search-no-results { margin: 0; padding: 22px 16px; font-size: 12px; line-height: 1.9; color: #987da5; }
+.search-all-results { display: flex; justify-content: center; align-items: center; gap: 9px; min-height: 44px; width: 100%; color: #79518f; background: #f8f3fb; border-top: 1px solid #f0e7f4; font-size: 11px; }
+.search-all-results:hover { background: #f0e5f6; }
+@media(max-width:800px) { .search-suggestions { width: 100%; }.search-result { min-height: 78px; }.search-result-title { font-size: 12px; } }
