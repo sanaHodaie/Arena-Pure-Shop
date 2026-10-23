@@ -1,42 +1,66 @@
-import React, { useState } from 'react';
+import ProductImage from './ProductImage.jsx';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, ShoppingBag, Star, ShieldCheck, Check, Sparkles } from 'lucide-react';
 import { formatPrice } from '../data/mockData.js';
 
 export default function ProductQuickView({ product, isOpen, onClose, onAddToCart, onToggleWishlist, isWishlisted }) {
-  if (!isOpen || !product) return null;
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedShade, setSelectedShade] = useState('شیک نود');
-
-  const shades = ['شیک نود', 'صورتی کلاسیک', 'کالباسی مات', 'زرشکی مخملی'];
+  const dialog = useRef(null);
+  useEffect(() => setQuantity(1), [product?.id]);
+  useEffect(() => {
+    if (!isOpen || !product) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialog.current?.querySelector('button')?.focus();
+    const handleKey = event => {
+      if (event.key === 'Escape') onClose();
+      if (event.key !== 'Tab') return;
+      const controls = dialog.current?.querySelectorAll('button, a[href], input, [tabindex="0"]');
+      if (!controls?.length) return;
+      const first = controls[0], last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKey);
+      previousFocus?.focus();
+    };
+  }, [isOpen, product?.id]);
+  if (!isOpen || !product) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-all">
+    <div className="product-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-all" onClick={onClose}>
       <div 
-        className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 flex flex-col md:flex-row relative animate-scale-up"
+        ref={dialog}
+        className="product-dialog w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-purple-100 flex flex-col md:flex-row relative animate-scale-up"
+        role="dialog" aria-modal="true" aria-labelledby="product-dialog-title"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 z-10 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
+          className="absolute top-4 left-4 z-30 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
           aria-label="بستن"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Product Image Section */}
-        <div className="md:w-1/2 bg-gradient-to-br from-purple-50/60 to-slate-50 p-6 flex flex-col items-center justify-center relative">
-          {product.discountPercent && (
-            <span className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-              {product.discountPercent}٪ تخفیف
+        <div className="product-dialog-visual md:w-1/2 bg-gradient-to-br from-purple-50/60 to-slate-50 p-6 flex flex-col items-center justify-center relative isolate">
+          {product.discountPercent > 0 && (
+            <span className="product-dialog-discount absolute top-4 right-4 z-20 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
+              {product.discountPercent.toLocaleString('fa-IR')}٪ تخفیف
             </span>
           )}
 
-          <img
+          <ProductImage
             src={product.image}
             alt={product.title}
-            className="max-h-64 object-contain drop-shadow-md"
+            className="product-dialog-image relative z-0 w-full max-h-64 object-contain drop-shadow-md"
           />
 
           <div className="mt-4 flex items-center gap-2 text-xs text-purple-700 bg-white/80 px-3 py-1 rounded-full border border-purple-100 shadow-2xs">
@@ -61,16 +85,9 @@ export default function ProductQuickView({ product, isOpen, onClose, onAddToCart
               </button>
             </div>
 
-            <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
+            <h3 id="product-dialog-title" className="text-lg font-extrabold text-slate-900 leading-snug">
               {product.title}
             </h3>
-
-            {/* Rating */}
-            <div className="flex items-center gap-1 mt-2 text-amber-500 text-xs font-bold">
-              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-              <span>{product.rating || '4.9'}</span>
-              <span className="text-slate-400 font-normal mr-1">(نظر خریداران رضایتمند)</span>
-            </div>
 
             {/* Price */}
             <div className="mt-4 flex items-baseline gap-2">
@@ -89,27 +106,7 @@ export default function ProductQuickView({ product, isOpen, onClose, onAddToCart
               {product.description || 'فرمولاسیون درجه یک، ساخته شده با مرغوب‌ترین ترکیبات بدون حساسیت زایی، مناسب انواع پوست و ایجاد جلوه‌ای طبیعی و ماندگار.'}
             </p>
 
-            {/* Shades selector */}
-            <div className="mt-4">
-              <span className="text-xs font-bold text-slate-700 block mb-2">
-                انتخاب شماره رنگ: <span className="text-purple-700">{selectedShade}</span>
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {shades.map((shade) => (
-                  <button
-                    key={shade}
-                    onClick={() => setSelectedShade(shade)}
-                    className={`px-3 py-1 rounded-xl text-xs font-semibold border transition ${
-                      selectedShade === shade
-                        ? 'border-purple-600 bg-purple-50 text-purple-700'
-                        : 'border-slate-200 text-slate-600 hover:border-purple-300'
-                    }`}
-                  >
-                    {shade}
-                  </button>
-                ))}
-              </div>
-            </div>
+
           </div>
 
           {/* Action Row */}
@@ -136,7 +133,7 @@ export default function ProductQuickView({ product, isOpen, onClose, onAddToCart
             {/* Add to Cart Button */}
             <button
               onClick={() => {
-                onAddToCart({ ...product, quantity, selectedShade });
+                onAddToCart({ ...product, quantity });
                 onClose();
               }}
               className="flex-1 py-3 px-4 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 active:scale-95 transition cursor-pointer"

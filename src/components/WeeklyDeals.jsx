@@ -1,3 +1,4 @@
+import ProductImage from './ProductImage.jsx';
 import React from 'react';
 import { Heart, ShoppingBag, Eye, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { specialOfferProducts, formatPrice } from '../data/mockData.js';
@@ -81,7 +82,7 @@ export default function WeeklyDeals({ onAddToCart, onToggleWishlist, wishlist = 
                   onClick={() => onQuickView(product)}
                   className="relative w-full h-36 flex items-center justify-center cursor-pointer overflow-hidden rounded-2xl bg-slate-50 p-2"
                 >
-                  <img
+                  <ProductImage
                     src={product.image}
                     alt={product.title}
                     className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform"

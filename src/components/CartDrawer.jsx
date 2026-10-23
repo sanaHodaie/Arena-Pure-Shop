@@ -1,3 +1,4 @@
+import ProductImage from './ProductImage.jsx';
 import React from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { formatPrice } from '../data/mockData.js';
@@ -86,7 +87,7 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
                 className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 hover:border-purple-200 bg-white transition shadow-2xs"
               >
                 {/* Item Thumbnail */}
-                <img
+                <ProductImage
                   src={item.image}
                   alt={item.title}
                   className="w-16 h-16 object-contain rounded-xl bg-slate-50 p-1 shrink-0"

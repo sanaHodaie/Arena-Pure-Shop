@@ -6,9 +6,7 @@ import {
   ChevronUp, 
   Instagram, 
   Send, 
-  MessageCircle, 
-  ShieldCheck,
-  Award
+  MessageCircle
 } from 'lucide-react';
 import { siteConfig } from '../data/mockData.js';
 
@@ -180,19 +178,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Trust Badges matching screenshot 4 (E-namad & Samandehi) */}
-            <div className="mt-6 flex items-center gap-3">
-              <div className="bg-white rounded-2xl p-2 w-16 h-18 flex flex-col items-center justify-center text-slate-800 shadow-sm border border-purple-200">
-                <ShieldCheck className="w-7 h-7 text-blue-600" />
-                <span className="text-[8px] font-bold mt-1 text-slate-700">اینماد ۵ ستاره</span>
-                <span className="text-[6px] text-amber-500">★★★★★</span>
-              </div>
-              <div className="bg-white rounded-2xl p-2 w-16 h-18 flex flex-col items-center justify-center text-slate-800 shadow-sm border border-purple-200">
-                <Award className="w-7 h-7 text-amber-500" />
-                <span className="text-[8px] font-bold mt-1 text-slate-700">ساماندهی</span>
-                <span className="text-[7px] text-emerald-600 font-bold">تایید شده</span>
-              </div>
-            </div>
 
           </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header.jsx';
 import HeroBanners from './components/HeroBanners.jsx';
 import SpecialOffers from './components/SpecialOffers.jsx';
@@ -18,17 +18,19 @@ import ArticleModal from './components/ArticleModal.jsx';
 import Toast from './components/Toast.jsx';
 
 export default function App() {
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    const sections = document.querySelectorAll('.beauty-categories, .beauty-bestsellers, .arena-offers-section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('is-revealed'); observer.unobserve(entry.target); }
+      });
+    }, { threshold: 0.06 });
+    sections.forEach(section => { section.classList.add('reveal-pending'); observer.observe(section); });
+    return () => { observer.disconnect(); sections.forEach(section => section.classList.remove('reveal-pending', 'is-revealed')); };
+  }, []);
   // Cart state
-  const [cart, setCart] = useState([
-    {
-      id: 1,
-      brand: 'آرکانسیل',
-      title: 'آرکانسیل مداد لب شماره ۴۰۰',
-      price: 196000,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80'
-    }
-  ]);
+  const [cart, setCart] = useState([]);
 
   // Wishlist state
   const [wishlist, setWishlist] = useState([2, 4]);
@@ -107,7 +109,8 @@ export default function App() {
     }
   };
 
-  const scrollToProducts = () => {
+  const scrollToProducts = (category = null) => {
+    setSelectedCategory(typeof category === 'string' ? category : null);
     const el = document.getElementById('products');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -118,7 +121,7 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-[#faf7fc] text-slate-800 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
+    <div className="min-h-screen bg-white text-slate-800 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
       {/* Header */}
       <Header
         cartCount={cartCount}
@@ -139,6 +142,7 @@ export default function App() {
 
         {/* Screenshot 1 & 2: Special Offers (پیشنهاد شگفت‌انگیز) */}
         <SpecialOffers
+          searchTerm={searchTerm}
           onAddToCart={handleAddToCart}
           onToggleWishlist={handleToggleWishlist}
           wishlist={wishlist}
@@ -158,6 +162,8 @@ export default function App() {
           wishlist={wishlist}
           onQuickView={(p) => setQuickViewProduct(p)}
           selectedCategory={selectedCategory}
+          searchTerm={searchTerm}
+          onClearCategory={() => setSelectedCategory(null)}
         />
 
         {/* Screenshot 3: Middle Promotional Banners */}

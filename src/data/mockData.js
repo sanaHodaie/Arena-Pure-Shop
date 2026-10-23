@@ -1,3 +1,4 @@
+import { products } from './catalog.js';
 /**
  * Mock data for Arena Pure Cosmetics & Skincare Shop
  * Designed to accurately reflect the visual identity and product catalog from the screenshots
@@ -31,7 +32,7 @@ export const mainCategories = [
     count: '۱۲۴ محصول',
     color: 'from-purple-100 to-purple-200',
     borderColor: 'border-purple-300',
-    image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=300&q=80'
+    image: '/images/categories/haircare.webp'
   },
   {
     id: 'skincare',
@@ -40,7 +41,7 @@ export const mainCategories = [
     count: '۱۸۵ محصول',
     color: 'from-indigo-100 to-purple-200',
     borderColor: 'border-purple-300',
-    image: 'https://images.unsplash.com/photo-1608248597359-59749fb8c5bf?auto=format&fit=crop&w=300&q=80'
+    image: '/images/categories/skincare.webp'
   },
   {
     id: 'sunscreen',
@@ -49,7 +50,7 @@ export const mainCategories = [
     count: '۶۸ محصول',
     color: 'from-amber-100 to-purple-200',
     borderColor: 'border-amber-300',
-    image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=300&q=80'
+    image: '/images/categories/sunscreen.webp'
   },
   {
     id: 'health',
@@ -58,7 +59,7 @@ export const mainCategories = [
     count: '۹۴ محصول',
     color: 'from-purple-100 to-pink-100',
     borderColor: 'border-purple-300',
-    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=300&q=80'
+    image: '/images/categories/hygiene.webp'
   },
   {
     id: 'hygiene',
@@ -67,7 +68,7 @@ export const mainCategories = [
     count: '۱۱۵ محصول',
     color: 'from-teal-100 to-purple-200',
     borderColor: 'border-teal-300',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80'
+    image: '/images/categories/cleansing.webp'
   },
   {
     id: 'fragrance',
@@ -76,7 +77,7 @@ export const mainCategories = [
     count: '۷۹ محصول',
     color: 'from-pink-100 to-purple-200',
     borderColor: 'border-pink-300',
-    image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=300&q=80'
+    image: '/images/categories/fragrance.webp'
   },
   {
     id: 'cosmetics',
@@ -85,255 +86,13 @@ export const mainCategories = [
     count: '۲۳۰ محصول',
     color: 'from-fuchsia-100 to-purple-200',
     borderColor: 'border-fuchsia-300',
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=300&q=80'
+    image: '/images/categories/cosmetics.webp'
   },
 ];
 
-export const specialOfferProducts = [
-  {
-    id: 1,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل مداد لب شماره ۴۰۰',
-    price: 196000,
-    oldPrice: 245000,
-    discountPercent: 20,
-    rating: 4.8,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'مداد لب با بافت بسیار نرم و روان، حاوی ویتامین E و ماندگاری طولانی بدون پخش شدن روی لب.'
-  },
-  {
-    id: 2,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل خط لب تتو Arcancil شماره ۴۰۰',
-    price: 189000,
-    oldPrice: 230000,
-    discountPercent: 18,
-    rating: 4.9,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'خط لب فوق‌العاده ضد آب با ماندگاری ۲۴ ساعته ضد تعریق و مناسب آرایش‌های حرفه‌ای.'
-  },
-  {
-    id: 3,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع شماره ۰۰۹',
-    price: 179000,
-    oldPrice: 220000,
-    discountPercent: 19,
-    rating: 4.7,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'رژ لب مایع با رنگدانه‌های غنی، پوشش مات و مخملی و عدم ایجاد حس خشکی روی لب.'
-  },
-  {
-    id: 4,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع مات هیستریا کد ۳۶۵',
-    price: 350000,
-    oldPrice: 420000,
-    discountPercent: 17,
-    rating: 5.0,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1625093742435-6fa192b6fb10?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'رژ لب هیستریا با جلوه کاملا مات و پوشش یکنواخت، حاوی روغن جوجوبا.'
-  },
-  {
-    id: 5,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع مات هیستریا کد ۵۱۰',
-    price: 350000,
-    oldPrice: 420000,
-    discountPercent: 17,
-    rating: 4.9,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'رنگ صورتی نود بسیار شیک مناسب استفاده روزانه و مجالس با ماندگاری ۱۲ ساعته.'
-  },
-  {
-    id: 6,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع هیستریا شماره ۰۵۰',
-    price: 179000,
-    oldPrice: 215000,
-    discountPercent: 17,
-    rating: 4.8,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'جلوه‌ای براق و مخملی همزمان، مرطوب‌کننده و حجم‌دهنده لب.'
-  },
-  {
-    id: 7,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل ریمل حجم دهنده مشکی زبرا',
-    price: 189000,
-    oldPrice: 240000,
-    discountPercent: 21,
-    rating: 4.9,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1591360236480-4ed861025fa1?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'حجم‌دهندگی فوق‌العاده با برس حرفه‌ای تفکیک‌کننده، بدون ریزش و سیاهی زیر چشم.'
-  },
-  {
-    id: 8,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل ریمل سیل کاباره مژه بلند ۸۰ سالگی',
-    price: 189000,
-    oldPrice: 235000,
-    discountPercent: 20,
-    rating: 4.9,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    description: 'نسخه ویژه ۸۰ سالگی آرکانسیل با اثر لیفت و بلندکنندگی مژه‌ها بدون ایجاد چسبندگی.'
-  }
-];
+export const specialOfferProducts = products.slice(0, 8);
 
-export const bestSellerProducts = [
-  {
-    id: 101,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل مداد لب شماره ۴۰۰',
-    price: 196000,
-    oldPrice: 230000,
-    rating: 4.8,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    badge: 'پرفروش'
-  },
-  {
-    id: 102,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع مات مدل هیستریا کد ۲۰۰',
-    price: 350000,
-    oldPrice: 390000,
-    rating: 4.9,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1625093742435-6fa192b6fb10?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    badge: 'تخفیف ویژه'
-  },
-  {
-    id: 103,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل خط لب تتو Arcancil شماره ۴۰۰',
-    price: 189000,
-    oldPrice: 220000,
-    rating: 4.7,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  },
-  {
-    id: 104,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع مات هیستریا کد ۳۷۹',
-    price: 350000,
-    oldPrice: 410000,
-    rating: 5.0,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    badge: 'جدید'
-  },
-  {
-    id: 105,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع شماره ۰۰۹',
-    price: 179000,
-    oldPrice: 210000,
-    rating: 4.8,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  },
-  {
-    id: 106,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع مات هیستریا کد ۵۱۰',
-    price: 350000,
-    oldPrice: 395000,
-    rating: 4.9,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1625093742435-6fa192b6fb10?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  },
-  {
-    id: 107,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع مات هیستریا کد ۳۶۵',
-    price: 350000,
-    oldPrice: 400000,
-    rating: 4.9,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  },
-  {
-    id: 108,
-    brand: 'آرکانسیل',
-    title: 'آرکانسیل رژ لب مایع هیستریا شماره ۰۵۰',
-    price: 179000,
-    oldPrice: 215000,
-    rating: 4.7,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  },
-  {
-    id: 109,
-    brand: 'لافارر',
-    title: 'کرم مرطوب کننده و آبرسان قوی لافارر شماره ۲',
-    price: 285000,
-    oldPrice: 330000,
-    rating: 4.9,
-    category: 'skincare',
-    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  },
-  {
-    id: 110,
-    brand: 'فولیکا',
-    title: 'شامپو ضد ریزش و تقویت کننده مو فولیکا',
-    price: 165000,
-    oldPrice: 195000,
-    rating: 4.6,
-    category: 'haircare',
-    image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  },
-  {
-    id: 111,
-    brand: 'سریتا',
-    title: 'سرم تقویت مژه معجزه‌آسا سریتا',
-    price: 490000,
-    oldPrice: 560000,
-    rating: 5.0,
-    category: 'skincare',
-    image: 'https://images.unsplash.com/photo-1608248597359-59749fb8c5bf?auto=format&fit=crop&w=400&q=80',
-    inStock: true,
-    badge: 'پیشنهاد ویژه'
-  },
-  {
-    id: 112,
-    brand: 'آرکانسیل',
-    title: 'پنکک فشرده مات و مخملی ضد آب آرکانسیل',
-    price: 395000,
-    oldPrice: 470000,
-    rating: 4.8,
-    category: 'cosmetics',
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=400&q=80',
-    inStock: true
-  }
-];
+export const bestSellerProducts = products;
 
 export const valueProps = [
   {
@@ -380,7 +139,7 @@ export const blogArticles = [
     author: 'Seo_admin',
     date: '۲ مهر ۱۴۰۳',
     readTime: '۵ دقیقه',
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80'
+    image: '/images/articles/article-1.webp'
   },
   {
     id: 2,
@@ -389,7 +148,7 @@ export const blogArticles = [
     author: 'Seo_admin',
     date: '۲۵ شهریور ۱۴۰۳',
     readTime: '۷ دقیقه',
-    image: 'https://images.unsplash.com/photo-1608248597359-59749fb8c5bf?auto=format&fit=crop&w=600&q=80'
+    image: '/images/articles/article-2.webp'
   },
   {
     id: 3,
@@ -398,7 +157,7 @@ export const blogArticles = [
     author: 'Seo_admin',
     date: '۱۵ شهریور ۱۴۰۳',
     readTime: '۶ دقیقه',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80'
+    image: '/images/articles/article-3.webp'
   },
   {
     id: 4,
@@ -407,7 +166,7 @@ export const blogArticles = [
     author: 'Zahra Rajabalizadeh',
     date: '۲ شهریور ۱۴۰۳',
     readTime: '۸ دقیقه',
-    image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80'
+    image: '/images/articles/article-4.webp'
   }
 ];
 
