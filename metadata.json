@@ -1,0 +1,6 @@
+{
+  "name": "فروشگاه آرایشی و بهداشتی آرنا پیور (Arena Pure)",
+  "description": "فروشگاه آنلاین آرنا پیور - مرجع تخصصی خرید محصولات آرایشی، مراقبت پوست و مو، ضد آفتاب و عطر و ادکلن با ضمانت اصالت کالا",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
