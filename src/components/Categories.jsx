@@ -20,7 +20,8 @@ export default function Categories({ selectedCategory, onSelectCategory }) {
       {categories.map((category, index) => {
         const filter = category.id === 'cleansing' ? 'hygiene' : category.id;
         const active = selectedCategory === filter;
-        return <button key={category.id} style={{ '--category-index': index }} className={`beauty-category ${active ? 'is-active' : ''}`} aria-pressed={active} onClick={() => onSelectCategory(filter)}>
+        const Element = category.id === 'haircare' ? 'a' : 'button';
+        return <Element href={category.id === 'haircare' ? '/categories/haircare' : undefined} key={category.id} style={{ '--category-index': index }} className={`beauty-category ${active ? 'is-active' : ''}`} aria-pressed={category.id === 'haircare' ? undefined : active} onClick={category.id === 'haircare' ? undefined : () => onSelectCategory(filter)}>
           <span className={`beauty-category-circle category-photo-group tone-${index % 2} ${category.products.length === 1 ? 'single-photo' : 'double-photo'}`} aria-hidden="true">
             {category.products.map((id, photoIndex) => {
               const product = products.find(item => item.id === id);
@@ -28,7 +29,7 @@ export default function Categories({ selectedCategory, onSelectCategory }) {
             })}
           </span>
           <span>{category.name}</span>
-        </button>;
+        </Element>;
       })}
     </div>
   </section>;

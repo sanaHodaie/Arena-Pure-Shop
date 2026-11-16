@@ -17,7 +17,7 @@ export default function ProductPage({ product, onAddToCart, onToggleWishlist, wi
   const add = () => onAddToCart({ ...product, quantity });
 
   return <main className="pd-page arena-container" dir="rtl">
-    <nav className="pd-breadcrumb" aria-label="مسیر صفحه"><a href="/">خانه</a><ChevronLeft size={14}/><a href="/#products">{categoryNames[product.category]}</a><ChevronLeft size={14}/><span>{product.brand}</span></nav>
+    <nav className="pd-breadcrumb" aria-label="مسیر صفحه"><a href="/">خانه</a><ChevronLeft size={14}/><a href={product.category === 'haircare' ? '/categories/haircare' : '/#products'}>{categoryNames[product.category]}</a><ChevronLeft size={14}/><span>{product.brand}</span></nav>
     <div className="pd-layout">
       <section className="pd-gallery" aria-label="تصاویر محصول">
         <div className="pd-gallery-top"><span className="pd-tag">{product.brand}</span><button className="pd-icon" onClick={() => onToggleWishlist(product.id)} aria-label="افزودن به علاقه‌مندی‌ها" aria-pressed={wished}><Heart size={21} fill={wished ? 'currentColor' : 'none'}/></button></div>
@@ -47,7 +47,7 @@ export default function ProductPage({ product, onAddToCart, onToggleWishlist, wi
       <section id="product-questions" className="pd-panel"><h2>پرسش‌های متداول</h2><details><summary>آیا محصول دریافتی همین رنگ است؟</summary><p>{details.shade ? `رنگ انتخاب‌شده در این صفحه ${details.shade} است و با همین نام به سبد اضافه می‌شود. نمایش رنگ روی نمایشگرها متفاوت است.` : 'این صفحه مربوط به مدل درج‌شده در عنوان است. مشخصات کامل نسخه را پیش از خرید بررسی کنید.'}</p></details><details><summary>از کجا ترکیبات دقیق را بررسی کنم؟</summary><p>برچسب ترکیبات روی بسته‌بندی نسخه عرضه‌شده مرجع اصلی است؛ فرمول‌ها ممکن است در بازارها یا زمان‌های مختلف تغییر کنند. لینک منبع محصول نیز در بخش معرفی قرار دارد.</p></details></section>
       <section className="pd-panel"><h2>دیدگاه خریداران</h2><p>هنوز دیدگاهی برای این محصول ثبت نشده است.</p></section>
     </div>
-    {!!details.related.length && <section className="pd-related"><div><h2>انتخاب‌های دیگر برای شما</h2><a href="/#products">همه محصولات <ArrowLeft size={16}/></a></div><div className="pd-related-grid">{details.related.map(item => <ProductCard key={item.id} product={item} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist} onQuickView={onQuickView}/>)}</div></section>}
+    {!!details.related.length && <section className="pd-related"><div><h2>انتخاب‌های دیگر برای شما</h2><a href={product.category === 'haircare' ? '/categories/haircare' : '/#products'}>همه محصولات <ArrowLeft size={16}/></a></div><div className="pd-related-grid">{details.related.map(item => <ProductCard key={item.id} product={item} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist} onQuickView={onQuickView}/>)}</div></section>}
     <div className="pd-mobile-buy"><div><small>{details.shade || product.brand}</small><strong>{formatPrice(product.price)} <small>تومان</small></strong></div><button className="pd-buy" disabled={!product.inStock} onClick={add}><ShoppingBag size={18}/>{product.inStock ? `افزودن${quantity > 1 ? ` (${quantity.toLocaleString('fa-IR')})` : ''} به سبد` : 'ناموجود'}</button></div>
     <dialog ref={zoom} className="pd-zoom" onClick={event => { if (event.target === zoom.current) zoom.current.close(); }}><button className="pd-icon" autoFocus onClick={() => zoom.current.close()} aria-label="بستن تصویر"><X/></button><ProductImage src={selectedImage.src} alt={selectedImage.alt} sizes="90vw"/></dialog>
   </main>;

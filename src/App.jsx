@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import CategoryPage from './pages/CategoryPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import { findProduct, productUrl, getProductDetails } from './data/productDetails.js';
 import Header from './components/Header.jsx';
@@ -24,6 +25,7 @@ export default function App() {
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
   const isHome = window.location.pathname === '/';
+  const isHaircare = /^\/categories\/haircare\/?$/.test(window.location.pathname);
   const navigate = href => {
     const url = new URL(href, window.location.origin);
     window.history.pushState(null, '', url.pathname + url.search + url.hash);
@@ -36,7 +38,7 @@ export default function App() {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = product ? `${product.title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = product ? `${product.title} | آرنا پیور` : isHaircare ? 'محصولات مراقبت مو | آرنا پیور' : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
     const previous = previousProduct.current;
     previousProduct.current = product;
     const family = product && getProductDetails(product).family;
@@ -44,7 +46,7 @@ export default function App() {
     const frame = requestAnimationFrame(() => {
       const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
-      else { window.scrollTo({ top: 0, behavior: 'instant' }); document.getElementById('product-title')?.focus({ preventScroll: true }); }
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
   }, [location]);
@@ -142,6 +144,7 @@ export default function App() {
   };
 
   const handleSelectCategory = (catId, hash = '#products') => {
+    if (catId === 'haircare') { setSelectedCategory(null); navigate('/categories/haircare'); return; }
     setSelectedCategory(catId);
     if (!isHome) navigate(`/${hash}`);
     const element = document.getElementById(hash.slice(1));
@@ -164,7 +167,7 @@ export default function App() {
         wishlistCount={wishlist.length}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory}
+        selectedCategory={isHaircare ? 'haircare' : selectedCategory}
         onSelectCategory={handleSelectCategory}
         onSelectProduct={item => navigate(productUrl(item))}
       />
@@ -216,7 +219,7 @@ export default function App() {
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
         <BlogSection onArticleClick={(article) => setActiveArticle(article)} />
-      </main> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
+      </main> : isHaircare ? <CategoryPage onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
       <Footer />

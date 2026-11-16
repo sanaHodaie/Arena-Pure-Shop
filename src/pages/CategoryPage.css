@@ -1,0 +1,24 @@
+.category-page { padding-block: 26px 60px; }
+.category-intro { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 32px; border: 1px solid var(--ui-border); border-radius: 22px; background: var(--ui-raised); }
+.category-eyebrow { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--color-brand-secondary); }
+.category-intro h1 { font-size: 32px; font-weight: 800; color: var(--color-brand-primary); margin: 10px 0; outline: none; }
+.category-intro p { font-size: 13px; line-height: 2.2; color: var(--ui-muted); max-width: 630px; }
+.category-count { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; padding: 20px; border-right: 1px solid var(--ui-border); font-size: 10px; color: var(--color-brand-secondary); }
+.category-count strong { font-size: 44px; line-height: 1.2; color: var(--color-brand-primary); }
+.category-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 28px; color: var(--ui-muted); font-size: 12px; }
+.category-toolbar label { display: flex; align-items: center; gap: 12px; }
+.category-toolbar select { background: var(--ui-surface); border: 1px solid var(--ui-border); color: var(--ui-text); border-radius: 10px; padding: 10px; min-width: 140px; }
+.category-back { display: inline-flex; gap: 8px; align-items: center; margin-top: 32px; font-size: 12px; color: var(--color-brand-primary); }
+.offers-autoplay { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--ui-border); border-radius: 10px; background: var(--ui-surface); color: var(--color-brand-primary); font-size: 11px; }
+@media(max-width:600px) {
+  .category-page { padding-top: 18px; }
+  .category-intro { padding: 22px; gap: 15px; }
+  .category-intro h1 { font-size: 26px; }
+  .category-intro p { font-size: 11px; }
+  .category-count { padding: 10px; font-size: 9px; max-width: 90px; text-align: center; }
+  .category-count strong { font-size: 32px; }
+  .category-toolbar { font-size: 10px; }
+  .category-toolbar label { gap: 7px; }
+  .category-toolbar select { min-width: 110px; }
+  .offers-autoplay { font-size: 10px; padding-inline: 8px; }
+}
