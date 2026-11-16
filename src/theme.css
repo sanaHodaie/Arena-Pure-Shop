@@ -8,48 +8,46 @@
 }
 .arena-header { background: var(--color-brand-background); }
 .arena-search { background: var(--ui-raised); }
-.arena-phone, .arena-theme-toggle {
+.arena-theme-toggle {
   width: 44px; height: 44px; min-width: 44px; padding: 0;
   display: inline-flex; justify-content: center; align-items: center;
   border: 1px solid var(--ui-border); border-radius: 13px;
   color: var(--color-brand-primary); background: var(--ui-surface);
 }
-.arena-phone svg { color: inherit; }
 .arena-header-actions { gap: 12px; }
-.arena-header :is(.arena-phone,.arena-theme-toggle,.arena-login,.arena-cart,.arena-header-shop) {
+.arena-header :is(.arena-theme-toggle,.arena-login,.arena-cart) {
   transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
 }
-.arena-header :is(.arena-phone,.arena-theme-toggle,.arena-login,.arena-cart,.arena-header-shop):is(:hover,:focus-visible) {
+.arena-header :is(.arena-theme-toggle,.arena-login,.arena-cart):is(:hover,:focus-visible) {
   transform: translateY(-2px); box-shadow: 0 5px 14px #4b285b14;
 }
-.arena-nav a { position: relative; transition: color .2s ease; }
-.arena-nav a::after { content: ''; position: absolute; bottom: -8px; right: 0; left: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .2s ease; }
-.arena-nav a:is(:hover,:focus-visible)::after { transform: scaleX(1); }
-@keyframes phone-ring { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-13deg); } 60% { transform: rotate(11deg); } 80% { transform: rotate(-6deg); } }
-.arena-phone:is(:hover,:focus-visible) svg { animation: phone-ring .45s ease; }
+/* Scale the text gently without shifting neighboring menu items. */
+.arena-nav a { position: relative; transition: color .2s ease, transform .2s ease; transform-origin: center; }
+.arena-nav a::after { content: none; }
+.arena-nav a:is(:hover,:focus-visible) { color: var(--color-brand-primary); transform: scale(1.06); }
 .arena-theme-toggle:hover svg { transform: rotate(15deg); }
 .arena-theme-toggle svg { transition: transform .25s ease; }
-.campaign-label { display: inline-flex; margin-top: 18px; padding: 8px 15px; border: 1px solid #ffffff50; border-radius: 9px; color: inherit; font-size: 11px; font-weight: 600; background: #ffffff12; }
+.campaign-label { display: inline-flex; margin-top: 18px; padding: 8px 15px; border: 1px solid #ffffff50; border-radius: 9px; color: #fff; font-size: 11px; font-weight: 600; background: #4b285bcc; }
 .pd-main-image:disabled { cursor: default; }
 .pd-main-image > .product-image-placeholder { width: 100%; min-height: 300px; text-align: center; }
 .product-image-placeholder > span { font-size: 10px; line-height: 1.9; }
 
 /* Dark surfaces and text are semantic colors; product photography is unchanged. */
 html[data-theme="dark"] {
-  --color-brand-primary: #ddc3eb;
-  --color-brand-secondary: #bca5c8;
-  --color-brand-background: #17121c;
-  --color-brand-accent: #382a43;
-  --ui-surface: #241c2c;
-  --ui-raised: #2d2335;
-  --ui-border: #46344f;
+  --color-brand-primary: #E3C8F1;
+  --color-brand-secondary: #C9B7D3;
+  --color-brand-background: #28212F;
+  --color-brand-accent: #493950;
+  --ui-surface: #332A3B;
+  --ui-raised: #3D3245;
+  --ui-border: #594764;
   --ui-text: #f3eaf8;
-  --ui-muted: #bca5c8;
+  --ui-muted: #C9B7D3;
   color-scheme: dark;
 }
 html[data-theme="dark"] body,
 html[data-theme="dark"] #root > div { color: var(--ui-text); }
-html[data-theme="dark"] :is(.arena-logo,.arena-header,.arena-nav a,.arena-phone,.arena-menu-toggle,.arena-search input,.pd-page,.pd-specs dd,.pd-highlights strong) { color: var(--ui-text); }
+html[data-theme="dark"] :is(.arena-logo,.arena-header,.arena-nav a,.arena-menu-toggle,.arena-search input,.pd-page,.pd-specs dd,.pd-highlights strong) { color: var(--ui-text); }
 html[data-theme="dark"] :is(.arena-nav a.featured,.beauty-card h3,.beauty-categories h2,.pd-related h2,.weekly-heading-row h2) { color: var(--ui-text); }
 html[data-theme="dark"] :is(.arena-login,.arena-shop,.pd-buy) { background: #80618f; color: #fff; }
 html[data-theme="dark"] :is(.arena-login,.arena-shop,.pd-buy):hover { background: #9573a6; }
@@ -68,8 +66,8 @@ html[data-theme="dark"] .pd-zoom img { background: #fff; border-radius: 10px; }
 html[data-theme="dark"] :is(.pd-english,.pd-panel p,.pd-demo,.pd-shipping,.pd-breadcrumb,.pd-variants small,.pd-variants legend span,.pd-highlights span,.pd-specs dt,.pd-image-note,.search-result-title,.search-suggestions-heading,.search-no-results) { color: var(--ui-muted); }
 html[data-theme="dark"] .pd-variants a.is-selected { background: var(--ui-raised); border-color: #bb92d0; }
 html[data-theme="dark"] .pd-quantity button { color: var(--ui-text); }
-html[data-theme="dark"] .pd-mobile-buy { background: #241c2cf5; border-color: var(--ui-border); }
-html[data-theme="dark"] .weekly-editorial { background: linear-gradient(155deg,#61416e,#32213e); }
+html[data-theme="dark"] .pd-mobile-buy { background: #332a3bf5; border-color: var(--ui-border); }
+html[data-theme="dark"] .weekly-editorial { background: linear-gradient(155deg,#765584,#493352); }
 html[data-theme="dark"] :is(.weekly-editorial p,.weekly-editorial-footer,.weekly-edition,.weekly-editorial em) { color: #e9d9f1; }
 html[data-theme="dark"] .weekly-showcase > .weekly-seal { color: #4b285b; border-color: var(--color-brand-background); }
 html[data-theme="dark"] .weekly-showcase > .weekly-seal > span { color: #4b285b; }
@@ -82,11 +80,10 @@ html[data-theme="dark"] :is(.text-slate-500,.text-slate-400,.text-purple-700,.te
 html[data-theme="dark"] :is(.border-slate-100,.border-slate-200,.border-purple-100,.border-purple-100\/70,.border-purple-100\/80) { border-color: var(--ui-border); }
 html[data-theme="dark"] .product-dialog-visual { background: var(--ui-raised); }
 html[data-theme="dark"] .product-dialog-image { background: #fff; border-radius: 12px; }
-html[data-theme="dark"] footer > div { background: linear-gradient(135deg,#35213f,#24142e); }
+html[data-theme="dark"] footer > div { background: linear-gradient(135deg,#493352,#32233c); }
 html[data-theme="dark"] footer .text-purple-100\/80 { color: #e9d9f1; }
 @media(max-width:800px) {
   .arena-header-actions { gap: 8px; }
-  .arena-phone { margin-right: auto; padding: 0; }
 }
 @media(max-width:380px) {
   .arena-header-main { gap: 9px; }
@@ -105,3 +102,5 @@ html[data-theme="dark"] .pd-availability { color: #67d5aa; }
 html[data-theme="dark"] .pd-variants legend { color: var(--ui-text); }
 html[data-theme="dark"] .beauty-add:hover,
 html[data-theme="dark"] .weekly-navigation button:hover:not(:disabled) { background: #80618f; color: #fff; }
+
+html[data-theme="dark"] .arena-nav a:is(:hover,:focus-visible) { color: var(--color-brand-primary); }

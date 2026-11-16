@@ -20,3 +20,10 @@ test('new hair products are searchable by model and Persian brand', () => {
   assert.equal(searchProducts(products, 'No.7 Bonding')[0].slug, 'olaplex-no-7-bonding-oil');
   assert.equal(searchProducts(products, 'کراستاس')[0].slug, 'kerastase-elixir-ultime-lhuile-originale');
 });
+
+test('haircare remains in the catalog but is excluded from the best-seller selection', async () => {
+  const { bestSellerProducts } = await import('../src/data/mockData.js');
+  assert.ok(bestSellerProducts.length > 0);
+  assert.ok(bestSellerProducts.every(product => product.category !== 'haircare'));
+  assert.equal(products.filter(product => product.category === 'haircare').length, 10);
+});

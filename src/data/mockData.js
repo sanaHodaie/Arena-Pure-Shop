@@ -92,7 +92,7 @@ export const mainCategories = [
 
 export const specialOfferProducts = products.slice(0, 8);
 
-export const bestSellerProducts = products;
+export const bestSellerProducts = products.filter(product => product.category !== 'haircare');
 
 export const valueProps = [
   {
