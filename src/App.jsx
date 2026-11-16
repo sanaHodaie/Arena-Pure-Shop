@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import ProductPage from './pages/ProductPage.jsx';
+import { findProduct, productUrl } from './data/productDetails.js';
 import Header from './components/Header.jsx';
 import HeroBanners from './components/HeroBanners.jsx';
 import SpecialOffers from './components/SpecialOffers.jsx';
@@ -18,6 +20,39 @@ import ArticleModal from './components/ArticleModal.jsx';
 import Toast from './components/Toast.jsx';
 
 export default function App() {
+  const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
+  const product = findProduct(window.location.pathname);
+  const isHome = window.location.pathname === '/';
+  const navigate = href => {
+    const url = new URL(href, window.location.origin);
+    window.history.pushState(null, '', url.pathname + url.search + url.hash);
+    setLocation(url.pathname + url.hash);
+  };
+  useEffect(() => {
+    const update = () => setLocation(window.location.pathname + window.location.hash);
+    window.addEventListener('popstate', update);
+    window.addEventListener('hashchange', update);
+    return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
+  }, []);
+  useEffect(() => {
+    document.title = product ? `${product.title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    const frame = requestAnimationFrame(() => {
+      const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
+      if (target) target.scrollIntoView();
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); document.getElementById('product-title')?.focus({ preventScroll: true }); }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [location]);
+  const handleLink = event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest('a[href]');
+    if (!link || link.target || link.hasAttribute('download')) return;
+    const url = new URL(link.href);
+    if (url.origin !== window.location.origin) return;
+    event.preventDefault();
+    navigate(url.href);
+  };
+
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
     const sections = document.querySelectorAll('.beauty-categories, .beauty-bestsellers, .arena-offers-section');
@@ -101,9 +136,10 @@ export default function App() {
     showToast(`با شماره ${phoneNumber} وارد شدید`, 'cart');
   };
 
-  const handleSelectCategory = (catId) => {
+  const handleSelectCategory = (catId, hash = '#products') => {
     setSelectedCategory(catId);
-    const element = document.getElementById('products');
+    if (!isHome) navigate(`/${hash}`);
+    const element = document.getElementById(hash.slice(1));
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
@@ -121,7 +157,7 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
+    <div onClick={handleLink} className="min-h-screen bg-white text-slate-800 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
       {/* Header */}
       <Header
         cartCount={cartCount}
@@ -133,11 +169,11 @@ export default function App() {
         setSearchTerm={setSearchTerm}
         selectedCategory={selectedCategory}
         onSelectCategory={handleSelectCategory}
-        onSelectProduct={setQuickViewProduct}
+        onSelectProduct={item => navigate(productUrl(item))}
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      <main className="flex-1 space-y-2 sm:space-y-4">
+      {isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
         {/* Screenshot 1: Hero Banners */}
         <HeroBanners onShopClick={scrollToProducts} />
 
@@ -186,7 +222,7 @@ export default function App() {
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
         <BlogSection onArticleClick={(article) => setActiveArticle(article)} />
-      </main>
+      </main> : product ? <ProductPage key={product.id} product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
       <Footer />
@@ -202,6 +238,7 @@ export default function App() {
       />
 
       <ProductQuickView
+        onViewProduct={item => { setQuickViewProduct(null); navigate(productUrl(item)); }}
         product={quickViewProduct}
         isOpen={!!quickViewProduct}
         onClose={() => setQuickViewProduct(null)}

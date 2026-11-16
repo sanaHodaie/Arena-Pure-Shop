@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, ShoppingBag, Star, ShieldCheck, Check, Sparkles } from 'lucide-react';
 import { formatPrice } from '../data/mockData.js';
 
-export default function ProductQuickView({ product, isOpen, onClose, onAddToCart, onToggleWishlist, isWishlisted }) {
+export default function ProductQuickView({ product, isOpen, onClose, onAddToCart, onToggleWishlist, isWishlisted, onViewProduct }) {
 
   const [quantity, setQuantity] = useState(1);
   const dialog = useRef(null);
@@ -89,6 +89,8 @@ export default function ProductQuickView({ product, isOpen, onClose, onAddToCart
               {product.title}
             </h3>
 
+            <button onClick={() => onViewProduct(product)} className="mt-3 text-xs text-purple-700 underline underline-offset-4">مشاهده صفحه و مشخصات کامل محصول</button>
+
             {/* Price */}
             <div className="mt-4 flex items-baseline gap-2">
               <span className="text-xl font-black text-slate-900">
@@ -103,7 +105,7 @@ export default function ProductQuickView({ product, isOpen, onClose, onAddToCart
 
             {/* Description */}
             <p className="mt-3 text-xs text-slate-600 leading-relaxed">
-              {product.description || 'فرمولاسیون درجه یک، ساخته شده با مرغوب‌ترین ترکیبات بدون حساسیت زایی، مناسب انواع پوست و ایجاد جلوه‌ای طبیعی و ماندگار.'}
+              {product.description || product.englishName}
             </p>
 
 
