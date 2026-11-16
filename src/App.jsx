@@ -150,14 +150,6 @@ export default function App() {
     }
   };
 
-  const scrollToProducts = (category = null) => {
-    setSelectedCategory(typeof category === 'string' ? category : null);
-    const el = document.getElementById('products');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -180,7 +172,7 @@ export default function App() {
       {/* Main Content Sections strictly adhering to screenshots */}
       {isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
         {/* Screenshot 1: Hero Banners */}
-        <HeroBanners onShopClick={scrollToProducts} />
+        <HeroBanners />
 
         {/* Screenshot 1 & 2: Special Offers (پیشنهاد شگفت‌انگیز) */}
         <SpecialOffers
@@ -207,7 +199,7 @@ export default function App() {
         />
 
         {/* Screenshot 3: Middle Promotional Banners */}
-        <MiddleBanners onShopClick={scrollToProducts} />
+        <MiddleBanners />
 
         {/* Screenshot 3: Value Propositions / Trust Guarantees */}
         <ValueProps />

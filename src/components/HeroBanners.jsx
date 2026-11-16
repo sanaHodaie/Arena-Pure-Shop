@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReferenceArtwork from './ReferenceArtwork.jsx';
 import SiteArtwork from './SiteArtwork.jsx';
-import { ArrowLeft, Sparkles, ShieldCheck, Truck } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck } from 'lucide-react';
 
 const slides = [
   { id: 'care', category: 'skincare', eyebrow: 'زیبایی از یک انتخاب خوب شروع می‌شود', title: ['مراقبت امروز،', 'درخشش هر روز.'], description: 'از سرم‌های محبوب تا آبرسان‌های روزانه؛ روتین مراقبت پوستت را با انتخاب‌هایی دوست‌داشتنی در آرنا پیور کامل کن.', button: 'کشف محصولات مراقبت پوست' },
@@ -9,7 +9,7 @@ const slides = [
 ];
 const INTERVAL = 6000;
 
-export default function HeroBanners({ onShopClick }) {
+export default function HeroBanners() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [hovered, setHovered] = useState(false);
@@ -47,7 +47,7 @@ export default function HeroBanners({ onShopClick }) {
           {index === 0 ? <h1>{slide.title[0]}<br/>{slide.title[1]}</h1> : <h2 className="carousel-title">{slide.title[0]}<br/>{slide.title[1]}</h2>}
           <p>{slide.description}</p>
           <div className="hero-assurances"><span><ShieldCheck size={15}/> انتخاب برندهای معتبر</span><span><Truck size={15}/> خرید آسان و مطمئن</span></div>
-          <button onClick={() => onShopClick(slide.category)} className="arena-shop">{slide.button}<ArrowLeft size={17}/></button>
+          <span className="campaign-label">{slide.button}</span>
         </div>
       </div>)}
       <div className="arena-slide-indicator" role="group" aria-label="انتخاب پوستر">{slides.map((slide,index) => <button key={slide.id} className={active === index ? 'is-active' : ''} onClick={() => setActive(index)} aria-label={`نمایش پوستر ${index+1}`} aria-pressed={active === index}><span/></button>)}</div>
@@ -56,11 +56,11 @@ export default function HeroBanners({ onShopClick }) {
     <div className="arena-secondary-banners">
       <div className="arena-hair-banner">
         <SiteArtwork src="/images/banners/haircare-desktop.webp" mobileSrc="/images/banners/haircare-mobile.webp" className="banner-artwork"><ReferenceArtwork x={838} y={561} width={319} height={309}/></SiteArtwork>
-        <div className="arena-banner-copy"><span className="hero-eyebrow">روتین زیبایی مو</span><h2>مراقبتی که موهایتان<br/>شایستهٔ آن است</h2><p>یک قدم نزدیک‌تر به موهایی خوش‌حالت؛<br/>شامپو، ماسک و مراقبت محبوبت را پیدا کن.</p><button className="arena-shop" onClick={() => onShopClick('haircare')}>خرید مراقبت مو <ArrowLeft size={15}/></button></div>
+        <div className="arena-banner-copy"><span className="hero-eyebrow">روتین زیبایی مو</span><h2>مراقبتی که موهایتان<br/>شایستهٔ آن است</h2><p>یک قدم نزدیک‌تر به موهایی خوش‌حالت؛<br/>شامپو، ماسک و مراقبت محبوبت را پیدا کن.</p><span className="campaign-label">دنیای مراقبت مو</span></div>
       </div>
       <div className="arena-perfume-banner">
         <SiteArtwork src="/images/banners/fragrance-desktop.webp" mobileSrc="/images/banners/fragrance-mobile.webp" className="banner-artwork"><ReferenceArtwork x={202} y={562} width={620} height={308}/></SiteArtwork>
-        <div className="arena-banner-copy"><span className="hero-eyebrow">امضای شخصی تو</span><h2>رایحه‌ای ماندگار<br/>برای لحظه‌های بی‌تکرار</h2><p>از رایحه‌های لطیف روزانه تا عطرهای خاص؛<br/>رایحه‌ای را انتخاب کن که حال‌وهوای تو را روایت می‌کند.</p><button className="arena-shop" onClick={() => onShopClick('fragrance')}>کشف دنیای عطر <ArrowLeft size={15}/></button></div>
+        <div className="arena-banner-copy"><span className="hero-eyebrow">امضای شخصی تو</span><h2>رایحه‌ای ماندگار<br/>برای لحظه‌های بی‌تکرار</h2><p>از رایحه‌های لطیف روزانه تا عطرهای خاص؛<br/>رایحه‌ای را انتخاب کن که حال‌وهوای تو را روایت می‌کند.</p><span className="campaign-label">دنیای عطر و رایحه</span></div>
       </div>
     </div>
   </section>;

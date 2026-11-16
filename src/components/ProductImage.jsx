@@ -2,7 +2,7 @@
 import { ImagePlus } from 'lucide-react';
 export default function ProductImage({ src, alt, className = '', ...props }) {
   const [failedSrc, setFailedSrc] = useState(null);
-  if (!src || failedSrc === src) return <span className={`product-image-placeholder ${className}`} role="img" aria-label={`تصویر ${alt}`}><ImagePlus size={30} strokeWidth={1}/><span>تصویر محصول</span></span>;
+  if (!src || failedSrc === src) return <span className={`product-image-placeholder ${className}`} role="img" aria-label={`تصویر ${alt}`}><ImagePlus size={30} strokeWidth={1}/><span>تصویر این مدل هنوز اضافه نشده</span></span>;
   const responsive = src.startsWith('/images/products/') && src.endsWith('.webp');
   return <img decoding="async" {...props} src={src}
     srcSet={responsive ? `${src.replace('.webp', '-320.webp')} 320w, ${src} 800w` : undefined}

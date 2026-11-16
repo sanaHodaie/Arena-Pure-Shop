@@ -21,9 +21,9 @@ export default function ProductPage({ product, onAddToCart, onToggleWishlist, wi
     <div className="pd-layout">
       <section className="pd-gallery" aria-label="تصاویر محصول">
         <div className="pd-gallery-top"><span className="pd-tag">{product.brand}</span><button className="pd-icon" onClick={() => onToggleWishlist(product.id)} aria-label="افزودن به علاقه‌مندی‌ها" aria-pressed={wished}><Heart size={21} fill={wished ? 'currentColor' : 'none'}/></button></div>
-        <button className="pd-main-image" onClick={() => zoom.current?.showModal()} aria-label="بزرگ‌نمایی تصویر محصول"><ProductImage src={selectedImage.src} alt={selectedImage.alt} sizes="(max-width: 760px) 90vw, 520px" loading="eager"/><span><ZoomIn size={17}/> مشاهده تصویر بزرگ‌تر</span></button>
+        <button className="pd-main-image" disabled={!selectedImage.src} onClick={() => zoom.current?.showModal()} aria-label="بزرگ‌نمایی تصویر محصول"><ProductImage src={selectedImage.src} alt={selectedImage.alt} sizes="(max-width: 760px) 90vw, 520px" loading="eager"/>{selectedImage.src && <span><ZoomIn size={17}/> مشاهده تصویر بزرگ‌تر</span>}</button>
         {details.gallery.length > 1 && <div className="pd-thumbnails">{details.gallery.map((image, index) => <button key={image.src} aria-label={`تصویر ${(index + 1).toLocaleString('fa-IR')}`} aria-pressed={index === imageIndex} onClick={() => setImageIndex(index)}><ProductImage src={image.src} alt={image.alt}/></button>)}</div>}
-        <p className="pd-image-note">تصویر همین مدل محصول • رنگ تصویر ممکن است با نمایشگر متفاوت باشد.</p>
+        {selectedImage.src && <p className="pd-image-note">تصویر همین مدل محصول • رنگ تصویر ممکن است با نمایشگر متفاوت باشد.</p>}
       </section>
       <section className="pd-summary" aria-labelledby="product-title">
         <div className="pd-eyebrow">ARENA PURE <span> / {categoryNames[product.category]}</span></div>

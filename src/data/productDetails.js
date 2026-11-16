@@ -15,7 +15,7 @@ const identities = {
   12: { type: 'عطر زنانه', model: 'La Vie Est Belle', extra: [['غلظت', 'ادو پرفیوم (Eau de Parfum)']] },
 };
 export function getProductDetails(product) {
-  const identity = identities[product.id] || {};
+  const identity = identities[product.id] || { type: product.type, model: product.model };
   return { ...identity,
     specs: [['برند', product.brand], ['نام انگلیسی', product.englishName], ['نوع محصول', identity.type], ['مدل', identity.model], ...(identity.shade ? [['رنگ / شماره', identity.shade]] : []), ['دسته‌بندی', categoryNames[product.category]], ...(identity.extra || [])].filter(([, value]) => value),
     variants: identity.family ? products.filter(item => identities[item.id]?.family === identity.family) : [],

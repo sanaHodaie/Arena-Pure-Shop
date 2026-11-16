@@ -1,3 +1,4 @@
+import { haircareProducts } from './haircare.js';
 // Product identities are real; prices are demonstration values, not live prices.
 export const products = [
   {
@@ -179,5 +180,6 @@ export const products = [
     "sourceUrl": "https://www.lancome-usa.com/fragrance/womens-fragrances/la-vie-est-belle/",
     "inStock": true,
     "description": "ادو پرفیوم زنانه لانکوم La Vie Est Belle؛ برای انتخاب مدل و مشخصات دقیق، اطلاعات روی بسته‌بندی را بررسی کنید."
-  }
+  },
+  ...haircareProducts,
 ];

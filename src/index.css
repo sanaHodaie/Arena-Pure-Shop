@@ -3,7 +3,7 @@
 @theme {
   --color-brand-primary: #4B285B;
   --color-brand-secondary: #80618F;
-  --color-brand-background: #FFFDFA;
+  --color-brand-background: #FFFFFF;
   --color-brand-accent: #E9D9F1;
   /* Gold retained from the existing weekly badge until a value is supplied. */
   --color-brand-gold: #F2DFB9;
