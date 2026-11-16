@@ -162,7 +162,7 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div onClick={handleLink} className="min-h-screen bg-white text-slate-800 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
+    <div onClick={handleLink} className="min-h-screen bg-brand-background text-slate-800 flex flex-col font-sans selection:bg-purple-600 selection:text-white">
       {/* Header */}
       <Header
         cartCount={cartCount}

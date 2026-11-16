@@ -1,0 +1,25 @@
+/* Brand roles: white surfaces keep product photography true to color. */
+body { background: var(--color-brand-background); }
+:root { --arena-purple: var(--color-brand-primary); }
+.arena-header { background: #fff; }
+.arena-search { background: var(--color-brand-background); }
+.arena-logo i, .arena-nav a:hover, .arena-nav a.active,
+.section-heading .section-heading-row h2, .pd-summary h1, .pd-panel h2,
+.beauty-price strong, .pd-price strong { color: var(--color-brand-primary); }
+.arena-login, .arena-shop, .pd-buy { background: var(--color-brand-primary); color: #fff; }
+.arena-login:hover, .arena-shop:hover, .pd-buy:hover { background: color-mix(in srgb, var(--color-brand-primary) 88%, #000); }
+.arena-cart > span { background: var(--color-brand-primary); }
+.beauty-category-circle { background: var(--color-brand-secondary); }
+.beauty-category-circle.tone-1, .beauty-add, .beauty-discount, .pd-tag { background: var(--color-brand-accent); color: var(--color-brand-primary); }
+.beauty-add:hover { background: var(--color-brand-primary); color: #fff; }
+.beauty-brand, .beauty-english, .beauty-eyebrow, .section-heading-eyebrow,
+.search-result-brand, .search-no-results, .pd-english, .pd-eyebrow,
+.pd-highlights span, .pd-image-note, .pd-demo, .pd-shipping,
+.pd-panel p, .pd-specs dt, .weekly-navigation p { color: var(--color-brand-secondary); }
+.beauty-price small, .beauty-price del { color: var(--color-brand-secondary); }
+.pd-purchase, .pd-specs > div:nth-child(odd), .weekly-showcase { background: var(--color-brand-background); }
+.weekly-editorial { background: linear-gradient(155deg,var(--color-brand-secondary),var(--color-brand-primary)); }
+.weekly-editorial p, .weekly-edition, .weekly-editorial-footer, .weekly-editorial em { color: var(--color-brand-accent); }
+.weekly-showcase > .weekly-seal { background: var(--color-brand-gold); color: var(--color-brand-primary); }
+.weekly-showcase > .weekly-seal > span { color: var(--color-brand-primary); }
+.pd-main-image img { mix-blend-mode: normal; }

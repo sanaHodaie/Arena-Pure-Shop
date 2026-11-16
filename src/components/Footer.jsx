@@ -21,7 +21,7 @@ export default function Footer() {
   return (
     <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
       {/* Grand Rounded Purple Container (Screenshot 4) */}
-      <div className="rounded-[2.5rem] bg-gradient-to-br from-[#531b93] via-[#6121ab] to-[#431475] text-white p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+      <div className="rounded-[2.5rem] bg-gradient-to-br from-brand-primary via-brand-primary to-purple-950 text-white p-8 sm:p-12 shadow-2xl relative overflow-hidden">
         
         {/* Subtle Ambient Background Gradients */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl pointer-events-none"></div>
