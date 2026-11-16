@@ -1,7 +1,7 @@
 /* Brand roles: white surfaces keep product photography true to color. */
 body { background: var(--color-brand-background); }
 :root { --arena-purple: var(--color-brand-primary); }
-.arena-header { background: #fff; }
+.arena-header { background: var(--color-brand-background); }
 .arena-search { background: var(--color-brand-background); }
 .arena-logo i, .arena-nav a:hover, .arena-nav a.active,
 .section-heading .section-heading-row h2, .pd-summary h1, .pd-panel h2,
