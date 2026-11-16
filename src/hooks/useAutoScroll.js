@@ -5,7 +5,6 @@ export default function useAutoScroll() {
   const section = useRef(null);
   const direction = useRef(-1);
   const resumeAfter = useRef(0);
-  const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -28,7 +27,7 @@ export default function useAutoScroll() {
   }, []);
 
   useEffect(() => {
-    if (paused || hovered || focused || hidden || !visible || reducedMotion) return;
+    if (hovered || focused || hidden || !visible || reducedMotion) return;
     const timer = setInterval(() => {
       const element = rail.current;
       if (!element || performance.now() < resumeAfter.current) return;
@@ -40,9 +39,9 @@ export default function useAutoScroll() {
       const card = element.querySelector('.beauty-card');
       const step = card ? card.getBoundingClientRect().width + parseFloat(getComputedStyle(element).columnGap || 0) : 260;
       element.scrollBy({ left: direction.current * step, behavior: 'smooth' });
-    }, 3000);
+    }, 1500);
     return () => clearInterval(timer);
-  }, [paused, hovered, focused, hidden, visible, reducedMotion]);
+  }, [hovered, focused, hidden, visible, reducedMotion]);
 
   const defer = () => { resumeAfter.current = performance.now() + 6000; };
   const scroll = amount => {
@@ -50,7 +49,7 @@ export default function useAutoScroll() {
     rail.current?.scrollBy({ left: amount, behavior: reducedMotion ? 'instant' : 'smooth' });
   };
   return {
-    rail, section, paused, reducedMotion, togglePaused: () => setPaused(value => !value), scroll,
+    rail, section, scroll,
     interactionProps: {
       onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false),
       onFocusCapture: () => setFocused(true),

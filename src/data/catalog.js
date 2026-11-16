@@ -1,3 +1,4 @@
+import { skincareProducts } from './skincare.js';
 import { haircareProducts } from './haircare.js';
 // Product identities are real; prices are demonstration values, not live prices.
 export const products = [
@@ -182,4 +183,5 @@ export const products = [
     "description": "ادو پرفیوم زنانه لانکوم La Vie Est Belle؛ برای انتخاب مدل و مشخصات دقیق، اطلاعات روی بسته‌بندی را بررسی کنید."
   },
   ...haircareProducts,
+  ...skincareProducts,
 ];

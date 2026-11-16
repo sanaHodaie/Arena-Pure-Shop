@@ -1,5 +1,6 @@
 import SectionHeading from './SectionHeading.jsx';
 import React from 'react';
+import { categoryPages, categoryUrl } from '../data/categories.js';
 import { products } from '../data/catalog.js';
 import ProductImage from './ProductImage.jsx';
 
@@ -20,8 +21,8 @@ export default function Categories({ selectedCategory, onSelectCategory }) {
       {categories.map((category, index) => {
         const filter = category.id === 'cleansing' ? 'hygiene' : category.id;
         const active = selectedCategory === filter;
-        const Element = category.id === 'haircare' ? 'a' : 'button';
-        return <Element href={category.id === 'haircare' ? '/categories/haircare' : undefined} key={category.id} style={{ '--category-index': index }} className={`beauty-category ${active ? 'is-active' : ''}`} aria-pressed={category.id === 'haircare' ? undefined : active} onClick={category.id === 'haircare' ? undefined : () => onSelectCategory(filter)}>
+        const Element = categoryPages[category.id] ? 'a' : 'button';
+        return <Element href={categoryPages[category.id] ? categoryUrl(category.id) : undefined} key={category.id} style={{ '--category-index': index }} className={`beauty-category ${active ? 'is-active' : ''}`} aria-pressed={categoryPages[category.id] ? undefined : active} onClick={categoryPages[category.id] ? undefined : () => onSelectCategory(filter)}>
           <span className={`beauty-category-circle category-photo-group tone-${index % 2} ${category.products.length === 1 ? 'single-photo' : 'double-photo'}`} aria-hidden="true">
             {category.products.map((id, photoIndex) => {
               const product = products.find(item => item.id === id);

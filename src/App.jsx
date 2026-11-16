@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { categoryPages, categoryUrl, findCategory } from './data/categories.js';
 import CategoryPage from './pages/CategoryPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import { findProduct, productUrl, getProductDetails } from './data/productDetails.js';
@@ -25,7 +26,7 @@ export default function App() {
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
   const isHome = window.location.pathname === '/';
-  const isHaircare = /^\/categories\/haircare\/?$/.test(window.location.pathname);
+  const activeCategory = findCategory(window.location.pathname);
   const navigate = href => {
     const url = new URL(href, window.location.origin);
     window.history.pushState(null, '', url.pathname + url.search + url.hash);
@@ -38,7 +39,7 @@ export default function App() {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = product ? `${product.title} | آرنا پیور` : isHaircare ? 'محصولات مراقبت مو | آرنا پیور' : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
     const previous = previousProduct.current;
     previousProduct.current = product;
     const family = product && getProductDetails(product).family;
@@ -144,7 +145,7 @@ export default function App() {
   };
 
   const handleSelectCategory = (catId, hash = '#products') => {
-    if (catId === 'haircare') { setSelectedCategory(null); navigate('/categories/haircare'); return; }
+    if (categoryPages[catId]) { setSelectedCategory(null); navigate(categoryUrl(catId)); return; }
     setSelectedCategory(catId);
     if (!isHome) navigate(`/${hash}`);
     const element = document.getElementById(hash.slice(1));
@@ -167,7 +168,7 @@ export default function App() {
         wishlistCount={wishlist.length}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        selectedCategory={isHaircare ? 'haircare' : selectedCategory}
+        selectedCategory={activeCategory || selectedCategory}
         onSelectCategory={handleSelectCategory}
         onSelectProduct={item => navigate(productUrl(item))}
       />
@@ -219,7 +220,7 @@ export default function App() {
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
         <BlogSection onArticleClick={(article) => setActiveArticle(article)} />
-      </main> : isHaircare ? <CategoryPage onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
+      </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
       <Footer />
