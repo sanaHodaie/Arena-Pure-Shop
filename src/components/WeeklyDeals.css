@@ -40,3 +40,22 @@
 @media(max-width:1150px) { .weekly-showcase { grid-template-columns: 225px minmax(0,1fr); gap: 14px; }.weekly-editorial { padding-inline: 20px; }.weekly-editorial h3 { font-size: 22px; }.weekly-rail > .beauty-card { flex-basis: calc((100% - 16px)/2); } }
 @media(max-width:760px) { .weekly-section { padding-block: 24px 36px; }.weekly-heading-row { margin-bottom: 18px; gap: 12px; }.weekly-heading-row h2 { font-size: 22px; }.weekly-eyebrow { font-size: 10px; }.weekly-all { font-size: 10px; gap: 6px; }.weekly-showcase { grid-template-columns: minmax(0,1fr); gap: 12px; padding: 10px; border-radius: 22px; }.weekly-editorial { padding: 20px; border-radius: 15px; }.weekly-edition { font-size: 8px; letter-spacing: 2px; }.weekly-editorial-copy { padding: 14px 0 18px; position: relative; padding-left: 85px; }.weekly-seal { position: absolute; left: 0; top: 10px; width: 72px; height: 72px; margin: 0; }.weekly-seal strong { font-size: 28px; }.weekly-editorial h3 { font-size: 23px; line-height: 1.8; }.weekly-editorial p { font-size: 10px; margin-top: 7px; max-width: 280px; }.weekly-editorial-footer { padding-top: 12px; }.weekly-products { padding: 0; }.weekly-rail { gap: 10px; }.weekly-rail > .beauty-card { flex-basis: 73%; max-width: 240px; }.weekly-rail .beauty-image-button { height: 195px; }.weekly-rail .beauty-card h3 { min-height: 52px; }.weekly-rail .beauty-price strong { font-size: 14px; }.weekly-navigation { padding: 0 3px 3px; }.weekly-navigation button { width: 44px; height: 44px; } }
 @media(prefers-reduced-motion:reduce) { .weekly-navigation button,.weekly-rail .beauty-card { transition: none; }.weekly-rail .beauty-card:hover { transform: none; } }
+
+/* Raised discount seal crosses the showcase edge without clipping. */
+.weekly-section > .section-heading { margin-bottom: 58px; }
+.weekly-showcase { position: relative; overflow: visible; }
+.weekly-showcase > .weekly-seal { position: absolute; z-index: 3; top: -37px; right: 30px; left: auto; width: 106px; height: 106px; margin: 0; border: 5px solid #fff; background: #f2dfb9; color: #502b62; box-shadow: 0 7px 0 #6b44721a,0 14px 26px #56336625; transform: rotate(9deg); }
+.weekly-showcase > .weekly-seal strong { font-size: 45px; font-weight: 950; letter-spacing: -2px; }
+.weekly-showcase > .weekly-seal small { font-size: 25px; font-weight: 850; }
+.weekly-showcase > .weekly-seal > span { color: #694675; font-size: 11px; font-weight: 750; }
+.weekly-editorial { padding-top: 76px; }
+.weekly-editorial-copy { padding-block: 12px 25px; }
+@media(max-width:760px) {
+  .weekly-section > .section-heading { margin-bottom: 53px; }
+  .weekly-showcase > .weekly-seal { top: -32px; right: auto; left: 25px; width: 96px; height: 96px; }
+  .weekly-showcase > .weekly-seal strong { font-size: 40px; }
+  .weekly-editorial { padding-top: 24px; }
+  .weekly-edition { padding-left: 105px; text-align: right; }
+  .weekly-editorial-copy { padding: 22px 0 18px; }
+  .weekly-editorial h3 { padding-left: 75px; }
+}

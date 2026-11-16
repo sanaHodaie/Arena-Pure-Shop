@@ -1,4 +1,5 @@
-﻿import React from 'react';
+import SectionHeading from './SectionHeading.jsx';
+import React from 'react';
 import { products } from '../data/catalog.js';
 import ProductImage from './ProductImage.jsx';
 
@@ -14,7 +15,7 @@ const categories = [
 
 export default function Categories({ selectedCategory, onSelectCategory }) {
   return <section className="arena-container beauty-categories" aria-labelledby="categories-heading">
-    <h2 id="categories-heading">دسته‌بندی</h2>
+    <SectionHeading id="categories-heading" title="دسته‌بندی"/>
     <div className="beauty-category-list no-scrollbar">
       {categories.map((category, index) => {
         const filter = category.id === 'cleansing' ? 'hygiene' : category.id;

@@ -475,3 +475,23 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .beauty-category-circle, .category-product-photo { transition: none; }
   .beauty-category:hover .beauty-category-circle, .beauty-category:hover .category-product-photo { transform: none; }
 }
+
+/* Shared section titles: a fine rule continues from the right-aligned title. */
+.section-heading { margin-bottom: 26px; min-width: 0; }
+.section-heading-eyebrow { display: flex; align-items: center; gap: 7px; color: #9b7eaa; font-size: 11px; margin-bottom: 8px; }
+.section-heading-row { display: flex; align-items: center; gap: 22px; min-width: 0; }
+.section-heading .section-heading-row h2 { margin: 0; color: #35293e; font-size: 22px; line-height: 1.8; font-weight: 800; flex-shrink: 0; }
+.section-heading-line { flex: 1; height: 1px; min-width: 25px; background: linear-gradient(to left,#cfb9da,#e9dfef 75%,#f4eff6); }
+.section-heading-action { flex-shrink: 0; }
+.section-heading-link { display: flex; align-items: center; gap: 6px; color: #81558f; font-size: 12px; }
+.pd-panel h2 { display: flex; align-items: center; gap: 18px; }
+.pd-panel h2::after { content: ''; flex: 1; min-width: 20px; height: 1px; background: linear-gradient(to left,#d7c5e0,#f2edf5); }
+@media(max-width:600px) {
+  .section-heading { margin-bottom: 20px; }
+  .section-heading-row { gap: 10px; flex-wrap: wrap; }
+  .section-heading .section-heading-row h2 { font-size: 17px; flex-shrink: 1; }
+  .section-heading-line { min-width: 16px; }
+  .section-heading-action .beauty-view-all { padding: 8px; font-size: 9px; }
+  .section-heading-link { font-size: 10px; }
+  .section-heading-eyebrow { font-size: 10px; }
+}

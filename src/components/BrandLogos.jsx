@@ -1,3 +1,4 @@
+import SectionHeading from './SectionHeading.jsx';
 import React from 'react';
 import { brands } from '../data/mockData.js';
 
@@ -5,12 +6,7 @@ export default function BrandLogos() {
   return (
     <section id="brands" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <span className="w-2.5 h-6 bg-purple-600 rounded-full"></span>
-        <h2 className="text-xl sm:text-2xl font-black text-slate-800">
-          برندهای برتر
-        </h2>
-      </div>
+      <SectionHeading title="برندهای برتر"/>
 
       {/* Brand Logos Bar (Screenshots 3 & 4) */}
       <div className="bg-white rounded-3xl border border-purple-100/80 p-6 shadow-xs">

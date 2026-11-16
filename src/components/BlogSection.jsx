@@ -1,3 +1,4 @@
+import SectionHeading from './SectionHeading.jsx';
 import React from 'react';
 import { User, ChevronLeft, Calendar, ArrowLeft } from 'lucide-react';
 import { blogArticles } from '../data/mockData.js';
@@ -6,21 +7,7 @@ export default function BlogSection({ onArticleClick }) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-6 bg-purple-600 rounded-full"></span>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-800">
-            خواندنی‌ها
-          </h2>
-        </div>
-        <a 
-          href="#blog" 
-          className="text-xs sm:text-sm font-semibold text-purple-600 hover:text-purple-800 flex items-center gap-1 transition group"
-        >
-          <span>مشاهده همه</span>
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        </a>
-      </div>
+      <SectionHeading title="خواندنی‌ها" action={<a href="#blog" className="section-heading-link">مشاهده همه <ChevronLeft size={16}/></a>}/>
 
       {/* 4 Article Cards Grid (Screenshot 4) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

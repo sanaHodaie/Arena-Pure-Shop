@@ -1,3 +1,4 @@
+import SectionHeading from './SectionHeading.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { specialOfferProducts } from '../data/mockData.js';
@@ -33,14 +34,12 @@ export default function WeeklyDeals({ onAddToCart, onToggleWishlist, wishlist = 
   };
 
   return <section id="weekly-deals" className="arena-container weekly-section" aria-labelledby="weekly-heading">
-    <header className="weekly-heading-row">
-      <div><span className="weekly-eyebrow"><Sparkles size={14}/> انتخاب‌های این هفته</span><h2 id="weekly-heading">پیشنهاد هفته<span aria-hidden="true">.</span></h2></div>
-      <a className="weekly-all" href="/#products">دیدن همه محصولات <ArrowLeft size={17}/></a>
-    </header>
+    <SectionHeading id="weekly-heading" title="پیشنهاد هفته" eyebrow={<><Sparkles size={14}/> انتخاب‌های این هفته</>} action={<a className="weekly-all" href="/#products">دیدن همه محصولات <ArrowLeft size={17}/></a>}/>
     <div className="weekly-showcase">
+      <div className="weekly-seal"><span>تا</span><strong>{Math.max(...weeklyProducts.map(product => product.discountPercent)).toLocaleString('fa-IR')}<small>٪</small></strong><span>تخفیف</span></div>
       <aside className="weekly-editorial">
         <span className="weekly-edition" dir="ltr">THE WEEKLY EDIT</span>
-        <div className="weekly-editorial-copy"><div className="weekly-seal"><span>تا</span><strong>{Math.max(...weeklyProducts.map(product => product.discountPercent)).toLocaleString('fa-IR')}<small>٪</small></strong><span>تخفیف</span></div><h3>برای روتین تو،<br/><em>یک انتخاب تازه.</em></h3><p>از رنگ‌های دوست‌داشتنی تا مراقبت روزانه؛ این هفته با انتخاب‌های آرنا پیور همراه شو.</p></div>
+        <div className="weekly-editorial-copy"><h3>برای روتین تو،<br/><em>یک انتخاب تازه.</em></h3><p>از رنگ‌های دوست‌داشتنی تا مراقبت روزانه؛ این هفته با انتخاب‌های آرنا پیور همراه شو.</p></div>
         <div className="weekly-editorial-footer"><span>{weeklyProducts.length.toLocaleString('fa-IR')} محصول برای کشف کردن</span><ArrowLeft size={20}/></div>
       </aside>
       <div className="weekly-products">
