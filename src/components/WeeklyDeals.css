@@ -1,0 +1,42 @@
+.weekly-section { padding-block: 36px 56px; scroll-margin-top: 24px; }
+.weekly-heading-row { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.weekly-eyebrow { display: flex; align-items: center; gap: 7px; color: #9b7aa8; font-size: 11px; margin-bottom: 7px; }
+.weekly-heading-row h2 { font-size: 26px; font-weight: 800; color: #34263e; }
+.weekly-heading-row h2 > span { color: #aa80b5; margin-right: 3px; }
+.weekly-all { display: flex; align-items: center; gap: 10px; padding-bottom: 5px; color: #80538f; font-size: 12px; white-space: nowrap; }
+.weekly-all:hover { color: #4d275e; }
+.weekly-showcase { display: grid; grid-template-columns: 260px minmax(0,1fr); border: 1px solid #eee4f0; border-radius: 28px; background: #f8f4fa; overflow: hidden; padding: 12px; gap: 20px; }
+.weekly-editorial { position: relative; isolation: isolate; overflow: hidden; border-radius: 20px; background: radial-gradient(ellipse at 0% 5%,#a87cb752,transparent 65%),linear-gradient(155deg,#755080,#43294f); color: #fff; padding: 28px 25px 22px; display: flex; flex-direction: column; justify-content: space-between; }
+.weekly-editorial::before,.weekly-editorial::after { content: ''; position: absolute; z-index: -1; width: 280px; height: 280px; border: 1px solid #ffffff12; border-radius: 50%; left: -170px; bottom: 50px; pointer-events: none; }
+.weekly-editorial::after { width: 340px; height: 340px; left: -200px; bottom: 20px; }
+.weekly-edition { font: 9px Arial,sans-serif; letter-spacing: 3px; color: #e0cce6; text-align: right; }
+.weekly-editorial-copy { padding-block: 20px 25px; }
+.weekly-seal { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 84px; height: 84px; border: 1px solid #e5c8e662; border-radius: 50%; background: #ffffff08; margin-bottom: 25px; transform: rotate(8deg); }
+.weekly-seal > span { font-size: 9px; color: #e5d6eb; }
+.weekly-seal strong { display: flex; align-items: center; line-height: 1.15; font-size: 33px; font-weight: 550; }
+.weekly-seal small { font-size: 19px; }
+.weekly-editorial h3 { font-size: 24px; line-height: 1.9; font-weight: 650; }
+.weekly-editorial em { font-style: normal; color: #e0bee3; font-weight: 450; }
+.weekly-editorial p { font-size: 11px; line-height: 2.3; color: #ddcde1; margin-top: 14px; max-width: 210px; }
+.weekly-editorial-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ffffff20; padding-top: 18px; gap: 10px; font-size: 10px; color: #e5d5eb; }
+.weekly-products { min-width: 0; padding: 8px 0 0 8px; }
+.weekly-rail { display: flex; align-items: stretch; gap: 16px; overflow-x: auto; padding: 4px 3px 14px; scroll-snap-type: x mandatory; overscroll-behavior-inline: contain; scroll-padding-inline: 3px; border-radius: 18px; }
+.weekly-rail > .beauty-card { flex: 0 0 calc((100% - 32px)/3); scroll-snap-align: start; border-color: #eae1ed; border-radius: 18px; }
+.weekly-rail .beauty-image-button { height: 205px; padding: 46px 22px 20px; }
+.weekly-rail .beauty-card-details { padding: 12px 14px 16px; }
+.weekly-rail .beauty-card h3 { font-size: 11px; min-height: 64px; }
+.weekly-rail .beauty-card:hover { transform: translateY(-3px); }
+.weekly-rail .beauty-price strong { font-size: 13px; }
+.weekly-rail .beauty-add span { display: none; }
+.weekly-rail .beauty-english { margin-bottom: 16px; }
+.weekly-navigation { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 4px 0; }
+.weekly-navigation p { display: flex; align-items: center; gap: 7px; font-size: 10px; color: #a18da9; }
+.weekly-navigation p > span { width: 5px; height: 5px; border-radius: 50%; background: #b293bd; }
+.weekly-navigation > div { display: flex; gap: 7px; }
+.weekly-navigation button { display: grid; place-items: center; min-width: 40px; height: 40px; border: 1px solid #e2d5e7; border-radius: 50%; background: #fff; color: #775187; cursor: pointer; transition: background .2s,color .2s; }
+.weekly-navigation button:hover:not(:disabled) { background: #775187; color: #fff; }
+.weekly-navigation button:disabled { opacity: .35; cursor: default; }
+.weekly-section a:focus-visible,.weekly-section button:focus-visible,.weekly-rail:focus-visible { outline: 2px solid #9f74b0; outline-offset: 3px; }
+@media(max-width:1150px) { .weekly-showcase { grid-template-columns: 225px minmax(0,1fr); gap: 14px; }.weekly-editorial { padding-inline: 20px; }.weekly-editorial h3 { font-size: 22px; }.weekly-rail > .beauty-card { flex-basis: calc((100% - 16px)/2); } }
+@media(max-width:760px) { .weekly-section { padding-block: 24px 36px; }.weekly-heading-row { margin-bottom: 18px; gap: 12px; }.weekly-heading-row h2 { font-size: 22px; }.weekly-eyebrow { font-size: 10px; }.weekly-all { font-size: 10px; gap: 6px; }.weekly-showcase { grid-template-columns: minmax(0,1fr); gap: 12px; padding: 10px; border-radius: 22px; }.weekly-editorial { padding: 20px; border-radius: 15px; }.weekly-edition { font-size: 8px; letter-spacing: 2px; }.weekly-editorial-copy { padding: 14px 0 18px; position: relative; padding-left: 85px; }.weekly-seal { position: absolute; left: 0; top: 10px; width: 72px; height: 72px; margin: 0; }.weekly-seal strong { font-size: 28px; }.weekly-editorial h3 { font-size: 23px; line-height: 1.8; }.weekly-editorial p { font-size: 10px; margin-top: 7px; max-width: 280px; }.weekly-editorial-footer { padding-top: 12px; }.weekly-products { padding: 0; }.weekly-rail { gap: 10px; }.weekly-rail > .beauty-card { flex-basis: 73%; max-width: 240px; }.weekly-rail .beauty-image-button { height: 195px; }.weekly-rail .beauty-card h3 { min-height: 52px; }.weekly-rail .beauty-price strong { font-size: 14px; }.weekly-navigation { padding: 0 3px 3px; }.weekly-navigation button { width: 44px; height: 44px; } }
+@media(prefers-reduced-motion:reduce) { .weekly-navigation button,.weekly-rail .beauty-card { transition: none; }.weekly-rail .beauty-card:hover { transform: none; } }

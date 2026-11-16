@@ -217,7 +217,6 @@ export default function App() {
           onAddToCart={handleAddToCart}
           onToggleWishlist={handleToggleWishlist}
           wishlist={wishlist}
-          onQuickView={(p) => setQuickViewProduct(p)}
         />
 
         {/* Screenshot 3 & 4: Top Brands (برندهای برتر) */}
