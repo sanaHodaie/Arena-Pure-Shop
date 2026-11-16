@@ -19,7 +19,7 @@ export default function Categories({ selectedCategory, onSelectCategory }) {
       {categories.map((category, index) => {
         const filter = category.id === 'cleansing' ? 'hygiene' : category.id;
         const active = selectedCategory === filter;
-        return <button key={category.id} className={`beauty-category ${active ? 'is-active' : ''}`} aria-pressed={active} onClick={() => onSelectCategory(filter)}>
+        return <button key={category.id} style={{ '--category-index': index }} className={`beauty-category ${active ? 'is-active' : ''}`} aria-pressed={active} onClick={() => onSelectCategory(filter)}>
           <span className={`beauty-category-circle category-photo-group tone-${index % 2} ${category.products.length === 1 ? 'single-photo' : 'double-photo'}`} aria-hidden="true">
             {category.products.map((id, photoIndex) => {
               const product = products.find(item => item.id === id);

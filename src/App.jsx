@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ProductPage from './pages/ProductPage.jsx';
-import { findProduct, productUrl } from './data/productDetails.js';
+import { findProduct, productUrl, getProductDetails } from './data/productDetails.js';
 import Header from './components/Header.jsx';
 import HeroBanners from './components/HeroBanners.jsx';
 import SpecialOffers from './components/SpecialOffers.jsx';
@@ -20,6 +20,7 @@ import ArticleModal from './components/ArticleModal.jsx';
 import Toast from './components/Toast.jsx';
 
 export default function App() {
+  const previousProduct = useRef(null);
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
   const isHome = window.location.pathname === '/';
@@ -36,6 +37,10 @@ export default function App() {
   }, []);
   useEffect(() => {
     document.title = product ? `${product.title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    const previous = previousProduct.current;
+    previousProduct.current = product;
+    const family = product && getProductDetails(product).family;
+    if (!window.location.hash && previous && product && previous.id !== product.id && family && family === getProductDetails(previous).family) return;
     const frame = requestAnimationFrame(() => {
       const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
@@ -179,7 +184,6 @@ export default function App() {
 
         {/* Screenshot 1 & 2: Special Offers (پیشنهاد شگفت‌انگیز) */}
         <SpecialOffers
-          searchTerm={searchTerm}
           onAddToCart={handleAddToCart}
           onToggleWishlist={handleToggleWishlist}
           wishlist={wishlist}
@@ -199,7 +203,6 @@ export default function App() {
           wishlist={wishlist}
           onQuickView={(p) => setQuickViewProduct(p)}
           selectedCategory={selectedCategory}
-          searchTerm={searchTerm}
           onClearCategory={() => setSelectedCategory(null)}
         />
 
@@ -222,7 +225,7 @@ export default function App() {
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
         <BlogSection onArticleClick={(article) => setActiveArticle(article)} />
-      </main> : product ? <ProductPage key={product.id} product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
+      </main> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
       <Footer />
