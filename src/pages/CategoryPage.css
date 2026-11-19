@@ -61,3 +61,20 @@ html[data-theme="dark"] .category-count { background: #ffffff08; border-color: #
  .category-count strong { font-size:24px; }
  .category-poster-art { object-position:30% center; }
 }
+
+/* Coordinated lavender portrait campaign. */
+.category-hero { min-height:440px; background:#392342; }
+.category-hero::before,.category-hero-sunscreen::before,html[data-theme="dark"] .category-hero::before { background:linear-gradient(to left,#392342ed,#392342b0 38%,#39234210 70%); }
+.category-poster-art { object-position:center 36%; }
+.category-intro > div { max-width:46%; }
+html[data-theme="dark"] .category-intro { background:none; box-shadow:none; }
+@media(max-width:640px) {
+ .category-hero { min-height:650px; align-items:flex-end; }
+ .category-poster-art { height:440px; object-position:24% top; }
+ .category-hero::before,.category-hero-sunscreen::before,html[data-theme="dark"] .category-hero::before { background:linear-gradient(to top,#392342 27%,#392342e6 38%,transparent 66%); }
+ .category-intro { padding:24px 22px; gap:14px; }
+ .category-intro > div { max-width:100%; flex:initial; }
+ .category-intro p { max-width:100%; line-height:2; }
+ .category-intro h1 { margin-block:8px; }
+ .category-count { width:auto; }
+}
