@@ -1,3 +1,4 @@
+import { productImages } from './productImages.js';
 // Real model identities; prices/stock are demo values and photos are pending.
 export const skincareProducts = [
   { id: 22, slug: 'cerave-hydrating-cleanser', brand: 'سراوی', title: 'پاک‌کننده صورت سراوی Hydrating Cleanser', englishName: 'CeraVe Hydrating Cleanser', type: 'پاک‌کننده صورت', model: 'Hydrating Cleanser', price: 890000, sourceUrl: 'https://www.cerave.com/skincare/cleansers/hydrating-facial-cleanser' },
@@ -7,4 +8,4 @@ export const skincareProducts = [
   { id: 26, slug: 'ordinary-natural-moisturizing-factors-ha', brand: 'اوردینری', title: 'مرطوب‌کننده اوردینری Natural Moisturizing Factors + HA', englishName: 'The Ordinary Natural Moisturizing Factors + HA', type: 'مرطوب‌کننده صورت', model: 'Natural Moisturizing Factors + HA', price: 850000, sourceUrl: 'https://theordinary.com/en-us/natural-moisturizing-factors-ha-moisturizer-100435.html' },
   { id: 27, slug: 'laroche-posay-cicaplast-baume-b5', brand: 'لاروش پوزای', title: 'بالم لاروش پوزای Cicaplast Baume B5+', englishName: 'La Roche-Posay Cicaplast Baume B5+', type: 'بالم مراقبت پوست', model: 'Cicaplast Baume B5+', price: 1190000, sourceUrl: 'https://www.laroche-posay.me/en/cicaplast/cicaplast-baume-b5-plus' },
   { id: 28, slug: 'bioderma-sensibio-h2o', brand: 'بایودرما', title: 'میسلار واتر بایودرما Sensibio H2O', englishName: 'Bioderma Sensibio H2O', type: 'میسلار واتر', model: 'Sensibio H2O', price: 990000, sourceUrl: 'https://www.bioderma.us/all-products/sensibio/h2o-micellar-water' },
-].map(product => ({ ...product, category: 'skincare', oldPrice: null, discountPercent: 0, image: null, inStock: true, description: `${product.title}؛ مشخصات نسخه را با بسته‌بندی تطبیق دهید. قیمت و موجودی نمایشی است.` }));
+].map(product => ({ ...product, category: 'skincare', oldPrice: null, discountPercent: 0, image: productImages[product.id], inStock: true, description: `${product.title}؛ مشخصات نسخه را با بسته‌بندی تطبیق دهید. قیمت و موجودی نمایشی است.` }));

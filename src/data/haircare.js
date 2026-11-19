@@ -1,3 +1,4 @@
+import { productImages } from './productImages.js';
 // Real model identities; all prices and stock states are demonstration data.
 // Pack-specific ingredients, volumes and product photos must be supplied separately.
 export const haircareProducts = [
@@ -10,4 +11,4 @@ export const haircareProducts = [
   { id: 19, slug: 'moroccanoil-treatment-original', brand: 'موروکن اویل', title: 'روغن مو موروکن اویل Treatment Original', englishName: 'Moroccanoil Treatment Original', type: 'روغن مو', model: 'Treatment Original', price: 2890000, sourceUrl: 'https://www.moroccanoil.com/products/moroccanoil-treatment-original' },
   { id: 20, slug: 'garnier-banana-hair-food-mask', brand: 'گارنیه', title: 'ماسک مو گارنیه Banana Hair Food', englishName: 'Garnier Ultimate Blends Banana Hair Food Mask', type: 'ماسک مو', model: 'Ultimate Blends Banana Hair Food', price: 690000, sourceUrl: 'https://www.garnier.co.uk/our-brands/hair-care/ultimate-blends/hair-food' },
   { id: 21, slug: 'kerastase-elixir-ultime-lhuile-originale', brand: 'کراستاس', title: 'روغن مو کراستاس Elixir Ultime L’Huile Originale', englishName: 'Kerastase Elixir Ultime L’Huile Originale Hair Oil', type: 'روغن مو', model: 'Elixir Ultime L’Huile Originale', price: 4590000, sourceUrl: 'https://www.kerastase-usa.com/collections/elixir-ultime' },
-].map(product => ({ ...product, category: 'haircare', oldPrice: null, discountPercent: 0, image: null, inStock: true, description: `${product.title}؛ نام مدل این محصول را با بسته‌بندی تطبیق دهید. قیمت و موجودی در این نسخه نمایشی است.` }));
+].map(product => ({ ...product, category: 'haircare', oldPrice: null, discountPercent: 0, image: productImages[product.id], inStock: true, description: `${product.title}؛ نام مدل این محصول را با بسته‌بندی تطبیق دهید. قیمت و موجودی در این نسخه نمایشی است.` }));

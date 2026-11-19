@@ -1,3 +1,4 @@
+import { hygieneProducts } from './hygiene.js';
 import { sunscreenProducts } from './sunscreen.js';
 import { skincareProducts } from './skincare.js';
 import { haircareProducts } from './haircare.js';
@@ -186,4 +187,5 @@ export const products = [
   ...haircareProducts,
   ...skincareProducts,
   ...sunscreenProducts,
+  ...hygieneProducts,
 ];

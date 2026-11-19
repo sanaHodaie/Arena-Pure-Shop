@@ -1,1 +1,3 @@
 Built-in image_gen prompts: photorealistic adult beauty portraits, landscape, subject left, blank right, no text. Shared dusty lavender #b8a2be, plum #392342, ivory palette. Haircare: voluminous dark hair, ivory blouse. Skincare: luminous natural skin, touching cheek. Sunscreen: visible cream streak applied to cheek. Soft studio light.
+
+Hygiene (built-in image_gen): photorealistic luxury bath banner, lavender body wash, ivory towels and soap on plum tray on left, empty right, dusty lavender #b8a2be and plum #392342 palette, soft studio light, no text or logos.
