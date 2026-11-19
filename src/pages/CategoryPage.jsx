@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronLeft, Scissors, ArrowLeft, Droplets, Sparkles } from 'lucide-react';
+import { Sun, ChevronLeft, Scissors, ArrowLeft, Droplets, Sparkles } from 'lucide-react';
 import { products } from '../data/catalog.js';
 import SortMenu from '../components/SortMenu.jsx';
 import { categoryPages } from '../data/categories.js';
@@ -8,7 +8,7 @@ import './CategoryPage.css';
 
 export default function CategoryPage({ category, onAddToCart, onToggleWishlist, wishlist }) {
   const content = categoryPages[category];
-  const Icon = category === 'haircare' ? Scissors : Droplets;
+  const Icon = category === 'sunscreen' ? Sun : category === 'haircare' ? Scissors : Droplets;
   const [sort, setSort] = useState('default');
   const categoryProducts = useMemo(() => {
     const list = products.filter(product => product.category === category);

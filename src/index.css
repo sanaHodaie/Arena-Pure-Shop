@@ -512,3 +512,19 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .section-heading-link { font-size: 10px; }
   .section-heading-eyebrow { font-size: 10px; }
 }
+
+/* Mobile poster composition and compact account action. */
+@media(max-width:640px) {
+ .arena-login span { display:none; }
+ .arena-login { padding:10px; min-width:44px; min-height:44px; justify-content:center; }
+ footer, footer .text-right { text-align:center; }
+ footer .flex { justify-content:center; }
+ footer .items-start { align-items:center; }
+ footer p { margin-inline:auto; }
+ .middle-campaign { min-height:340px; }
+ .middle-campaign-art { inset:0; height:100%; object-fit:cover; object-position:left center; }
+ .middle-campaign::after { background:linear-gradient(to left,rgba(45,20,57,.78),rgba(45,20,57,.25) 65%,transparent); }
+ .middle-campaign-copy { width:66%; padding:24px 18px; margin:0 0 0 auto; }
+ .middle-campaign-copy h2 { font-size:clamp(20px,5.5vw,27px); }
+ .middle-campaign-copy p { color:#fff; font-size:10px; }
+}

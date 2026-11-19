@@ -38,3 +38,5 @@ html[data-theme="dark"] .category-count { background: #ffffff08; border-color: #
   .category-toolbar { font-size: 10px; gap: 10px; }.category-toolbar p strong { font-size: 14px; }.sort-trigger { min-width: 155px; gap: 9px; padding: 9px 12px; }.sort-trigger > span { font-size: 11px; }
 }
 @media(prefers-reduced-motion:reduce) { .sort-trigger > svg { transition: none; } }
+
+.category-hero-sunscreen { background:radial-gradient(ellipse at top right,#ffe6a6,transparent 65%),linear-gradient(120deg,#fff8e9,#f4e6f7); }

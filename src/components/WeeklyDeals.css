@@ -59,3 +59,11 @@
   .weekly-editorial-copy { padding: 22px 0 18px; }
   .weekly-editorial h3 { padding-left: 75px; }
 }
+
+/* A warm editorial frame sets the weekly selection apart. */
+.weekly-showcase { background:linear-gradient(125deg,#fff5df,#f6eaf4); border-color:#e6c895; box-shadow:0 18px 48px #53316012; padding:18px; gap:24px; }
+.weekly-editorial { background:radial-gradient(ellipse at top left,#95617f,transparent 75%),#38223f; }
+.weekly-rail > .beauty-card { background:var(--color-brand-background); box-shadow:0 4px 16px #53316008; }
+.weekly-edition { color:#f2d29b; }
+.weekly-navigation button { border-color:#d8bd95; }
+@media(max-width:760px) { .weekly-showcase { padding:12px; gap:18px; } .weekly-editorial { min-height:225px; } .weekly-rail > .beauty-card { flex-basis:82%; } }
