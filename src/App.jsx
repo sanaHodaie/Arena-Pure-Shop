@@ -10,7 +10,6 @@ import Categories from './components/Categories.jsx';
 import BestSellers from './components/BestSellers.jsx';
 import MiddleBanners from './components/MiddleBanners.jsx';
 import ValueProps from './components/ValueProps.jsx';
-import WeeklyDeals from './components/WeeklyDeals.jsx';
 import BrandLogos from './components/BrandLogos.jsx';
 import BlogSection from './components/BlogSection.jsx';
 import Footer from './components/Footer.jsx';
@@ -209,11 +208,7 @@ export default function App() {
         <ValueProps />
 
         {/* Screenshot 3: Weekly Deals (پیشنهاد هفته) */}
-        <WeeklyDeals
-          onAddToCart={handleAddToCart}
-          onToggleWishlist={handleToggleWishlist}
-          wishlist={wishlist}
-        />
+
 
         {/* Screenshot 3 & 4: Top Brands (برندهای برتر) */}
         <BrandLogos />

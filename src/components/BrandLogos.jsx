@@ -1,20 +1,27 @@
 import SectionHeading from './SectionHeading.jsx';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { brands } from '../data/mockData.js';
 
 export default function BrandLogos() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timer = setInterval(() => { if (!document.hidden) setActive(index => (index + 1) % brands.length); }, 2200);
+    return () => clearInterval(timer);
+  }, [paused]);
   return (
-    <section id="brands" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} id="brands" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <SectionHeading title="برندهای برتر"/>
 
       {/* Brand Logos Bar (Screenshots 3 & 4) */}
       <div className="bg-white rounded-3xl border border-purple-100/80 p-6 shadow-xs">
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-6 items-center justify-items-center">
-          {brands.map((brand) => (
+          {brands.map((brand, index) => (
             <div
               key={brand.id}
-              className="flex flex-col items-center justify-center p-3 w-full rounded-2xl hover:bg-purple-50/60 transition group cursor-pointer"
+              className={`brand-spotlight flex flex-col items-center justify-center p-3 w-full rounded-2xl transition group ${index === active ? 'is-active' : ''}`}
             >
               {/* Brand Typography Logo Matching Screenshots */}
               <div className="h-10 flex items-center justify-center">

@@ -528,3 +528,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
  .middle-campaign-copy h2 { font-size:clamp(20px,5.5vw,27px); }
  .middle-campaign-copy p { color:#fff; font-size:10px; }
 }
+
+.brand-spotlight { min-height:96px; transition:background .4s,box-shadow .4s,transform .4s; }
+.brand-spotlight.is-active { background:var(--color-brand-accent); box-shadow:0 8px 22px #53316018; transform:translateY(-4px); }
+.brand-spotlight.is-active span { font-weight:900; color:var(--color-brand-primary); }
+@media(prefers-reduced-motion:reduce) { .brand-spotlight { transition:none; transform:none!important; } }

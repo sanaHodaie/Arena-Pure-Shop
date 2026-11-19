@@ -1,3 +1,4 @@
+import { sunscreenProducts } from './sunscreen.js';
 import { skincareProducts } from './skincare.js';
 import { haircareProducts } from './haircare.js';
 // Product identities are real; prices are demonstration values, not live prices.
@@ -184,4 +185,5 @@ export const products = [
   },
   ...haircareProducts,
   ...skincareProducts,
+  ...sunscreenProducts,
 ];
