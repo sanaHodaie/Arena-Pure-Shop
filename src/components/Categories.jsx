@@ -19,7 +19,7 @@ export default function Categories({ selectedCategory, onSelectCategory }) {
     <SectionHeading id="categories-heading" title="دسته‌بندی"/>
     <div className="beauty-category-list no-scrollbar">
       {categories.map((category, index) => {
-        const filter = category.id === 'cleansing' ? 'hygiene' : category.id;
+        const filter = category.id;
         const active = selectedCategory === filter;
         const Element = categoryPages[category.id] ? 'a' : 'button';
         return <Element href={categoryPages[category.id] ? categoryUrl(category.id) : undefined} key={category.id} style={{ '--category-index': index }} className={`beauty-category ${active ? 'is-active' : ''}`} aria-pressed={categoryPages[category.id] ? undefined : active} onClick={categoryPages[category.id] ? undefined : () => onSelectCategory(filter)}>

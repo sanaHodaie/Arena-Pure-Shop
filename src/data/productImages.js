@@ -23,5 +23,14 @@ export const productImages = {
   "36": "/images/products/Vichy Capital Soleil SPF 50+ Sunscreen-tinypng.io.webp",
   "37": "/images/products/CeraVe SPF 50 Facial Moisturiser Tube-tinypng.io.webp",
   "38": "/images/products/Neutrogena Ultra Sheer SPF 55 Sunscreen Tube-tinypng.io.webp",
-  "39": "/images/products/SKIN1004 Hyalu-Cica Sun Serum-tinypng.io.webp"
+  "39": "/images/products/SKIN1004 Hyalu-Cica Sun Serum-tinypng.io.webp",
+  "40": "/images/products/Dove Deeply Nourishing Body Wash-tinypng.io.webp",
+  "41": "/images/products/NIVEA Creme Soft Shower Gel Bottle-tinypng.io.webp",
+  "42": "/images/products/Bioderma Atoderm Golden Shower Oil-tinypng.io.webp",
+  "43": "/images/products/Eucerin pH5 Sensitive Skin Cleanser-tinypng.io.webp",
+  "44": "/images/products/Sebamed Sensitive Skin Face and Body Wash-tinypng.io.webp",
+  "45": "/images/products/Dove Original Beauty Bar Packaging-tinypng.io.webp",
+  "46": "/images/products/Neutrogena Norwegian Formula Hand Cream Tube-tinypng.io.webp",
+  "47": "/images/products/NIVEA Pearl & Beauty Roll-On Product Shot-tinypng.io.webp",
+  "48": "/images/products/Oral-B Essential Floss Packaging-tinypng.io.webp"
 };
