@@ -8,7 +8,7 @@ import './CategoryPage.css';
 
 export default function CategoryPage({ category, onAddToCart, onToggleWishlist, wishlist }) {
   const content = categoryPages[category];
-  const Icon = category === 'hygiene' ? ShieldCheck : category === 'sunscreen' ? Sun : category === 'haircare' ? Scissors : Droplets;
+  const Icon = ['fragrance', 'cosmetics'].includes(category) ? Sparkles : category === 'hygiene' ? ShieldCheck : category === 'sunscreen' ? Sun : category === 'haircare' ? Scissors : Droplets;
   const [sort, setSort] = useState('default');
   const categoryProducts = useMemo(() => {
     const list = products.filter(product => product.category === category);

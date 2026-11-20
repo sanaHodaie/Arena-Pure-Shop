@@ -5,3 +5,5 @@ Hygiene (built-in image_gen): photorealistic luxury bath banner, lavender body w
 Hygiene v3, built-in image_gen: adult woman in ivory bathrobe and towel turban gently drying cheek, subtle lavender soap pump; portrait on left with empty right for HTML copy. Photorealistic luxury editorial, dusty lavender #b8a2be and plum #392342, soft studio light, no text/logos.
 
 Cleansing, built-in image_gen: photorealistic adult woman in ivory robe gently massaging cleanser foam on cheeks, portrait on left and empty right for HTML copy. Dusty lavender #b8a2be, plum #392342, warm ivory, soft studio light, no text or logos.
+
+Fragrance and cosmetics, built-in image_gen: adult woman in ivory satin blouse, model on left, empty right for HTML copy, lavender #b8a2be and plum #392342, realistic skin, soft studio light, no text/logos. Fragrance: holding perfume near neck. Cosmetics: makeup brush beside cheek and refined rosy makeup.
