@@ -1,3 +1,4 @@
+import { productImages } from './productImages.js';
 // Demo prices and stock; product photos pending.
 export const cleansingProducts = [
   {
@@ -160,4 +161,4 @@ export const cleansingProducts = [
     "inStock": true,
     "description": "\u0642\u06cc\u0645\u062a \u0648 \u0645\u0648\u062c\u0648\u062f\u06cc \u0646\u0645\u0627\u06cc\u0634\u06cc \u0627\u0633\u062a."
   }
-];
+].map(product => ({ ...product, image: productImages[product.id] }));
