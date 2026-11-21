@@ -539,3 +539,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .brand-spotlight.is-active { background:var(--color-brand-accent); box-shadow:0 8px 22px #53316018; transform:translateY(-4px); }
 .brand-spotlight.is-active span { font-weight:900; color:var(--color-brand-primary); }
 @media(prefers-reduced-motion:reduce) { .brand-spotlight { transition:none; transform:none!important; } }
+
+@media(hover:hover) {
+ .brand-spotlight:hover { background:linear-gradient(135deg,#f0e3f4,#fff5e8); box-shadow:0 12px 28px #53316025; transform:translateY(-6px) scale(1.035); }
+ .brand-spotlight:hover span { color:#533160; font-weight:900; }
+}
