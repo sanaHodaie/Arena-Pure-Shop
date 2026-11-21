@@ -19,7 +19,6 @@ import Footer from './components/Footer.jsx';
 import CartDrawer from './components/CartDrawer.jsx';
 import ProductQuickView from './components/ProductQuickView.jsx';
 import AuthModal from './components/AuthModal.jsx';
-import ArticleModal from './components/ArticleModal.jsx';
 import Toast from './components/Toast.jsx';
 
 export default function App() {
@@ -49,7 +48,7 @@ export default function App() {
     const frame = requestAnimationFrame(() => {
       const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
-      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
   }, [location]);
@@ -84,7 +83,6 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const [activeArticle, setActiveArticle] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [toast, setToast] = useState(null);
@@ -249,11 +247,7 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      <ArticleModal
-        article={activeArticle}
-        isOpen={!!activeArticle}
-        onClose={() => setActiveArticle(null)}
-      />
+
 
       <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
