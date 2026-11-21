@@ -5,7 +5,7 @@ import { blogArticles } from '../data/mockData.js';
 
 export default function BlogSection({ onArticleClick }) {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section id="blog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Section Header */}
       <SectionHeading title="خواندنی‌ها" action={<a href="#blog" className="section-heading-link">مشاهده همه <ChevronLeft size={16}/></a>}/>
 
@@ -13,6 +13,7 @@ export default function BlogSection({ onArticleClick }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {blogArticles.map((article) => (
           <article
+            role="link" tabIndex={0} onKeyDown={event => { if(event.key === 'Enter') onArticleClick?.(article); }}
             key={article.id}
             onClick={() => onArticleClick && onArticleClick(article)}
             className="bg-white rounded-3xl border border-purple-100/70 p-4 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between cursor-pointer"

@@ -1,3 +1,5 @@
+import ArticlePage from './pages/ArticlePage.jsx';
+import { blogArticles } from './data/mockData.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { categoryPages, categoryUrl, findCategory } from './data/categories.js';
 import CategoryPage from './pages/CategoryPage.jsx';
@@ -24,6 +26,7 @@ export default function App() {
   const previousProduct = useRef(null);
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
+  const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
   const isHome = window.location.pathname === '/';
   const activeCategory = findCategory(window.location.pathname);
   const navigate = href => {
@@ -38,7 +41,7 @@ export default function App() {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
     const previous = previousProduct.current;
     previousProduct.current = product;
     const family = product && getProductDetails(product).family;
@@ -173,7 +176,7 @@ export default function App() {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
+      {article ? <ArticlePage article={article}/> : isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
         {/* Screenshot 1: Hero Banners */}
         <HeroBanners />
 
@@ -214,7 +217,7 @@ export default function App() {
         <BrandLogos />
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
-        <BlogSection onArticleClick={(article) => setActiveArticle(article)} />
+        <BlogSection onArticleClick={(article) => navigate('/articles/' + article.id)} />
       </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
