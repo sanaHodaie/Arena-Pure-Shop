@@ -22,8 +22,8 @@ export default function BlogSection({ onArticleClick }) {
               {/* Thumbnail Image */}
               <div className="relative w-full h-44 rounded-2xl overflow-hidden bg-purple-50 mb-3.5">
                 <img
-                  src={article.image}
-                  alt={article.title}
+                  src={article.cover.image}
+                  alt=""
                   className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                   loading="lazy"
                 />
