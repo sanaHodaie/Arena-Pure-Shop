@@ -139,7 +139,13 @@ export const blogArticles = [
     author: 'Seo_admin',
     date: '۲ مهر ۱۴۰۳',
     readTime: '۵ دقیقه',
-    image: '/images/articles/article-1.webp'
+    image: '/images/articles/article-1.webp',
+    cover: {
+      image: '/images/articles/cover-dry-skin.webp',
+      theme: 'dry-skin',
+      topic: 'آرایش پوست خشک',
+      summary: 'انتخاب پنککی که پوست را یکدست کند و پوسته‌ها را برجسته‌تر نشان ندهد.',
+    }
   },
   {
     id: 2,
@@ -148,7 +154,13 @@ export const blogArticles = [
     author: 'Seo_admin',
     date: '۲۵ شهریور ۱۴۰۳',
     readTime: '۷ دقیقه',
-    image: '/images/articles/article-2.webp'
+    image: '/images/articles/article-2.webp',
+    cover: {
+      image: '/images/articles/cover-hydration.webp',
+      theme: 'hydration',
+      topic: 'راهنمای آبرسانی پوست',
+      summary: 'زمان و ترتیب استفاده از سرم هیالورونیک اسید در روتین روزانه.',
+    }
   },
   {
     id: 3,
@@ -157,7 +169,13 @@ export const blogArticles = [
     author: 'Seo_admin',
     date: '۱۵ شهریور ۱۴۰۳',
     readTime: '۶ دقیقه',
-    image: '/images/articles/article-3.webp'
+    image: '/images/articles/article-3.webp',
+    cover: {
+      image: '/images/articles/cover-eyeliner.webp',
+      theme: 'eyeliner',
+      topic: 'آرایش چشم',
+      summary: 'راهنمای انتخاب خط چشم ماژیکی برای کشیدن خطی دقیق و مقاوم در برابر آب.',
+    }
   },
   {
     id: 4,
@@ -166,7 +184,13 @@ export const blogArticles = [
     author: 'Zahra Rajabalizadeh',
     date: '۲ شهریور ۱۴۰۳',
     readTime: '۸ دقیقه',
-    image: '/images/articles/article-4.webp'
+    image: '/images/articles/article-4.webp',
+    cover: {
+      image: '/images/articles/cover-matte.webp',
+      theme: 'matte',
+      topic: 'راهنمای انتخاب پنکک',
+      summary: 'مقایسهٔ پنکک‌های ایرانی و خارجی برای داشتن پوششی مات و مخملی.',
+    }
   }
 ];
 
