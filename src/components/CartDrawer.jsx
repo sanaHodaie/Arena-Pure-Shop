@@ -1,13 +1,14 @@
 import ProductImage from './ProductImage.jsx';
 import React from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { freeShippingThreshold, shippingCost } from '../data/customerAccount.js';
 import { formatPrice } from '../data/mockData.js';
 
 export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCheckout }) {
   if (!isOpen) return null;
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const freeShippingThreshold = 500000;
+  const delivery = shippingCost(subtotal);
   const progressToFreeShipping = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100));
   const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
 
@@ -148,13 +149,13 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
             <div className="flex items-center justify-between text-xs text-slate-600">
               <span>هزینه ارسال:</span>
               <span className="font-bold text-emerald-600">
-                {subtotal >= freeShippingThreshold ? 'رایگان' : '۳۵,۰۰۰ تومان'}
+                {delivery ? `${formatPrice(delivery)} تومان` : 'رایگان'}
               </span>
             </div>
             <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-sm font-extrabold text-slate-900">
               <span>مبلغ کل قابل پرداخت:</span>
               <span className="text-base text-purple-700">
-                {formatPrice(subtotal + (subtotal >= freeShippingThreshold ? 0 : 35000))} تومان
+                {formatPrice(subtotal + delivery)} تومان
               </span>
             </div>
 
@@ -162,7 +163,7 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
               onClick={onCheckout}
               className="w-full mt-3 py-3 rounded-2xl bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/25 transition active:scale-95 cursor-pointer"
             >
-              <span>تکمیل خرید و ثبت نهایی</span>
+              <span>ثبت سفارش آزمایشی</span>
               <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
           </div>

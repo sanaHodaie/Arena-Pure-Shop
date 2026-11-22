@@ -1,0 +1,62 @@
+.customer-dashboard { padding-block: 36px 72px; color: #382345; }
+.customer-hero {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  padding: clamp(20px, 4vw, 40px);
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 0 0, #dcd0ef, transparent 65%), #f7eef7;
+}
+.customer-hero h1 { font-size: clamp(25px, 4vw, 38px); font-weight: 900; }
+.customer-hero p { margin-top: 8px; }
+.customer-hero button { width: auto; }
+.customer-grid { display: grid; grid-template-columns: 215px minmax(0, 1fr); gap: 24px; margin-top: 24px; }
+.customer-menu {
+  align-self: start; display: grid; gap: 5px; padding: 12px;
+  border: 1px solid #eadfee; border-radius: 18px; background: #fff;
+}
+.customer-menu a { display: flex; align-items: center; gap: 10px; padding: 11px 10px; border-radius: 8px; font-size: 13px; }
+.customer-menu a:hover, .customer-menu a:focus-visible { background: #f6eff8; }
+.customer-content { display: grid; gap: 20px; }
+.customer-card { padding: clamp(16px, 3vw, 28px); border: 1px solid #eadfee; border-radius: 20px; background: #fff; scroll-margin-top: 130px; }
+.customer-card h2 { font-size: 19px; font-weight: 900; }
+.customer-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.customer-stats a { display: grid; gap: 4px; padding: 12px 8px; border-radius: 12px; background: #f8f2fa; text-align: center; font-size: 12px; }
+.customer-stats strong { font-size: 22px; }
+.customer-section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.customer-section-head label { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.customer-section-head select, .customer-profile input, .customer-profile textarea {
+  border: 1px solid #dfd2e5; border-radius: 9px; background: #fdfbfe; color: inherit; padding: 9px;
+}
+.customer-empty { margin-top: 14px; color: #634e70; font-size: 14px; }
+.customer-order { margin-top: 12px; border: 1px solid #eadfee; border-radius: 12px; font-size: 13px; }
+.customer-order summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 14px; padding: 12px; cursor: pointer; }
+.customer-order summary > span:first-child::before { content: '＋'; margin-inline-end: 5px; }
+.customer-order[open] summary > span:first-child::before { content: '−'; }
+.customer-order > ul, .customer-order > p, .customer-payment { padding: 10px 12px; border-top: 1px solid #f0e8f2; }
+.customer-order li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding-block: 5px; }
+.customer-status { border-radius: 30px; padding: 3px 9px; font-size: 11px; font-weight: 800; }
+.customer-status--pending { background: #fff0ce; color: #704909; }
+.customer-status--successful { background: #e1f4e8; color: #215639; }
+.customer-status--failed { background: #ffe8ee; color: #8c2446; }
+.customer-status--cancelled { background: #eeeaf1; color: #53435d; }
+.customer-payment > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.customer-payment button { padding: 6px 10px; border-radius: 8px; background: #f3ebf7; font-weight: 800; }
+.customer-payment button:disabled { opacity: .6; }
+.customer-profile { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+.customer-profile label { display: grid; gap: 5px; font-size: 13px; font-weight: 700; }
+.customer-profile input, .customer-profile textarea { width: 100%; }
+.customer-profile input[readonly] { background: #f2edf3; }
+.customer-profile textarea { min-height: 85px; resize: vertical; }
+.customer-address, .customer-profile p { grid-column: 1 / -1; }
+.customer-profile button { width: fit-content; }
+.customer-favorite { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid #f0e8f2; padding-block: 8px; font-size: 13px; }
+.customer-favorite a { display: flex; align-items: center; gap: 12px; }
+.customer-favorite img, .customer-favorite .product-image-placeholder { width: 48px; height: 48px; object-fit: contain; }
+.customer-favorite button { color: #855593; padding: 7px; }
+@media (max-width: 800px) {
+  .customer-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .customer-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .customer-profile { grid-template-columns: minmax(0, 1fr); }
+  .customer-order summary { justify-content: flex-start; }
+}

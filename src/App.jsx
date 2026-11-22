@@ -1,3 +1,6 @@
+import CustomerAccount from './pages/CustomerAccount.jsx';
+import { products } from './data/catalog.js';
+import { createCustomerOrder, readCustomerFavorites, saveCustomerFavorites } from './data/customerAccount.js';
 import ArticlePage from './pages/ArticlePage.jsx';
 import { blogArticles } from './data/mockData.js';
 import React, { useState, useEffect, useRef } from 'react';
@@ -78,8 +81,8 @@ export default function App() {
   // Cart state
   const [cart, setCart] = useState([]);
 
-  // Wishlist state
-  const [wishlist, setWishlist] = useState([2, 4]);
+  const [accountPhone, setAccountPhone] = useState(readDemoSession);
+  const [wishlist, setWishlist] = useState(() => accountPhone ? readCustomerFavorites(accountPhone) : []);
 
   // UI state
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -88,7 +91,8 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [toast, setToast] = useState(null);
-  const [accountPhone, setAccountPhone] = useState(readDemoSession);
+  const [orderVersion, setOrderVersion] = useState(0);
+  const checkoutPending = useRef(false);
 
   const showToast = (message, type = 'cart') => {
     setToast({ message, type });
@@ -123,29 +127,58 @@ export default function App() {
     showToast('کالا از سبد خرید حذف شد', 'info');
   };
 
-  const handleToggleWishlist = (productId) => {
-    setWishlist((prev) => {
-      const exists = prev.includes(productId);
-      if (exists) {
-        showToast('از علاقه‌مندی‌ها حذف شد', 'info');
-        return prev.filter((id) => id !== productId);
-      } else {
-        showToast('به لیست علاقه‌مندی‌های شما افزوده شد', 'wishlist');
-        return [...prev, productId];
-      }
-    });
+  const handleToggleWishlist = productId => {
+    const exists = wishlist.includes(productId);
+    const next = exists ? wishlist.filter(id => id !== productId) : [...wishlist, productId];
+    try {
+      if (accountPhone) saveCustomerFavorites(accountPhone, next);
+      setWishlist(next);
+      showToast(exists ? 'از علاقه‌مندی‌ها حذف شد' : 'به علاقه‌مندی‌ها افزوده شد', exists ? 'info' : 'wishlist');
+    } catch {
+      showToast('ذخیرهٔ علاقه‌مندی‌ها ممکن نیست.', 'info');
+    }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    if (!cart.length || checkoutPending.current) return;
     setIsCartOpen(false);
-    showToast('در حال انتقال به درگاه پرداخت امن بانکی...', 'info');
+    if (!accountPhone) {
+      setIsAuthOpen(true);
+      return;
+    }
+
+    checkoutPending.current = true;
+    try {
+      await createCustomerOrder(accountPhone, cart);
+      setCart(current => current.flatMap(item => {
+        const quantity = item.quantity - (cart.find(saved => saved.id === item.id)?.quantity || 0);
+        return quantity > 0 ? [{ ...item, quantity }] : [];
+      }));
+      setOrderVersion(version => version + 1);
+      navigate('/account#account-orders');
+    } catch {
+      showToast('ثبت سفارش آزمایشی ممکن نیست. سبد خرید شما حفظ شد.', 'info');
+    } finally {
+      checkoutPending.current = false;
+    }
   };
 
-  const handleLoginSuccess = (phoneNumber) => {
+  const handleLoginSuccess = phoneNumber => {
+    const favorites = [...new Set([...readCustomerFavorites(phoneNumber), ...wishlist])];
+    try { saveCustomerFavorites(phoneNumber, favorites); }
+    catch { showToast('ذخیرهٔ علاقه‌مندی‌ها ممکن نیست.', 'info'); }
+    setWishlist(favorites);
     writeDemoSession(phoneNumber);
     setAccountPhone(phoneNumber);
     setIsAuthOpen(false);
     if (!isAccount) navigate('/account');
+  };
+
+  const handleLogout = () => {
+    writeDemoSession(null);
+    setAccountPhone(null);
+    setWishlist([]);
+    navigate('/');
   };
 
   const handleSelectCategory = (catId, hash = '#products') => {
@@ -180,19 +213,15 @@ export default function App() {
 
       {/* Main Content Sections strictly adhering to screenshots */}
       {isAccount ? (
-        <main className="arena-container customer-account flex-1" dir="rtl">
-          <h1 id="customer-account-title" tabIndex={-1}>پنل مشتری</h1>
-          {accountPhone ? <>
-            <p>شماره موبایل حساب آزمایشی <bdi>{accountPhone}</bdi></p>
-            <button type="button" className="account-secondary" onClick={() => {
-              writeDemoSession(null);
-              setAccountPhone(null);
-              navigate('/');
-            }}>خروج از حساب</button>
-          </> : (
-            <button type="button" className="account-primary" onClick={() => setIsAuthOpen(true)}>ورود یا ثبت‌نام</button>
-          )}
-        </main>
+        <CustomerAccount
+          key={accountPhone}
+          phone={accountPhone}
+          orderVersion={orderVersion}
+          favorites={products.filter(product => wishlist.includes(product.id))}
+          onToggleWishlist={handleToggleWishlist}
+          onLogin={() => setIsAuthOpen(true)}
+          onLogout={handleLogout}
+        />
       ) : article ? <ArticlePage article={article}/> : isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
         {/* Screenshot 1: Hero Banners */}
         <HeroBanners />
