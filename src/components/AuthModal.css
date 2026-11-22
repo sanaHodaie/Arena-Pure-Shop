@@ -1,0 +1,112 @@
+.account-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(448px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid #ffffffb3;
+  border-radius: 32px;
+  color: #382345;
+  background:
+    radial-gradient(ellipse at 17% 42%, #fff3eb 0, transparent 50%),
+    radial-gradient(ellipse at 88% 53%, #d7bde8 0, transparent 59%),
+    linear-gradient(145deg, #fff7fb, #e5d8f5);
+  box-shadow: 0 28px 90px #20152866;
+}
+.account-dialog::backdrop { background: #20162b91; backdrop-filter: blur(8px); }
+.account-dialog-content { padding: clamp(20px, 5vw, 32px); }
+.account-dialog-top { display: flex; align-items: center; justify-content: space-between; }
+.account-dialog .account-wordmark { flex: none; width: auto; margin-top: 8px; }
+.account-wordmark > span { font-size: 38px; letter-spacing: -2px; }
+.account-wordmark > i { top: -10px; font-size: 15px; }
+.account-close, .account-password-toggle {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #492c59;
+  background: #ffffff8a;
+}
+.account-dialog h2 {
+  margin: 24px 0 14px;
+  text-align: center;
+  font-size: clamp(22px, 5.5vw, 30px);
+  font-weight: 900;
+  line-height: 1.5;
+}
+.account-dialog h2:focus { outline: none; }
+.account-art {
+  position: relative;
+  isolation: isolate;
+  height: clamp(175px, 34dvh, 248px);
+  perspective: 650px;
+}
+.account-art::before {
+  content: '';
+  position: absolute;
+  inset: 4% 12% 10%;
+  border-radius: 50%;
+  background: repeating-radial-gradient(ellipse at center, transparent 0 12px, #ffffff85 13px 14px);
+  mask-image: radial-gradient(ellipse, #000 25%, transparent 72%);
+}
+.account-art img {
+  position: absolute;
+  bottom: 6%;
+  object-fit: contain;
+  filter: drop-shadow(4px 15px 13px #54264e58);
+  transform: rotateZ(var(--art-angle));
+  animation: account-float 6s ease-in-out var(--art-delay, 0s) infinite alternate;
+}
+.account-perfume { left: 4%; width: 62%; height: 88%; --art-angle: -13deg; }
+.account-lipstick { right: 9%; width: 46%; height: 77%; --art-angle: 22deg; --art-delay: -2.6s; }
+@keyframes account-float {
+  to { transform: translateY(-15px) rotateY(18deg) rotateZ(calc(var(--art-angle) + 7deg)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .account-art img { animation: none; }
+}
+.account-actions, .account-form { display: grid; gap: 10px; }
+.account-primary, .account-secondary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.account-primary { color: #fff; background: #512d63; box-shadow: 0 7px 18px #512d6338; }
+.account-primary:hover:enabled { background: #633a78; }
+.account-secondary { border: 1px solid #68447845; background: #ffffff7d; }
+.account-secondary:hover { background: #fff; }
+.account-form { margin-top: 20px; }
+.account-form label { font-size: 13px; font-weight: 800; }
+.account-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding-inline: 12px;
+  border: 1px solid #67467947;
+  border-radius: 13px;
+  background: #ffffffc7;
+}
+.account-field:focus-within { outline: 2px solid #9875ad; outline-offset: 1px; }
+.account-field input { flex: 1; min-width: 0; width: 100%; height: 44px; outline: none; }
+.account-password-toggle { background: transparent; }
+.account-switch { display: block; margin: 17px auto 0; font-size: 13px; font-weight: 800; }
+.account-error, .account-notice { font-size: 13px; line-height: 1.8; }
+.account-error { color: #8a2046; }
+.account-notice { color: #385643; }
+.account-demo { margin-top: 18px; text-align: center; font-size: 11px; line-height: 1.8; color: #654f71; }
+.account-dialog button:disabled { opacity: .65; }
+.customer-account { display: grid; justify-items: start; gap: 16px; padding-block: 48px 72px; }
+.customer-account h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 900; }
+.customer-account button { width: auto; min-width: 140px; }

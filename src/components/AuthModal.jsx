@@ -1,133 +1,138 @@
-import React, { useState } from 'react';
-import { X, Smartphone, Lock, CheckCircle2, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, Eye, EyeOff, LockKeyhole, Smartphone, X } from 'lucide-react';
+import { normalizePhone, registerDemoAccount, signInToDemoAccount } from '../data/demoAccount.js';
+import './AuthModal.css';
 
-export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
-  if (!isOpen) return null;
+export default function AuthModal({ onClose, onLoginSuccess }) {
+  const dialogRef = useRef(null);
+  const titleRef = useRef(null);
+  const activeRef = useRef(false);
+  const [step, setStep] = useState('welcome');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const registering = step === 'register';
 
-  const [step, setStep] = useState('phone'); // 'phone' | 'otp'
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otpCode, setOtpCode] = useState('');
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    activeRef.current = true;
+    dialog.showModal();
+    return () => {
+      activeRef.current = false;
+      dialog.close();
+    };
+  }, []);
 
-  const handleSendCode = (e) => {
-    e.preventDefault();
-    if (phoneNumber.length >= 10) {
-      setStep('otp');
+  useEffect(() => { titleRef.current.focus(); }, [step]);
+
+  function changeStep(next) {
+    setError('');
+    setNotice('');
+    setPassword('');
+    setVisible(false);
+    setStep(next);
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    if (pending) return;
+    const normalized = normalizePhone(phone);
+    setError('');
+    if (!/^09\d{9}$/.test(normalized)) {
+      setError('شماره موبایل معتبر وارد کنید، مثل ۰۹۱۲۳۴۵۶۷۸۹.');
+      return;
     }
-  };
-
-  const handleVerify = (e) => {
-    e.preventDefault();
-    if (onLoginSuccess) {
-      onLoginSuccess(phoneNumber);
+    if (registering && password.length < 8) {
+      setError('رمز عبور باید حداقل ۸ نویسه داشته باشد.');
+      return;
     }
-    onClose();
-  };
+
+    setPending(true);
+    try {
+      const success = await (registering
+        ? registerDemoAccount(normalized, password)
+        : signInToDemoAccount(normalized, password));
+      if (!activeRef.current) return;
+      if (!success) {
+        setError(registering ? 'این شماره قبلاً ثبت شده است. وارد حساب شوید.' : 'شماره موبایل یا رمز عبور درست نیست.');
+      } else if (registering) {
+        changeStep('login');
+        setPhone(normalized);
+        setNotice('حساب آزمایشی ساخته شد. برای ورود، رمز عبور را وارد کنید.');
+      } else {
+        onLoginSuccess(normalized);
+      }
+    } catch {
+      if (activeRef.current) setError('ذخیره یا بررسی حساب در این مرورگر ممکن نیست. دوباره تلاش کنید.');
+    } finally {
+      if (activeRef.current) setPending(false);
+    }
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div 
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 p-6 sm:p-8 relative text-right"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 left-4 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <dialog
+      ref={dialogRef}
+      className="account-dialog"
+      dir="rtl"
+      aria-labelledby="account-dialog-title"
+      onCancel={event => { event.preventDefault(); onClose(); }}
+      onClick={event => { if (event.target === event.currentTarget) onClose(); }}
+    >
+      <div className="account-dialog-content">
+        <div className="account-dialog-top">
+          <div className="arena-logo account-wordmark"><span>Arena</span><i>Pure</i></div>
+          <button type="button" className="account-close" aria-label="بستن" onClick={onClose}><X size={20} /></button>
+        </div>
 
-        {/* Brand Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-1 mb-2">
-            <span className="text-2xl font-black text-slate-900">Arena</span>
-            <span className="text-xs font-serif italic text-purple-600 -translate-y-2">Pure</span>
+        <h2 ref={titleRef} id="account-dialog-title" tabIndex={-1}>
+          {step === 'welcome' ? 'به آرنا پیور خوش آمدید' : registering ? 'ثبت‌نام' : 'ورود به حساب'}
+        </h2>
+
+        {step === 'welcome' ? <>
+          <div className="account-art" aria-hidden="true">
+            <img className="account-perfume" src="/images/products/lancome-la-vie-est-belle-edp-320.webp" alt="" />
+            <img className="account-lipstick" src="/images/products/maybelline-vinyl-ink-35-cheeky-320.webp" alt="" />
           </div>
-          <h3 className="text-lg font-black text-slate-800">
-            {step === 'phone' ? 'ورود یا ثبت‌نام در آرنا پیور' : 'کد تأیید را وارد کنید'}
-          </h3>
-          <p className="text-xs text-slate-500 mt-1">
-            {step === 'phone' 
-              ? 'برای دسترسی به سفارش‌ها و تخفیف‌های ویژه شماره موبایل خود را وارد نمایید'
-              : `کد یکبار مصرف ۵ رقمی به شماره ${phoneNumber} ارسال شد`
-            }
-          </p>
-        </div>
-
-        {step === 'phone' ? (
-          <form onSubmit={handleSendCode} className="space-y-4">
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                شماره تلفن همراه
-              </label>
-              <div className="relative">
-                <input
-                  type="tel"
-                  required
-                  placeholder="مثال: ۰۹۱۲۳۴۵۶۷۸۹"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full bg-slate-50 text-slate-800 text-sm rounded-2xl py-3 pr-10 pl-4 border border-slate-200 focus:border-purple-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-purple-500/10 font-mono text-left dir-ltr"
-                />
-                <Smartphone className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
+          <div className="account-actions">
+            <button type="button" className="account-primary" onClick={() => changeStep('register')}>ثبت‌نام <ArrowLeft size={17} /></button>
+            <button type="button" className="account-secondary" onClick={() => changeStep('login')}>ورود</button>
+          </div>
+        </> : <>
+          {notice && <p className="account-notice" role="status">{notice}</p>}
+          <form className="account-form" onSubmit={submit}>
+            <label htmlFor="account-phone">شماره موبایل</label>
+            <div className="account-field">
+              <Smartphone size={18} aria-hidden="true" />
+              <input id="account-phone" type="tel" dir="ltr" autoComplete="username" required value={phone}
+                maxLength={24} disabled={pending} placeholder="09123456789" onChange={event => setPhone(event.target.value)} />
             </div>
-
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-2xl bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition cursor-pointer"
-            >
-              <span>دریافت کد تایید</span>
-              <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerify} className="space-y-4">
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                کد فعال‌سازی
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  maxLength={5}
-                  placeholder="۱۲۳۴۵"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  className="w-full bg-slate-50 text-slate-800 text-lg tracking-widest text-center rounded-2xl py-3 border border-slate-200 focus:border-purple-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-purple-500/10 font-mono font-bold"
-                />
-                <Lock className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-xs">
-              <button
-                type="button"
-                onClick={() => setStep('phone')}
-                className="text-purple-600 font-semibold hover:underline"
-              >
-                تغییر شماره
+            <label htmlFor="account-password">رمز عبور</label>
+            <div className="account-field">
+              <LockKeyhole size={18} aria-hidden="true" />
+              <input id="account-password" type={visible ? 'text' : 'password'} dir="ltr"
+                autoComplete={registering ? 'new-password' : 'current-password'} required
+                minLength={registering ? 8 : undefined} maxLength={128} disabled={pending}
+                value={password} placeholder={registering ? 'حداقل ۸ نویسه' : undefined}
+                onChange={event => setPassword(event.target.value)} />
+              <button type="button" className="account-password-toggle" aria-label={visible ? 'پنهان کردن رمز' : 'نمایش رمز'} onClick={() => setVisible(!visible)}>
+                {visible ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
-              <span className="text-slate-400 font-mono">ارسال مجدد تا ۰۱:۴۵</span>
             </div>
-
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-2xl bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition cursor-pointer"
-            >
-              <span>ورود به حساب کاربری</span>
-              <CheckCircle2 className="w-4 h-4" />
+            {error && <p className="account-error" role="alert">{error}</p>}
+            <button type="submit" className="account-primary" disabled={pending}>
+              {pending ? 'در حال بررسی…' : registering ? 'ثبت‌نام' : 'ورود'} <ArrowLeft size={17} />
             </button>
           </form>
-        )}
+          <button type="button" className="account-switch" disabled={pending} onClick={() => changeStep(registering ? 'login' : 'register')}>
+            {registering ? 'حساب دارید؟ ورود' : 'حساب ندارید؟ ثبت‌نام'}
+          </button>
+        </>}
 
-        <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-          <p className="text-[11px] text-slate-400">
-            با ورود به آرنا پیور، <a href="#" className="text-purple-600 underline">قوانین و مقررات</a> را می‌پذیرید.
-          </p>
-        </div>
+        <p className="account-demo">حساب آزمایشی در همین مرورگر. از رمز واقعی استفاده نکنید.</p>
       </div>
-    </div>
+    </dialog>
   );
 }

@@ -19,6 +19,7 @@ import Footer from './components/Footer.jsx';
 import CartDrawer from './components/CartDrawer.jsx';
 import ProductQuickView from './components/ProductQuickView.jsx';
 import AuthModal from './components/AuthModal.jsx';
+import { readDemoSession, writeDemoSession } from './data/demoAccount.js';
 import Toast from './components/Toast.jsx';
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
   const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
+  const isAccount = window.location.pathname === '/account';
   const isHome = window.location.pathname === '/';
   const activeCategory = findCategory(window.location.pathname);
   const navigate = href => {
@@ -40,7 +42,7 @@ export default function App() {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
     const previous = previousProduct.current;
     previousProduct.current = product;
     const family = product && getProductDetails(product).family;
@@ -48,7 +50,7 @@ export default function App() {
     const frame = requestAnimationFrame(() => {
       const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
-      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
   }, [location]);
@@ -86,7 +88,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [toast, setToast] = useState(null);
-  const [user, setUser] = useState(null);
+  const [accountPhone, setAccountPhone] = useState(readDemoSession);
 
   const showToast = (message, type = 'cart') => {
     setToast({ message, type });
@@ -140,8 +142,10 @@ export default function App() {
   };
 
   const handleLoginSuccess = (phoneNumber) => {
-    setUser({ phone: phoneNumber });
-    showToast(`با شماره ${phoneNumber} وارد شدید`, 'cart');
+    writeDemoSession(phoneNumber);
+    setAccountPhone(phoneNumber);
+    setIsAuthOpen(false);
+    if (!isAccount) navigate('/account');
   };
 
   const handleSelectCategory = (catId, hash = '#products') => {
@@ -164,7 +168,8 @@ export default function App() {
         cartCount={cartCount}
         cartTotal={cartTotal}
         onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        isSignedIn={!!accountPhone}
+        onOpenAuth={() => accountPhone ? navigate('/account') : setIsAuthOpen(true)}
         wishlistCount={wishlist.length}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -174,7 +179,21 @@ export default function App() {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {article ? <ArticlePage article={article}/> : isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
+      {isAccount ? (
+        <main className="arena-container customer-account flex-1" dir="rtl">
+          <h1 id="customer-account-title" tabIndex={-1}>پنل مشتری</h1>
+          {accountPhone ? <>
+            <p>شماره موبایل حساب آزمایشی <bdi>{accountPhone}</bdi></p>
+            <button type="button" className="account-secondary" onClick={() => {
+              writeDemoSession(null);
+              setAccountPhone(null);
+              navigate('/');
+            }}>خروج از حساب</button>
+          </> : (
+            <button type="button" className="account-primary" onClick={() => setIsAuthOpen(true)}>ورود یا ثبت‌نام</button>
+          )}
+        </main>
+      ) : article ? <ArticlePage article={article}/> : isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
         {/* Screenshot 1: Hero Banners */}
         <HeroBanners />
 
@@ -241,11 +260,9 @@ export default function App() {
         isWishlisted={quickViewProduct ? wishlist.includes(quickViewProduct.id) : false}
       />
 
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-      />
+      {isAuthOpen && (
+        <AuthModal onClose={() => setIsAuthOpen(false)} onLoginSuccess={handleLoginSuccess} />
+      )}
 
 
 
