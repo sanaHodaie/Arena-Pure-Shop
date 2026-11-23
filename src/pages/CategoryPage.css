@@ -78,3 +78,9 @@ html[data-theme="dark"] .category-intro { background:none; box-shadow:none; }
  .category-intro h1 { margin-block:8px; }
  .category-count { width:auto; }
 }
+
+.category-routine-link {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 10px 14px;
+  border: 1px solid #e7d8ec; border-radius: 12px; color: #553260; background: #f8f0fa; font-size: 13px; font-weight: 800;
+}
+.category-routine-link:hover { background: #f0e2f5; }

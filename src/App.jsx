@@ -1,3 +1,4 @@
+import SkincareRoutinePage from './pages/SkincareRoutinePage.jsx';
 import WishlistPage from './pages/WishlistPage.jsx';
 import CustomerAccount from './pages/CustomerAccount.jsx';
 import { products } from './data/catalog.js';
@@ -31,6 +32,7 @@ export default function App() {
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
   const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
+  const isRoutine = window.location.pathname === '/skincare-routine';
   const isWishlist = window.location.pathname === '/wishlist';
   const isAccount = window.location.pathname === '/account';
   const isHome = window.location.pathname === '/';
@@ -47,7 +49,7 @@ export default function App() {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
     const previous = previousProduct.current;
     previousProduct.current = product;
     const family = product && getProductDetails(product).family;
@@ -55,7 +57,7 @@ export default function App() {
     const frame = requestAnimationFrame(() => {
       const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
-      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
   }, [location]);
@@ -211,6 +213,7 @@ export default function App() {
         onOpenAuth={() => accountPhone ? navigate('/account') : setIsAuthOpen(true)}
         wishlistCount={favoriteProducts.length}
         isWishlist={isWishlist}
+        isRoutine={isRoutine}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedCategory={activeCategory || selectedCategory}
@@ -219,7 +222,7 @@ export default function App() {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {isWishlist ? (
+      {isRoutine ? <SkincareRoutinePage /> : isWishlist ? (
         <WishlistPage products={favoriteProducts} wishlist={wishlist}
           onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
       ) : isAccount ? (
