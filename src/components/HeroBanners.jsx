@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReferenceArtwork from './ReferenceArtwork.jsx';
 import SiteArtwork from './SiteArtwork.jsx';
+import { categoryUrl } from '../data/categories.js';
 import { Sparkles, ShieldCheck, Truck } from 'lucide-react';
 
 const slides = [
@@ -16,6 +17,7 @@ export default function HeroBanners() {
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(() => document.hidden);
   const touchStart = useRef(null);
+  const swiped = useRef(false);
   const stopped = paused || hovered || focused || hidden;
 
   useEffect(() => {
@@ -37,31 +39,34 @@ export default function HeroBanners() {
     <div className="arena-carousel" role="region" aria-roledescription="اسلایدشو" aria-label="پیشنهادهای آرنا پیور" data-active-slide={active}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}
-      onTouchStart={event => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }}
+      onClickCapture={event => { if (swiped.current && event.detail > 0 && event.target.closest('.campaign-slide-link')) event.preventDefault(); swiped.current = false; }}
+      onTouchStart={event => { swiped.current = false; touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }}
       onTouchCancel={() => { touchStart.current = null; }}
-      onTouchEnd={event => { if (touchStart.current !== null) { const distance = event.changedTouches[0].clientX - touchStart.current.x; const vertical = event.changedTouches[0].clientY - touchStart.current.y; if (Math.abs(distance) > 45 && Math.abs(distance) > Math.abs(vertical)) move(distance > 0 ? 1 : -1); touchStart.current = null; } }}>
+      onTouchEnd={event => { if (touchStart.current !== null) { const distance = event.changedTouches[0].clientX - touchStart.current.x; const vertical = event.changedTouches[0].clientY - touchStart.current.y; if (Math.abs(distance) > 45 && Math.abs(distance) > Math.abs(vertical)) { swiped.current = true; move(distance > 0 ? 1 : -1); } touchStart.current = null; } }}>
       {slides.map((slide, index) => <div key={slide.id} className={`arena-main-banner hero-carousel-slide ${active === index ? 'is-active' : ''}`} aria-hidden={active !== index} inert={active !== index} role="group" aria-roledescription="اسلاید" aria-label={`${index + 1} از ${slides.length}`}>
-        <picture className="hero-carousel-picture"><source media="(max-width: 640px)" srcSet={`/images/banners/slide-${slide.id}-mobile.webp`}/><img src={`/images/banners/slide-${slide.id}-desktop.webp`} alt="" width="1920" height="640" decoding="async" loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'}/></picture>
-        <div className="arena-hero-copy carousel-copy">
-          <span className="hero-eyebrow"><Sparkles size={15}/>{slide.eyebrow}</span>
-          {index === 0 ? <h1>{slide.title[0]}<br/>{slide.title[1]}</h1> : <h2 className="carousel-title">{slide.title[0]}<br/>{slide.title[1]}</h2>}
-          <p>{slide.description}</p>
-          <div className="hero-assurances"><span><ShieldCheck size={15}/> انتخاب برندهای معتبر</span><span><Truck size={15}/> خرید آسان و مطمئن</span></div>
-          <span className="campaign-label">{slide.button}</span>
-        </div>
+        <a className="campaign-link campaign-slide-link" href={categoryUrl(slide.category)} aria-label={slide.button}>
+          <picture className="hero-carousel-picture"><source media="(max-width: 640px)" srcSet={`/images/banners/slide-${slide.id}-mobile.webp`}/><img src={`/images/banners/slide-${slide.id}-desktop.webp`} alt="" width="1920" height="640" decoding="async" loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'}/></picture>
+          <div className="arena-hero-copy carousel-copy">
+            <span className="hero-eyebrow"><Sparkles size={15}/>{slide.eyebrow}</span>
+            {index === 0 ? <h1>{slide.title[0]}<br/>{slide.title[1]}</h1> : <h2 className="carousel-title">{slide.title[0]}<br/>{slide.title[1]}</h2>}
+            <p>{slide.description}</p>
+            <div className="hero-assurances"><span><ShieldCheck size={15}/> انتخاب برندهای معتبر</span><span><Truck size={15}/> خرید آسان و مطمئن</span></div>
+            <span className="campaign-label">{slide.button}</span>
+          </div>
+        </a>
       </div>)}
       <div className="arena-slide-indicator" role="group" aria-label="انتخاب پوستر">{slides.map((slide,index) => <button key={slide.id} className={active === index ? 'is-active' : ''} onClick={() => setActive(index)} aria-label={`نمایش پوستر ${index+1}`} aria-pressed={active === index}><span/></button>)}</div>
       <span className="sr-only" aria-live={stopped ? 'polite' : 'off'}>پوستر {active+1} از {slides.length}</span>
     </div>
     <div className="arena-secondary-banners">
-      <div className="arena-hair-banner">
+      <a className="arena-hair-banner campaign-link" href={categoryUrl('haircare')} aria-label="دنیای مراقبت مو">
         <SiteArtwork src="/images/banners/haircare-desktop.webp" mobileSrc="/images/banners/haircare-mobile.webp" className="banner-artwork"><ReferenceArtwork x={838} y={561} width={319} height={309}/></SiteArtwork>
         <div className="arena-banner-copy"><span className="hero-eyebrow">روتین زیبایی مو</span><h2>مراقبتی که موهایتان<br/>شایستهٔ آن است</h2><p>یک قدم نزدیک‌تر به موهایی خوش‌حالت؛<br/>شامپو، ماسک و مراقبت محبوبت را پیدا کن.</p><span className="campaign-label">دنیای مراقبت مو</span></div>
-      </div>
-      <div className="arena-perfume-banner">
+      </a>
+      <a className="arena-perfume-banner campaign-link" href={categoryUrl('fragrance')} aria-label="دنیای عطر و رایحه">
         <SiteArtwork src="/images/banners/fragrance-desktop.webp" mobileSrc="/images/banners/fragrance-mobile.webp" className="banner-artwork"><ReferenceArtwork x={202} y={562} width={620} height={308}/></SiteArtwork>
         <div className="arena-banner-copy"><span className="hero-eyebrow">امضای شخصی تو</span><h2>رایحه‌ای ماندگار<br/>برای لحظه‌های بی‌تکرار</h2><p>از رایحه‌های لطیف روزانه تا عطرهای خاص؛<br/>رایحه‌ای را انتخاب کن که حال‌وهوای تو را روایت می‌کند.</p><span className="campaign-label">دنیای عطر و رایحه</span></div>
-      </div>
+      </a>
     </div>
   </section>;
 }

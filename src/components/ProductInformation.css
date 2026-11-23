@@ -69,3 +69,13 @@
   .pi-reviews-empty { padding: 18px 14px; gap: 12px; }.pi-reviews-empty > span { width: 45px; height: 45px; }.pi-reviews-empty h3 { font-size: 12px; }.pi-reviews-empty p { font-size: 10px; }
 }
 @media(prefers-reduced-motion:reduce) { .pi-sidebar nav a,.pi-questions summary svg { transition: none; } }
+
+.pi-suitability-copy {
+  padding: 16px 18px;
+  border-inline-start: 3px solid var(--color-brand-secondary);
+  border-radius: 10px;
+  background: #faf6fc;
+  color: #493853;
+  font-size: 14px;
+  line-height: 2;
+}

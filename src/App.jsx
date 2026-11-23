@@ -272,7 +272,7 @@ export default function App() {
         <BrandLogos />
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
-        <BlogSection onArticleClick={(article) => navigate('/articles/' + article.id)} />
+        <BlogSection />
       </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
