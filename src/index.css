@@ -639,3 +639,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .article-layout { grid-template-columns: 1fr; gap: 20px; }
   .article-related { grid-template-columns: minmax(0, 1fr); }
 }
+
+.arena-wishlist-link { display: grid; place-items: center; }
+.arena-header .arena-wishlist-link[aria-current="page"] { background: var(--color-brand-accent); }
+@media (max-width: 520px) {
+  .arena-header-actions .arena-cart { width: 44px; }
+}

@@ -1,3 +1,4 @@
+import WishlistPage from './pages/WishlistPage.jsx';
 import CustomerAccount from './pages/CustomerAccount.jsx';
 import { products } from './data/catalog.js';
 import { createCustomerOrder, readCustomerFavorites, saveCustomerFavorites } from './data/customerAccount.js';
@@ -30,6 +31,7 @@ export default function App() {
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
   const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
+  const isWishlist = window.location.pathname === '/wishlist';
   const isAccount = window.location.pathname === '/account';
   const isHome = window.location.pathname === '/';
   const activeCategory = findCategory(window.location.pathname);
@@ -45,7 +47,7 @@ export default function App() {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
     const previous = previousProduct.current;
     previousProduct.current = product;
     const family = product && getProductDetails(product).family;
@@ -53,7 +55,7 @@ export default function App() {
     const frame = requestAnimationFrame(() => {
       const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
-      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
   }, [location]);
@@ -82,7 +84,7 @@ export default function App() {
   const [cart, setCart] = useState([]);
 
   const [accountPhone, setAccountPhone] = useState(readDemoSession);
-  const [wishlist, setWishlist] = useState(() => accountPhone ? readCustomerFavorites(accountPhone) : []);
+  const [wishlist, setWishlist] = useState(() => readCustomerFavorites(accountPhone));
 
   // UI state
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -131,7 +133,7 @@ export default function App() {
     const exists = wishlist.includes(productId);
     const next = exists ? wishlist.filter(id => id !== productId) : [...wishlist, productId];
     try {
-      if (accountPhone) saveCustomerFavorites(accountPhone, next);
+      saveCustomerFavorites(accountPhone, next);
       setWishlist(next);
       showToast(exists ? 'از علاقه‌مندی‌ها حذف شد' : 'به علاقه‌مندی‌ها افزوده شد', exists ? 'info' : 'wishlist');
     } catch {
@@ -165,7 +167,10 @@ export default function App() {
 
   const handleLoginSuccess = phoneNumber => {
     const favorites = [...new Set([...readCustomerFavorites(phoneNumber), ...wishlist])];
-    try { saveCustomerFavorites(phoneNumber, favorites); }
+    try {
+      saveCustomerFavorites(phoneNumber, favorites);
+      saveCustomerFavorites(null, []);
+    }
     catch { showToast('ذخیرهٔ علاقه‌مندی‌ها ممکن نیست.', 'info'); }
     setWishlist(favorites);
     writeDemoSession(phoneNumber);
@@ -177,7 +182,7 @@ export default function App() {
   const handleLogout = () => {
     writeDemoSession(null);
     setAccountPhone(null);
-    setWishlist([]);
+    setWishlist(readCustomerFavorites(null));
     navigate('/');
   };
 
@@ -191,6 +196,7 @@ export default function App() {
     }
   };
 
+  const favoriteProducts = products.filter(product => wishlist.includes(product.id));
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -203,7 +209,8 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         isSignedIn={!!accountPhone}
         onOpenAuth={() => accountPhone ? navigate('/account') : setIsAuthOpen(true)}
-        wishlistCount={wishlist.length}
+        wishlistCount={favoriteProducts.length}
+        isWishlist={isWishlist}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedCategory={activeCategory || selectedCategory}
@@ -212,13 +219,15 @@ export default function App() {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {isAccount ? (
+      {isWishlist ? (
+        <WishlistPage products={favoriteProducts} wishlist={wishlist}
+          onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
+      ) : isAccount ? (
         <CustomerAccount
           key={accountPhone}
           phone={accountPhone}
           orderVersion={orderVersion}
-          favorites={products.filter(product => wishlist.includes(product.id))}
-          onToggleWishlist={handleToggleWishlist}
+          favoriteCount={favoriteProducts.length}
           onLogin={() => setIsAuthOpen(true)}
           onLogout={handleLogout}
         />

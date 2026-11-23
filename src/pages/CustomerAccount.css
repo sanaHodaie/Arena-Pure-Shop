@@ -48,10 +48,6 @@
 .customer-profile textarea { min-height: 85px; resize: vertical; }
 .customer-address, .customer-profile p { grid-column: 1 / -1; }
 .customer-profile button { width: fit-content; }
-.customer-favorite { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid #f0e8f2; padding-block: 8px; font-size: 13px; }
-.customer-favorite a { display: flex; align-items: center; gap: 12px; }
-.customer-favorite img, .customer-favorite .product-image-placeholder { width: 48px; height: 48px; object-fit: contain; }
-.customer-favorite button { color: #855593; padding: 7px; }
 @media (max-width: 800px) {
   .customer-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .customer-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }

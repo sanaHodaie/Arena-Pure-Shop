@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Heart, LayoutDashboard, LogOut, MapPin, Package } from 'lucide-react';
-import ProductImage from '../components/ProductImage.jsx';
-import { productUrl } from '../data/productDetails.js';
+import { LayoutDashboard, LogOut, MapPin, Package } from 'lucide-react';
 import { formatPrice } from '../data/mockData.js';
 import {
   orderStatuses, readCustomerOrders, readCustomerProfile, resolveCustomerOrder, saveCustomerProfile,
@@ -13,7 +11,6 @@ const sections = [
   ['account-overview', 'نمای کلی', LayoutDashboard],
   ['account-orders', 'تاریخچه سفارش‌ها', Package],
   ['account-profile', 'مشخصات و آدرس', MapPin],
-  ['account-favorites', 'علاقه‌مندی‌ها', Heart],
 ];
 
 const fields = [
@@ -26,7 +23,7 @@ const fields = [
   ['address', 'نشانی کامل، پلاک و واحد', 'street-address'],
 ];
 
-export default function CustomerAccount({ phone, favorites, onToggleWishlist, onLogin, onLogout, orderVersion }) {
+export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogout, orderVersion }) {
   const [orders, setOrders] = useState([]);
   const [profile, setProfile] = useState({});
   const [filter, setFilter] = useState('all');
@@ -111,7 +108,7 @@ export default function CustomerAccount({ phone, favorites, onToggleWishlist, on
             <div className="customer-stats">
               <a href="#account-orders"><strong>{formatPrice(orders.length)}</strong> همه سفارش‌ها</a>
               <a href="#account-orders"><strong>{formatPrice(orders.filter(order => order.status === 'successful').length)}</strong> سفارش موفق</a>
-              <a href="#account-favorites"><strong>{formatPrice(favorites.length)}</strong> علاقه‌مندی‌ها</a>
+              <a href="/wishlist"><strong>{formatPrice(favoriteCount)}</strong> علاقه‌مندی‌ها</a>
             </div>
           </section>
 
@@ -179,16 +176,6 @@ export default function CustomerAccount({ phone, favorites, onToggleWishlist, on
             </form>
           </section>
 
-          <section id="account-favorites" className="customer-card">
-            <h2>علاقه‌مندی‌ها</h2>
-            {!favorites.length && <p className="customer-empty">محصولی در علاقه‌مندی‌ها نیست.</p>}
-            {favorites.map(product => (
-              <div className="customer-favorite" key={product.id}>
-                <a href={productUrl(product)}><ProductImage src={product.image} alt="" />{product.title}</a>
-                <button type="button" onClick={() => onToggleWishlist(product.id)} aria-label={`حذف ${product.title} از علاقه‌مندی‌ها`}><Heart size={20} fill="currentColor"/></button>
-              </div>
-            ))}
-          </section>
         </div>
       </div>
     </main>

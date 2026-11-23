@@ -66,12 +66,12 @@ export function saveCustomerProfile(phone, profile) {
 
 export function readCustomerFavorites(phone) {
   try {
-    return JSON.parse(localStorage.getItem('arena-demo-favorites:' + phone)) || [];
+    return JSON.parse(localStorage.getItem('arena-demo-favorites:' + (phone ?? 'guest'))) || [];
   } catch {
     return [];
   }
 }
 
 export function saveCustomerFavorites(phone, favorites) {
-  localStorage.setItem('arena-demo-favorites:' + phone, JSON.stringify(favorites));
+  localStorage.setItem('arena-demo-favorites:' + (phone ?? 'guest'), JSON.stringify(favorites));
 }
