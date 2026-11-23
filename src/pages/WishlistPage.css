@@ -36,70 +36,68 @@
 
 .wishlist-comparison {
   position: fixed; inset: 0; margin: auto; padding: 0;
-  width: min(980px, calc(100% - 24px)); max-height: calc(100dvh - 24px);
-  border: 1px solid #e2d2e9; border-radius: 26px; color: var(--color-brand-primary); background: #fff;
-  box-shadow: 0 30px 95px #24122f55; overflow: auto;
+  width: min(880px, calc(100% - 24px)); max-height: calc(100dvh - 24px);
+  border: 1px solid #e9e0e8; border-radius: 21px; color: #382640; background: #fffcfa;
+  box-shadow: 0 18px 64px #2c19322b; overflow: auto;
 }
-.wishlist-comparison::backdrop { background: #23142e97; backdrop-filter: blur(7px); }
+.wishlist-comparison::backdrop { background: #261b325c; backdrop-filter: blur(4px); }
 .wishlist-comparison > header {
   position: sticky; top: 0; z-index: 3;
-  display: flex; justify-content: space-between; align-items: center; gap: 10px;
-  padding: 15px clamp(12px, 3vw, 26px); color: #fff;
-  background: radial-gradient(ellipse at 18% 0, #835a8d, transparent 70%), #42264e;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  padding: 16px clamp(16px, 4vw, 38px) 12px;
+  border-bottom: 1px solid #eee5ed; background: #fffcfa;
 }
-.comparison-heading { display: flex; align-items: center; gap: 12px; }
-.comparison-icon, .wishlist-comparison header button {
+.wishlist-comparison h2 { font-size: clamp(19px, 3vw, 27px); font-weight: 850; }
+.wishlist-comparison header p { margin-bottom: 4px; color: #6f5978; font-size: 11px; }
+.wishlist-comparison header button {
   display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0;
-  border: 1px solid #ffffff45; border-radius: 14px; background: #ffffff1c;
+  margin-inline-end: -8px; border-radius: 50%;
 }
-.wishlist-comparison header button:hover { background: #ffffff38; }
-.wishlist-comparison h2 { font-size: clamp(16px, 3vw, 23px); font-weight: 900; }
-.wishlist-comparison header p { margin-top: 2px; font-size: 12px; color: #f3e6f7; }
+.wishlist-comparison header button:hover { background: #f3ebf4; }
 .comparison-scroll-hint { display: none; }
-.wishlist-comparison-scroll { padding: 10px 14px 18px; overflow-x: auto; scrollbar-color: #baa2c7 #f7f0fa; }
-.wishlist-comparison table { width: 100%; table-layout: fixed; border-spacing: 0; text-align: center; font-size: 13px; }
-.wishlist-comparison th, .wishlist-comparison td { padding: 12px 9px; overflow-wrap: anywhere; }
-.wishlist-comparison th:first-child { width: 126px; text-align: start; }
-.wishlist-comparison thead th { vertical-align: top; }
-.wishlist-comparison thead th:first-child { vertical-align: bottom; }
-.comparison-label { color: #644573; font-weight: 800; }
-.comparison-product {
-  display: grid; align-content: start; justify-items: center; gap: 8px; padding: 9px;
-  border: 1px solid #eddfef; border-radius: 17px; background: #fdfaff;
+.wishlist-comparison-scroll {
+  padding: 0 clamp(8px, 2.4vw, 24px) 12px; overflow-x: auto; scrollbar-color: #b9a3c2 #f7f0f6;
 }
-.comparison-product:hover, .comparison-product:focus-visible { border-color: #a780b6; }
+.wishlist-comparison table {
+  width: 100%; min-width: 330px; table-layout: fixed; border-spacing: 0;
+  text-align: center; font-size: 13px;
+}
+.wishlist-comparison table:has(thead th:nth-child(4)) { min-width: 490px; }
+.wishlist-comparison th, .wishlist-comparison td {
+  padding: 12px 8px; overflow-wrap: anywhere; line-height: 1.65;
+}
+.wishlist-comparison th:first-child { width: clamp(71px, 16vw, 130px); text-align: start; }
+.wishlist-comparison thead th { vertical-align: top; padding-block: 14px; }
+.comparison-product { display: grid; justify-items: center; gap: 6px; }
 .comparison-product-art {
-  position: relative; width: 100%; height: clamp(82px, 12vw, 128px); border-radius: 11px;
-  background: radial-gradient(ellipse at 50% 25%, #fff, #eee1f2);
+  position: relative; width: 100%; height: clamp(73px, 13vw, 128px);
+  background: radial-gradient(ellipse at center, #f0e6f0, transparent 68%);
 }
 .comparison-product-art img, .comparison-product-art .product-image-placeholder {
   position: absolute; inset: 0; margin: auto;
-  width: 85%; height: 90%; object-fit: contain; filter: drop-shadow(0 5px 6px #4f2a5a24);
+  width: 84%; height: 94%; object-fit: contain; filter: drop-shadow(0 4px 5px #4f2a5a1a);
 }
-.comparison-product-name { font-size: 13px; line-height: 1.6; min-height: 3.2em; }
-.comparison-product-price { font-size: clamp(14px, 2vw, 18px); font-weight: 900; }
-.comparison-product-price small { font-size: 10px; }
-.comparison-stock, .comparison-difference { border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 800; }
-.comparison-stock { color: #8b3250; background: #fae9ef; }
-.comparison-stock.is-available { color: #246044; background: #e6f4ec; }
-.comparison-product-link { display: inline-flex; align-items: center; gap: 4px; color: #63416f; font-size: 11px; }
-.wishlist-comparison tbody :is(th, td) { border-bottom: 1px solid #eee4f0; }
-.wishlist-comparison tbody th { color: #573765; }
-.wishlist-comparison tbody tr:nth-child(odd) { background: #faf6fb; }
-.wishlist-comparison tbody .comparison-row-differs { background: #f2e8f7; }
-.comparison-row-differs td { font-weight: 800; }
-.comparison-difference { display: table; margin-top: 4px; color: #684078; background: #e9d7f1; }
-.comparison-missing { color: #6f6276; font-size: 12px; font-weight: 400; }
-@media (max-width: 600px) {
-  .comparison-scroll-hint {
-    display: flex; align-items: center; gap: 6px; padding: 9px 12px 0; color: #644573; font-size: 11px;
+.comparison-product-name { font-size: 12px; font-weight: 750; }
+.comparison-product:hover .comparison-product-name, .comparison-product:focus-visible .comparison-product-name {
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.comparison-product-arrow { color: #806489; }
+.wishlist-comparison tbody :is(th, td) { border-top: 1px solid #eee5ed; }
+.wishlist-comparison tbody th { font-size: 12px; font-weight: 600; color: #6f5978; }
+.comparison-product-price { font-size: clamp(13px, 2vw, 18px); font-weight: 850; }
+.comparison-product-price small { font-size: 10px; font-weight: 500; }
+.comparison-in-stock { color: #37634c; }
+.comparison-row-differs td:not(.comparison-missing) { color: #572e66; font-weight: 750; }
+.comparison-missing { color: #756779; font-size: 11px; }
+@media (max-width: 540px) {
+  .wishlist-comparison:has(thead th:nth-child(4)) .comparison-scroll-hint {
+    display: block; padding: 8px 12px 0; color: #6f5978; font-size: 11px;
   }
-  .wishlist-comparison-scroll { padding-inline: 8px; }
-  .wishlist-comparison table { min-width: 490px; }
-  .wishlist-comparison table:has(thead th:nth-child(4)) { min-width: 612px; }
-  .wishlist-comparison th:first-child {
-    position: sticky; inset-inline-start: 0; z-index: 1; width: 92px; background: #f8f1fa;
-    box-shadow: -1px 0 #e9dbef;
+  .wishlist-comparison tbody th:first-child {
+    position: sticky; inset-inline-start: 0; z-index: 1; background: #fffcfa;
   }
-  .wishlist-comparison th, .wishlist-comparison td { padding-inline: 6px; }
+  .wishlist-comparison th, .wishlist-comparison td { padding-inline: 5px; }
+}
+@media (max-width: 380px) {
+  .comparison-scroll-hint { display: block; padding: 8px 12px 0; color: #6f5978; font-size: 11px; }
 }

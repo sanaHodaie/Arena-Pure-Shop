@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ArrowLeft, ArrowRightLeft, X } from 'lucide-react';
+import { ArrowUpLeft, X } from 'lucide-react';
 import ProductImage from '../components/ProductImage.jsx';
 import { formatPrice } from '../data/mockData.js';
 import { categoryNames, getProductDetails, productUrl } from '../data/productDetails.js';
@@ -31,21 +31,18 @@ export default function WishlistComparison({ products, onClose }) {
     <dialog ref={dialogRef} className="wishlist-comparison" dir="rtl" aria-labelledby="wishlist-comparison-title"
       onCancel={event => { event.preventDefault(); onClose(); }}>
       <header>
-        <div className="comparison-heading">
-          <span className="comparison-icon"><ArrowRightLeft size={22} aria-hidden="true" /></span>
-          <div>
-            <h2 id="wishlist-comparison-title">مقایسه محصولات</h2>
-            <p>{categoryNames[products[0].category]} · {formatPrice(products.length)} محصول</p>
-          </div>
+        <div>
+          <p>{categoryNames[products[0].category]}</p>
+          <h2 id="wishlist-comparison-title">مقایسه محصولات</h2>
         </div>
-        <button type="button" aria-label="بستن مقایسه" onClick={onClose}><X size={22} /></button>
+        <button type="button" aria-label="بستن مقایسه" onClick={onClose}><X size={20} /></button>
       </header>
-      <p className="comparison-scroll-hint"><ArrowRightLeft size={15} aria-hidden="true" /> برای دیدن همهٔ محصولات، جدول را افقی حرکت دهید.</p>
+      <p className="comparison-scroll-hint">برای دیدن همهٔ محصولات، جدول را افقی بکشید.</p>
       <div className="wishlist-comparison-scroll" role="region" tabIndex={0} aria-label="جدول مقایسه محصولات">
         <table>
           <thead>
             <tr>
-              <th scope="col"><span className="comparison-label">مشخصات</span></th>
+              <th scope="col"><span className="sr-only">مشخصات</span></th>
               {products.map(product => (
                 <th key={product.id} scope="col">
                   <a className="comparison-product" href={productUrl(product)} onClick={event => {
@@ -54,24 +51,31 @@ export default function WishlistComparison({ products, onClose }) {
                     <div className="comparison-product-art">
                       <ProductImage src={product.image} alt="" />
                     </div>
-                    <strong className="comparison-product-name" dir="auto">{product.title}</strong>
-                    <strong className="comparison-product-price">{formatPrice(product.price)} <small>تومان</small></strong>
-                    <span className={`comparison-stock${product.inStock ? ' is-available' : ''}`}>
-                      {product.inStock ? 'موجود' : 'ناموجود'}
-                    </span>
-                    <span className="comparison-product-link">مشاهده محصول <ArrowLeft size={13} aria-hidden="true" /></span>
+                    <span className="comparison-product-name" dir="auto">{product.title}</span>
+                    <ArrowUpLeft className="comparison-product-arrow" size={14} aria-hidden="true" />
                   </a>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <th scope="row">قیمت</th>
+              {products.map(product => (
+                <td key={product.id} className="comparison-product-price">{formatPrice(product.price)} <small>تومان</small></td>
+              ))}
+            </tr>
+            <tr>
+              <th scope="row">موجودی</th>
+              {products.map(product => (
+                <td key={product.id} className={product.inStock ? 'comparison-in-stock' : undefined}>
+                  {product.inStock ? 'موجود' : 'ناموجود'}
+                </td>
+              ))}
+            </tr>
             {rows.map(({ label, values, differs }) => (
               <tr key={label} className={differs ? 'comparison-row-differs' : undefined}>
-                <th scope="row">
-                  {label}
-                  {differs && <span className="comparison-difference">متفاوت</span>}
-                </th>
+                <th scope="row">{label}</th>
                 {values.map((value, index) => (
                   <td key={products[index].id} dir="auto" className={value ? undefined : 'comparison-missing'}>
                     {value || 'ثبت نشده'}
