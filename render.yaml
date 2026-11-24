@@ -2,23 +2,15 @@ services:
   - type: web
     name: arena-pure-catalog
     runtime: python
-    plan: starter
+    plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    preDeployCommand: python manage.py migrate --noinput
-    startCommand: gunicorn arena.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: python manage.py migrate --noinput && gunicorn arena.wsgi:application --bind 0.0.0.0:$PORT
     healthCheckPath: /healthz/
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase:
-          name: arena-pure-postgres
-          property: connectionString
+        sync: false
       - key: CORS_ALLOWED_ORIGINS
         sync: false
-
-databases:
-  - name: arena-pure-postgres
-    plan: basic-256mb
-    ipAllowList: []

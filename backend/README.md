@@ -51,13 +51,24 @@ Alternatively put `VITE_API_BASE_URL=http://127.0.0.1:8000` in `.env.local` at t
 
 Product image paths beginning with `/images/` resolve on the storefront origin. Use an HTTPS image URL in Admin for an image hosted outside the storefront. Account, checkout and payment flows are still the frontend demos.
 
-## Render and Vercel
+## Neon, Render and Vercel
 
-1. In Render, create a **Blueprint** from the GitHub repository on `main`. The root [render.yaml](../render.yaml) provisions a Python web service and PostgreSQL. The selected Starter web and Basic PostgreSQL plans are paid. Review pricing in Render before applying the Blueprint.
-2. Set the Render Blueprint's `CORS_ALLOWED_ORIGINS` to the exact storefront origin such as `https://your-project.vercel.app`, without a trailing slash. Separate multiple explicit origins with commas.
-3. Once Render shows a healthy deployment, verify `https://<render-service>.onrender.com/healthz/` and `/api/v1/catalog/`. The build collects Admin static files and the pre-deploy command applies schema and initial catalog migrations.
-4. Open the Render web service Shell and run `python manage.py createsuperuser`. Open `/admin/` on the Render service to manage products.
-5. In Vercel, set `VITE_API_BASE_URL` to the Render service origin such as `https://<render-service>.onrender.com` without an API path. Redeploy the frontend so the Vite build picks up the variable. Direct product and category URLs use the repository's SPA rewrite. Change a price in Render Admin and reload its product on Vercel to verify the connection.
+1. In **Neon**, create a PostgreSQL project and select a region near your Render service. In the Neon **Connect** dialog, select the database and role, turn connection pooling off, and copy the **direct** connection string. Keep the SSL parameters Neon supplies.
+2. In **Render**, create a **Blueprint** from this GitHub repository on `main`. The root [render.yaml](../render.yaml) defines a Free Python web service. Set its secret `DATABASE_URL` to the Neon string and set `CORS_ALLOWED_ORIGINS` to the exact Vercel origin such as `https://your-project.vercel.app`, with no trailing slash. Separate multiple origins with commas. Render generates `DJANGO_SECRET_KEY`.
+3. Once the Render service is healthy, check `https://<render-service>.onrender.com/healthz/` and `/api/v1/catalog/`. The build collects Admin static files. The start command applies migrations before launching Gunicorn, since Render Free does not offer a separate pre-deploy command. The catalog is seeded once by a data migration and later restarts keep Admin edits in Neon.
+4. To create the first administrator, use the backend's activated local Python environment after Render has applied migrations. Render Free does not provide a service Shell. Run the following from `backend` in Bash and paste the Neon connection string at the hidden prompt.
+
+   ```bash
+   read -rsp 'Neon database URL: ' arena_neon_url
+   printf '\n'
+   DJANGO_DEBUG=1 DATABASE_URL="$arena_neon_url" python manage.py createsuperuser
+   unset arena_neon_url
+   ```
+
+   Sign in at `/admin/` on the Render service. Keep the connection string out of the repository and chat.
+5. In **Vercel**, set `VITE_API_BASE_URL` to the Render service origin such as `https://<render-service>.onrender.com` without an API path, then redeploy. Change a product price in Render Admin and reload its product page on Vercel to verify the connection.
+
+Render and Neon may suspend idle compute on their Free plans, so the first request after inactivity can take longer. PostgreSQL data lives in Neon and is independent of Render restarts.
 
 ## Checks
 
