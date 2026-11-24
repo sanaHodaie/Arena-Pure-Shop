@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { ShieldCheck, Sun, ChevronLeft, Scissors, ArrowLeft, Droplets, Sparkles } from 'lucide-react';
+import { ShieldCheck, Sun, ChevronLeft, Scissors, ArrowLeft, Droplets, Sparkles, SprayCan } from 'lucide-react';
 import { products } from '../data/catalog.js';
 import SortMenu from '../components/SortMenu.jsx';
 import { categoryPages } from '../data/categories.js';
 import ProductCard from '../components/ProductCard.jsx';
 import './CategoryPage.css';
 
-export default function CategoryPage({ category, onAddToCart, onToggleWishlist, wishlist }) {
+export default function CategoryPage({ category, onAddToCart, onToggleWishlist, wishlist, comparison }) {
   const content = categoryPages[category];
   const Icon = ['fragrance', 'cosmetics'].includes(category) ? Sparkles : category === 'hygiene' ? ShieldCheck : category === 'sunscreen' ? Sun : category === 'haircare' ? Scissors : Droplets;
   const [sort, setSort] = useState('default');
@@ -21,8 +21,9 @@ export default function CategoryPage({ category, onAddToCart, onToggleWishlist, 
     <nav className="pd-breadcrumb" aria-label="مسیر صفحه"><a href="/">خانه</a><ChevronLeft size={14}/><span aria-current="page">{content.title}</span></nav>
     <div className={`category-hero category-hero-${category}`}><img className="category-poster-art" src={`/images/banners/category-${category}-${category === 'hygiene' ? 'v3' : 'v2'}.png`} alt="" fetchPriority="high"/><header className="category-intro"><div><span className="category-eyebrow"><Icon size={17}/>{content.eyebrow}</span><h1 id="category-title" tabIndex={-1}>{content.title}</h1><p>{content.description}</p><span className="category-glass-label"><Sparkles size={13}/> زیبایی در جزئیات مراقبت توست</span></div><span className="category-count"><Icon size={24}/><strong>{categoryProducts.length.toLocaleString('fa-IR')}</strong>انتخاب برای روتین تو</span></header></div>
     {category === 'skincare' && <a className="category-routine-link" href="/skincare-routine"><Sparkles size={17} aria-hidden="true" /> روتین پوستت را بساز <ArrowLeft size={16} aria-hidden="true" /></a>}
+    {category === 'fragrance' && <a className="category-routine-link" href="/fragrance-finder"><SprayCan size={17} aria-hidden="true" /> عطر مناسبم رو پیدا کن <ArrowLeft size={16} aria-hidden="true" /></a>}
     <div className="category-toolbar"><p><strong>{categoryProducts.length.toLocaleString('fa-IR')}</strong> محصول برای کشف کردن</p><SortMenu value={sort} onChange={setSort}/></div>
-    <div className="beauty-product-grid category-product-grid">{categoryProducts.map(product => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist}/>)}</div>
+    <div className="beauty-product-grid category-product-grid">{categoryProducts.map(product => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist} comparison={comparison}/>)}</div>
     <a className="category-back" href="/">بازگشت به فروشگاه <ArrowLeft size={17}/></a>
   </main>;
 }

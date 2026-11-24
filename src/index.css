@@ -650,3 +650,11 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .campaign-slide-link { position: absolute; inset: 0; }
 .campaign-link:focus-visible { outline: 2px solid #fff; outline-offset: -6px; }
 .campaign-link:is(:hover, :focus-visible) .campaign-label { border-color: #ffffffb3; background: #ffffff24; }
+
+.hero-finder-link {
+  position: absolute; z-index: 3; inset-inline-end: clamp(14px, 3vw, 32px); bottom: 14px;
+  display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 7px 13px;
+  border: 1px solid #fff9; border-radius: 11px; background: #392544e6; color: #fff; font-size: 12px; font-weight: 750;
+}
+.hero-finder-link:hover { background: #513264; }
+.hero-finder-link:focus-visible { outline-color: #fff; }

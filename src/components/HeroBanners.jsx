@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReferenceArtwork from './ReferenceArtwork.jsx';
 import SiteArtwork from './SiteArtwork.jsx';
 import { categoryUrl } from '../data/categories.js';
-import { Sparkles, ShieldCheck, Truck } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, SprayCan } from 'lucide-react';
 
 const slides = [
   { id: 'care', category: 'skincare', eyebrow: 'زیبایی از یک انتخاب خوب شروع می‌شود', title: ['مراقبت امروز،', 'درخشش هر روز.'], description: 'از سرم‌های محبوب تا آبرسان‌های روزانه؛ روتین مراقبت پوستت را با انتخاب‌هایی دوست‌داشتنی در آرنا پیور کامل کن.', button: 'کشف محصولات مراقبت پوست' },
@@ -54,6 +54,9 @@ export default function HeroBanners() {
             <span className="campaign-label">{slide.button}</span>
           </div>
         </a>
+        {slide.category === 'fragrance' && (
+          <a className="hero-finder-link" href="/fragrance-finder"><SprayCan size={16} aria-hidden="true" /> عطر مناسبم رو پیدا کن</a>
+        )}
       </div>)}
       <div className="arena-slide-indicator" role="group" aria-label="انتخاب پوستر">{slides.map((slide,index) => <button key={slide.id} className={active === index ? 'is-active' : ''} onClick={() => setActive(index)} aria-label={`نمایش پوستر ${index+1}`} aria-pressed={active === index}><span/></button>)}</div>
       <span className="sr-only" aria-live={stopped ? 'polite' : 'off'}>پوستر {active+1} از {slides.length}</span>

@@ -1,3 +1,6 @@
+import FragranceFinderPage from './pages/FragranceFinderPage.jsx';
+import { CompareTray } from './components/CompareControls.jsx';
+import WishlistComparison from './pages/WishlistComparison.jsx';
 import { routineProducts, saveCustomerRoutine } from './data/skincareRoutine.js';
 import SkincareRoutinePage from './pages/SkincareRoutinePage.jsx';
 import WishlistPage from './pages/WishlistPage.jsx';
@@ -36,6 +39,7 @@ export default function App() {
   const [routineDraft, setRoutineDraft] = useState({ skin: '', concerns: [], budget: 3_500_000, result: null });
   const product = findProduct(window.location.pathname);
   const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
+  const isFragranceFinder = window.location.pathname === '/fragrance-finder';
   const isRoutine = window.location.pathname === '/skincare-routine';
   const isWishlist = window.location.pathname === '/wishlist';
   const isAccount = window.location.pathname === '/account';
@@ -53,7 +57,7 @@ export default function App() {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = isFragranceFinder ? 'عطریاب | آرنا پیور' : isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
     const wasAccount = previousPath.current === '/account';
     previousPath.current = window.location.pathname;
     const previous = previousProduct.current;
@@ -70,7 +74,7 @@ export default function App() {
       }
       const target = !isAccount && window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
-      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('fragrance-finder-title') || document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
   }, [location]);
@@ -108,6 +112,8 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [toast, setToast] = useState(null);
+  const [compareProducts, setCompareProducts] = useState([]);
+  const [showComparison, setShowComparison] = useState(false);
   const [orderVersion, setOrderVersion] = useState(0);
   const checkoutPending = useRef(false);
 
@@ -116,6 +122,23 @@ export default function App() {
     setTimeout(() => {
       setToast(null);
     }, 3500);
+  };
+
+  const comparison = {
+    products: compareProducts,
+    open: () => { if (compareProducts.length >= 2) setShowComparison(true); },
+    clear: () => setCompareProducts([]),
+    toggle: item => {
+      if (compareProducts.some(product => product.id === item.id)) {
+        setCompareProducts(compareProducts.filter(product => product.id !== item.id));
+      } else if (compareProducts.length && compareProducts[0].category !== item.category) {
+        showToast('فقط محصولات هم‌دسته قابل مقایسه‌اند. برای تغییر دسته، انتخاب‌ها را پاک کن.', 'info');
+      } else if (compareProducts.length >= 3) {
+        showToast('حداکثر سه محصول قابل مقایسه است.', 'info');
+      } else {
+        setCompareProducts([...compareProducts, item]);
+      }
+    },
   };
 
   const handleAddToCart = (product) => {
@@ -276,8 +299,11 @@ export default function App() {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {isRoutine ? <SkincareRoutinePage draft={routineDraft} onDraftChange={setRoutineDraft} onSaveRoutine={handleSaveRoutine} onAddRoutineToCart={handleAddRoutineToCart} /> : isWishlist ? (
-        <WishlistPage products={favoriteProducts} wishlist={wishlist}
+      {isFragranceFinder ? (
+        <FragranceFinderPage wishlist={wishlist} comparison={comparison}
+          onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
+      ) : isRoutine ? <SkincareRoutinePage draft={routineDraft} onDraftChange={setRoutineDraft} onSaveRoutine={handleSaveRoutine} onAddRoutineToCart={handleAddRoutineToCart} /> : isWishlist ? (
+        <WishlistPage products={favoriteProducts} wishlist={wishlist} comparison={comparison}
           onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
       ) : isAccount ? (
         <CustomerAccount
@@ -333,7 +359,7 @@ export default function App() {
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
         <BlogSection />
-      </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
+      </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
       <Footer />
@@ -364,6 +390,10 @@ export default function App() {
 
 
 
+      {(activeCategory || product || isFragranceFinder) && <CompareTray comparison={comparison} onProductPage={!!product} />}
+      {showComparison && compareProducts.length >= 2 && (
+        <WishlistComparison products={compareProducts} onClose={() => setShowComparison(false)} />
+      )}
       <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );

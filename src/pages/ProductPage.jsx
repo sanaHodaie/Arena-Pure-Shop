@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShoppingBag, ZoomIn, X } from 'lucide-react';
 import { categoryUrl } from '../data/categories.js';
+import { CompareButton } from '../components/CompareControls.jsx';
 import ProductInformation from '../components/ProductInformation.jsx';
 import ProductImage from '../components/ProductImage.jsx';
 import ProductCard from '../components/ProductCard.jsx';
@@ -8,7 +9,7 @@ import { formatPrice } from '../data/mockData.js';
 import { categoryNames, getProductDetails, productUrl } from '../data/productDetails.js';
 import './ProductPage.css';
 
-export default function ProductPage({ product, onAddToCart, onToggleWishlist, wishlist, onQuickView }) {
+export default function ProductPage({ product, onAddToCart, onToggleWishlist, wishlist, onQuickView, comparison }) {
   const [quantity, setQuantity] = useState(1);
   const [imageIndex, setImageIndex] = useState(0);
   const zoom = useRef(null);
@@ -22,7 +23,7 @@ export default function ProductPage({ product, onAddToCart, onToggleWishlist, wi
     <nav className="pd-breadcrumb" aria-label="مسیر صفحه"><a href="/">خانه</a><ChevronLeft size={14}/><a href={categoryUrl(product.category)}>{categoryNames[product.category]}</a><ChevronLeft size={14}/><span>{product.brand}</span></nav>
     <div className="pd-layout">
       <section className="pd-gallery" aria-label="تصاویر محصول">
-        <div className="pd-gallery-top"><span className="pd-tag">{product.brand}</span><button className="pd-icon" onClick={() => onToggleWishlist(product.id)} aria-label="افزودن به علاقه‌مندی‌ها" aria-pressed={wished}><Heart size={21} fill={wished ? 'currentColor' : 'none'}/></button></div>
+        <div className="pd-gallery-top"><span className="pd-tag">{product.brand}</span><div className="pd-gallery-actions"><CompareButton product={product} comparison={comparison} /><button className="pd-icon" onClick={() => onToggleWishlist(product.id)} aria-label="افزودن به علاقه‌مندی‌ها" aria-pressed={wished}><Heart size={21} fill={wished ? 'currentColor' : 'none'}/></button></div></div>
         <button className="pd-main-image" disabled={!selectedImage.src} onClick={() => zoom.current?.showModal()} aria-label="بزرگ‌نمایی تصویر محصول"><ProductImage src={selectedImage.src} alt={selectedImage.alt} sizes="(max-width: 760px) 90vw, 520px" loading="eager"/>{selectedImage.src && <span><ZoomIn size={17}/> مشاهده تصویر بزرگ‌تر</span>}</button>
         {details.gallery.length > 1 && <div className="pd-thumbnails">{details.gallery.map((image, index) => <button key={image.src} aria-label={`تصویر ${(index + 1).toLocaleString('fa-IR')}`} aria-pressed={index === imageIndex} onClick={() => setImageIndex(index)}><ProductImage src={image.src} alt={image.alt}/></button>)}</div>}
         {selectedImage.src && <p className="pd-image-note">تصویر همین مدل محصول • رنگ تصویر ممکن است با نمایشگر متفاوت باشد.</p>}
@@ -42,7 +43,7 @@ export default function ProductPage({ product, onAddToCart, onToggleWishlist, wi
       </section>
     </div>
     <ProductInformation key={product.id} product={product} details={details}/>
-    {!!details.related.length && <section className="pd-related"><div><h2>انتخاب‌های دیگر برای شما</h2><a href={categoryUrl(product.category)}>همه محصولات <ArrowLeft size={16}/></a></div><div className="pd-related-grid">{details.related.map(item => <ProductCard key={item.id} product={item} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist} onQuickView={onQuickView}/>)}</div></section>}
+    {!!details.related.length && <section className="pd-related"><div><h2>انتخاب‌های دیگر برای شما</h2><a href={categoryUrl(product.category)}>همه محصولات <ArrowLeft size={16}/></a></div><div className="pd-related-grid">{details.related.map(item => <ProductCard key={item.id} product={item} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist} onQuickView={onQuickView} comparison={comparison}/>)}</div></section>}
     <div className="pd-mobile-buy"><div><small>{details.shade || product.brand}</small><strong>{formatPrice(product.price)} <small>تومان</small></strong></div><button className="pd-buy" disabled={!product.inStock} onClick={add}><ShoppingBag size={18}/>{product.inStock ? `افزودن${quantity > 1 ? ` (${quantity.toLocaleString('fa-IR')})` : ''} به سبد` : 'ناموجود'}</button></div>
     <dialog ref={zoom} className="pd-zoom" onClick={event => { if (event.target === zoom.current) zoom.current.close(); }}><button className="pd-icon" autoFocus onClick={() => zoom.current.close()} aria-label="بستن تصویر"><X/></button><ProductImage src={selectedImage.src} alt={selectedImage.alt} sizes="90vw"/></dialog>
   </main>;
