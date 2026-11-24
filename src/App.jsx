@@ -47,6 +47,10 @@ export default function App() {
   const activeCategory = findCategory(window.location.pathname);
   const navigate = href => {
     const url = new URL(href, window.location.origin);
+    if (url.href === window.location.href && url.hash === '#categories') {
+      document.getElementById('categories')?.scrollIntoView();
+      return;
+    }
     window.history.pushState(null, '', url.pathname + url.search + url.hash);
     setLocation(url.pathname + url.hash);
   };

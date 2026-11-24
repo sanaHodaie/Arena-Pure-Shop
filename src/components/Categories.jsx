@@ -15,7 +15,7 @@ const categories = [
 ];
 
 export default function Categories({ selectedCategory, onSelectCategory }) {
-  return <section className="arena-container beauty-categories" aria-labelledby="categories-heading">
+  return <section id="categories" className="arena-container beauty-categories" aria-labelledby="categories-heading">
     <SectionHeading id="categories-heading" title="دسته‌بندی"/>
     <div className="beauty-category-list no-scrollbar">
       {categories.map((category, index) => {

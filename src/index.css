@@ -658,3 +658,5 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 }
 .hero-finder-link:hover { background: #513264; }
 .hero-finder-link:focus-visible { outline-color: #fff; }
+
+#categories { scroll-margin-top: 135px; }

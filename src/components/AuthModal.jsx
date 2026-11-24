@@ -101,6 +101,8 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
             <button type="button" className="account-secondary" onClick={() => changeStep('login')}>ورود</button>
           </div>
         </> : <>
+          {step === 'login' && <img className="account-login-portrait" src="/images/account/lipstick-portrait.webp"
+            alt="تصویر سه‌بعدی زنی در حال زدن رژ لب دیور" width="900" height="600" />}
           {notice && <p className="account-notice" role="status">{notice}</p>}
           <form className="account-form" onSubmit={submit}>
             <label htmlFor="account-phone">شماره موبایل</label>

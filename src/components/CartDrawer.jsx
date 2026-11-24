@@ -8,7 +8,7 @@ import { productUrl } from '../data/productDetails.js';
 export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCheckout }) {
   if (!isOpen) return null;
 
-  const openProduct = event => {
+  const closeOnNavigate = event => {
     if (!event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onClose();
   };
 
@@ -78,12 +78,10 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
               <p className="text-xs text-slate-400 max-w-xs mb-6">
                 می‌توانید با مراجعه به دسته‌بندی‌ها و پیشنهادهای شگفت‌انگیز، محصولات مورد نظر خود را اضافه کنید.
               </p>
-              <button
-                onClick={onClose}
-                className="px-6 py-2.5 rounded-xl bg-purple-700 text-white text-xs font-bold hover:bg-purple-800 transition"
-              >
+              <a href="/#categories" onClick={closeOnNavigate}
+                className="px-6 py-2.5 rounded-xl bg-purple-700 text-white text-xs font-bold hover:bg-purple-800 transition">
                 مشاهده محصولات
-              </button>
+              </a>
             </div>
           ) : (
             cart.map((item) => (
@@ -92,7 +90,7 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
                 className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 hover:border-purple-200 bg-white transition shadow-2xs"
               >
                 {/* Item Thumbnail */}
-                <a href={productUrl(item)} onClick={openProduct} tabIndex={-1} aria-hidden="true" className="shrink-0">
+                <a href={productUrl(item)} onClick={closeOnNavigate} tabIndex={-1} aria-hidden="true" className="shrink-0">
                   <ProductImage src={item.image} alt="" className="w-16 h-16 object-contain rounded-xl bg-slate-50 p-1" />
                 </a>
 
@@ -100,7 +98,7 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] text-purple-600 font-bold block">{item.brand}</span>
                   <h4 className="text-xs font-bold text-slate-800 truncate" title={item.title}>
-                    <a href={productUrl(item)} onClick={openProduct} className="hover:text-purple-800 hover:underline focus-visible:underline">
+                    <a href={productUrl(item)} onClick={closeOnNavigate} className="hover:text-purple-800 hover:underline focus-visible:underline">
                       {item.title}
                     </a>
                   </h4>

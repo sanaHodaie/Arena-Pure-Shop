@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutDashboard, LogOut, MapPin, Package, ShoppingBag, Sparkles } from 'lucide-react';
+import { LayoutDashboard, LogOut, MapPin, ListFilter, Package, ShoppingBag, Sparkles } from 'lucide-react';
+import SelectMenu from '../components/SelectMenu.jsx';
 import RoutineSchedules from '../components/RoutineSchedules.jsx';
 import { readCustomerRoutine } from '../data/skincareRoutine.js';
 import { formatPrice } from '../data/mockData.js';
@@ -14,6 +15,11 @@ const sections = [
   ['account-orders', 'تاریخچه سفارش‌ها', Package],
   ['account-profile', 'مشخصات و آدرس', MapPin],
   ['account-routine', 'روتین من', Sparkles],
+];
+
+const orderFilters = [
+  { value: 'all', label: 'همه سفارش‌ها' },
+  ...Object.entries(orderStatuses).map(([value, label]) => ({ value, label })),
 ];
 
 const fields = [
@@ -146,12 +152,7 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
           <section id="account-orders" className="customer-card" role="tabpanel" aria-labelledby="account-orders-tab" hidden={selectedPanel !== 'account-orders'}>
             <div className="customer-section-head">
               <h2>تاریخچه سفارش‌ها</h2>
-              <label>وضعیت
-                <select value={filter} onChange={event => setFilter(event.target.value)}>
-                  <option value="all">همه سفارش‌ها</option>
-                  {Object.entries(orderStatuses).map(([status, label]) => <option key={status} value={status}>{label}</option>)}
-                </select>
-              </label>
+              <SelectMenu value={filter} onChange={setFilter} options={orderFilters} label="وضعیت سفارش" Icon={ListFilter} />
             </div>
             {orderError && <p className="account-error" role="alert">{orderError}</p>}
             {!visibleOrders.length && <p className="customer-empty">{orders.length ? 'سفارشی با این وضعیت وجود ندارد.' : 'هنوز سفارشی ثبت نکرده‌اید.'}</p>}
