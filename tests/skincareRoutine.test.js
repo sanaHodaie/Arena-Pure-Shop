@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildSkincareRoutine, skinTypes } from '../src/data/skincareRoutine.js';
+import { buildSkincareRoutine, replaceRoutineProduct, routineProducts, skinTypes } from '../src/data/skincareRoutine.js';
 
 const keys = steps => steps.map(step => step.key);
 
@@ -33,4 +33,15 @@ test('dryness and sensitivity favor a hydrating serum before morning moisturizer
   assert.deepEqual(keys(routine.morning), ['cleanser', 'serum', 'moisturizer', 'sunscreen']);
   assert.equal(routine.morning[1].product.slug, 'ordinary-hyaluronic-acid-2-b5');
   assert.deepEqual(keys(routine.evening), ['cleanser', 'moisturizer']);
+});
+
+test('a cheaper cleanser replaces both daily steps and reduces the unique cart total once', () => {
+  const { routine } = buildSkincareRoutine('dry', ['dryness'], 5_000_000);
+  const cleanser = routine.morning[0];
+  assert.ok(cleanser.alternative);
+  const updated = replaceRoutineProduct(routine, 'cleanser');
+  assert.equal(updated.morning[0].product.id, cleanser.alternative.product.id);
+  assert.equal(updated.evening[0].product.id, cleanser.alternative.product.id);
+  assert.equal(updated.total, routine.total - cleanser.product.price + cleanser.alternative.product.price);
+  assert.equal(routineProducts(updated).length, 4);
 });

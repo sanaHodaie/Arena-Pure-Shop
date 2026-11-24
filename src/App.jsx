@@ -1,3 +1,4 @@
+import { routineProducts, saveCustomerRoutine } from './data/skincareRoutine.js';
 import SkincareRoutinePage from './pages/SkincareRoutinePage.jsx';
 import WishlistPage from './pages/WishlistPage.jsx';
 import CustomerAccount from './pages/CustomerAccount.jsx';
@@ -29,6 +30,8 @@ import Toast from './components/Toast.jsx';
 
 export default function App() {
   const previousProduct = useRef(null);
+  const previousPath = useRef(null);
+  const pendingRoutine = useRef(null);
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const product = findProduct(window.location.pathname);
   const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
@@ -50,12 +53,15 @@ export default function App() {
   }, []);
   useEffect(() => {
     document.title = isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    const wasAccount = previousPath.current === '/account';
+    previousPath.current = window.location.pathname;
     const previous = previousProduct.current;
     previousProduct.current = product;
     const family = product && getProductDetails(product).family;
     if (!window.location.hash && previous && product && previous.id !== product.id && family && family === getProductDetails(previous).family) return;
+    if (isAccount && wasAccount) return;
     const frame = requestAnimationFrame(() => {
-      const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
+      const target = !isAccount && window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
       else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
@@ -120,6 +126,41 @@ export default function App() {
     showToast(`«${product.title}» به سبد خرید افزوده شد`, 'cart');
   };
 
+  const handleAddRoutineToCart = routine => {
+    const items = routineProducts(routine);
+    if (!items.length || items.some(product => !product.inStock)) {
+      showToast('بعضی محصولات روتین موجود نیستند. سبد خرید تغییری نکرد.', 'info');
+      return;
+    }
+    setCart(current => {
+      const next = new Map(current.map(item => [item.id, item]));
+      for (const product of items) {
+        next.set(product.id, { ...product, quantity: (next.get(product.id)?.quantity || 0) + 1 });
+      }
+      return [...next.values()];
+    });
+    setIsCartOpen(true);
+    showToast('محصولات روتین به سبد خرید اضافه شدند.');
+  };
+
+  const persistRoutine = (phone, routine) => {
+    try {
+      saveCustomerRoutine(phone, routine);
+      navigate('/account#account-routine');
+      showToast('روتین در بخش «روتین من» ذخیره شد.', 'info');
+    } catch {
+      showToast('ذخیرهٔ روتین در این مرورگر ممکن نیست.', 'info');
+    }
+  };
+
+  const handleSaveRoutine = routine => {
+    if (accountPhone) persistRoutine(accountPhone, routine);
+    else {
+      pendingRoutine.current = routine;
+      setIsAuthOpen(true);
+    }
+  };
+
   const handleUpdateQuantity = (id, newQuantity) => {
     setCart((prev) =>
       prev.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item))
@@ -178,6 +219,12 @@ export default function App() {
     writeDemoSession(phoneNumber);
     setAccountPhone(phoneNumber);
     setIsAuthOpen(false);
+    const routine = pendingRoutine.current;
+    pendingRoutine.current = null;
+    if (routine) {
+      persistRoutine(phoneNumber, routine);
+      return;
+    }
     if (!isAccount) navigate('/account');
   };
 
@@ -222,7 +269,7 @@ export default function App() {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {isRoutine ? <SkincareRoutinePage /> : isWishlist ? (
+      {isRoutine ? <SkincareRoutinePage onSaveRoutine={handleSaveRoutine} onAddRoutineToCart={handleAddRoutineToCart} /> : isWishlist ? (
         <WishlistPage products={favoriteProducts} wishlist={wishlist}
           onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
       ) : isAccount ? (
@@ -230,6 +277,9 @@ export default function App() {
           key={accountPhone}
           phone={accountPhone}
           orderVersion={orderVersion}
+          activePanel={location.split('#')[1]}
+          onSelectPanel={panel => navigate('/account#' + panel)}
+          onAddRoutineToCart={handleAddRoutineToCart}
           favoriteCount={favoriteProducts.length}
           onLogin={() => setIsAuthOpen(true)}
           onLogout={handleLogout}
@@ -302,7 +352,7 @@ export default function App() {
       />
 
       {isAuthOpen && (
-        <AuthModal onClose={() => setIsAuthOpen(false)} onLoginSuccess={handleLoginSuccess} />
+        <AuthModal onClose={() => { pendingRoutine.current = null; setIsAuthOpen(false); }} onLoginSuccess={handleLoginSuccess} />
       )}
 
 

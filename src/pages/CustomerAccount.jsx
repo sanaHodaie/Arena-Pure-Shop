@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutDashboard, LogOut, MapPin, Package } from 'lucide-react';
+import { LayoutDashboard, LogOut, MapPin, Package, ShoppingBag, Sparkles } from 'lucide-react';
+import RoutineSchedules from '../components/RoutineSchedules.jsx';
+import { readCustomerRoutine } from '../data/skincareRoutine.js';
 import { formatPrice } from '../data/mockData.js';
 import {
   orderStatuses, readCustomerOrders, readCustomerProfile, resolveCustomerOrder, saveCustomerProfile,
@@ -11,6 +13,7 @@ const sections = [
   ['account-overview', 'نمای کلی', LayoutDashboard],
   ['account-orders', 'تاریخچه سفارش‌ها', Package],
   ['account-profile', 'مشخصات و آدرس', MapPin],
+  ['account-routine', 'روتین من', Sparkles],
 ];
 
 const fields = [
@@ -23,7 +26,10 @@ const fields = [
   ['address', 'نشانی کامل، پلاک و واحد', 'street-address'],
 ];
 
-export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogout, orderVersion }) {
+export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogout, orderVersion, activePanel, onSelectPanel, onAddRoutineToCart }) {
+  const selectedPanel = sections.some(([id]) => id === activePanel) ? activePanel : sections[0][0];
+  const [savedRoutine, setSavedRoutine] = useState(null);
+  const [routineError, setRoutineError] = useState(false);
   const [orders, setOrders] = useState([]);
   const [profile, setProfile] = useState({});
   const [filter, setFilter] = useState('all');
@@ -44,6 +50,8 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
 
   useEffect(() => {
     if (!phone) return;
+    try { setSavedRoutine(readCustomerRoutine(phone)); }
+    catch { setRoutineError(true); }
     try { setProfile(readCustomerProfile(phone)); }
     catch { setProfileMessage({ error: true, text: 'خواندن مشخصات ذخیره‌شده ممکن نیست.' }); }
   }, [phone]);
@@ -98,21 +106,35 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
       </header>
 
       <div className="customer-grid">
-        <nav className="customer-menu" aria-label="بخش‌های حساب">
-          {sections.map(([id, label, Icon]) => <a key={id} href={`#${id}`}><Icon size={18}/>{label}</a>)}
-        </nav>
+        <div className="customer-menu" role="tablist" aria-label="بخش‌های حساب" onKeyDown={event => {
+          const index = sections.findIndex(([id]) => id === selectedPanel);
+          const offsets = { ArrowDown: 1, ArrowUp: -1, ArrowLeft: 1, ArrowRight: -1 };
+          if (!Object.hasOwn(offsets, event.key) && event.key !== 'Home' && event.key !== 'End') return;
+          event.preventDefault();
+          const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? sections.length - 1
+            : (index + offsets[event.key] + sections.length) % sections.length;
+          const [id] = sections[nextIndex];
+          onSelectPanel(id);
+          document.getElementById(`${id}-tab`).focus();
+        }}>
+          {sections.map(([id, label, Icon]) => (
+            <button type="button" key={id} role="tab" id={`${id}-tab`} aria-controls={id}
+              aria-selected={selectedPanel === id} tabIndex={selectedPanel === id ? 0 : -1}
+              onClick={() => onSelectPanel(id)}><Icon size={18} aria-hidden="true" />{label}</button>
+          ))}
+        </div>
 
         <div className="customer-content">
-          <section id="account-overview" className="customer-card">
+          <section id="account-overview" className="customer-card" role="tabpanel" aria-labelledby="account-overview-tab" hidden={selectedPanel !== 'account-overview'}>
             <h2>نمای کلی</h2>
             <div className="customer-stats">
-              <a href="#account-orders"><strong>{formatPrice(orders.length)}</strong> همه سفارش‌ها</a>
-              <a href="#account-orders"><strong>{formatPrice(orders.filter(order => order.status === 'successful').length)}</strong> سفارش موفق</a>
+              <a href="/account#account-orders"><strong>{formatPrice(orders.length)}</strong> همه سفارش‌ها</a>
+              <a href="/account#account-orders"><strong>{formatPrice(orders.filter(order => order.status === 'successful').length)}</strong> سفارش موفق</a>
               <a href="/wishlist"><strong>{formatPrice(favoriteCount)}</strong> علاقه‌مندی‌ها</a>
             </div>
           </section>
 
-          <section id="account-orders" className="customer-card">
+          <section id="account-orders" className="customer-card" role="tabpanel" aria-labelledby="account-orders-tab" hidden={selectedPanel !== 'account-orders'}>
             <div className="customer-section-head">
               <h2>تاریخچه سفارش‌ها</h2>
               <label>وضعیت
@@ -148,7 +170,7 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
             ))}
           </section>
 
-          <section id="account-profile" className="customer-card">
+          <section id="account-profile" className="customer-card" role="tabpanel" aria-labelledby="account-profile-tab" hidden={selectedPanel !== 'account-profile'}>
             <h2>مشخصات و آدرس تحویل</h2>
             <p className="customer-empty">این اطلاعات آزمایشی در همین مرورگر ذخیره می‌شوند.</p>
             <form className="customer-profile" onSubmit={saveProfile}>
@@ -176,6 +198,23 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
             </form>
           </section>
 
+          <section id="account-routine" className="customer-card" role="tabpanel" aria-labelledby="account-routine-tab" hidden={selectedPanel !== 'account-routine'}>
+            <div className="customer-section-head">
+              <h2>روتین من</h2>
+              <a className="customer-routine-link" href="/skincare-routine">{savedRoutine ? 'ساخت روتین جدید' : 'رفتن به روتین‌ساز'}</a>
+            </div>
+            {routineError && <p className="account-error" role="alert">خواندن روتین ذخیره‌شده ممکن نیست.</p>}
+            {!routineError && !savedRoutine && <p className="customer-empty">هنوز روتینی ذخیره نکرده‌اید.</p>}
+            {savedRoutine && (
+              <>
+                <p className="customer-empty">جمع محصولات بدون تکرار {formatPrice(savedRoutine.total)} تومان</p>
+                <div className="routine-actions">
+                  <button type="button" className="account-primary" onClick={() => onAddRoutineToCart(savedRoutine)}><ShoppingBag size={17} aria-hidden="true" /> افزودن کل روتین به سبد</button>
+                </div>
+                <RoutineSchedules routine={savedRoutine} />
+              </>
+            )}
+          </section>
         </div>
       </div>
     </main>

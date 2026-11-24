@@ -69,7 +69,12 @@ export function buildSkincareRoutine(skin, concerns, budget = Infinity) {
   const evening = [];
   const dailyFrequency = '۷ بار در هفته';
 
-  for (const item of best?.items ?? []) {
+  for (const selected of best?.items ?? []) {
+    // Serum options address different concerns and follow different schedules.
+    const alternatives = selected.key === 'serum' ? [] : candidates.flat().filter(candidate =>
+      candidate.key === selected.key && candidate.product.price < selected.product.price);
+    const alternative = alternatives.sort((a, b) => b.score - a.score || a.product.price - b.product.price)[0];
+    const item = { ...selected, alternative };
     if (item.key === 'serum') {
       const isNiacinamide = item.product.id === 6;
       const frequency = isNiacinamide ? 'برای شروع، ۲ تا ۳ شب در هفته' : dailyFrequency;
@@ -93,4 +98,43 @@ export function buildSkincareRoutine(skin, concerns, budget = Infinity) {
     includesSerum: best.items.some(item => item.key === 'serum'),
   };
   return { routine, minimum, serumAvailable: serums.length > 0 };
+}
+
+export function routineProducts(routine) {
+  return [...new Map([...routine.morning, ...routine.evening].map(step => [
+    step.product.id, catalog.get(step.product.id) || { ...step.product, inStock: false },
+  ])).values()];
+}
+
+export function replaceRoutineProduct(routine, key) {
+  const selected = [...routine.morning, ...routine.evening].find(step => step.key === key);
+  if (!selected?.alternative) return routine;
+  const replace = step => step.key === key ? {
+    ...step,
+    product: selected.alternative.product,
+    reason: selected.alternative.reason,
+    alternative: undefined,
+  } : step;
+  const next = { ...routine, morning: routine.morning.map(replace), evening: routine.evening.map(replace) };
+  return { ...next, total: routineProducts(next).reduce((total, product) => total + product.price, 0) };
+}
+
+export function saveCustomerRoutine(phone, routine) {
+  const snapshot = steps => steps.map(({ key, label, use, product, reason, frequency }) => ({
+    key, label, use, reason, frequency, product: { id: product.id, title: product.title, slug: product.slug, price: product.price },
+  }));
+  localStorage.setItem('arena-demo-routine:' + phone, JSON.stringify({
+    morning: snapshot(routine.morning),
+    evening: snapshot(routine.evening),
+  }));
+}
+
+export function readCustomerRoutine(phone) {
+  const saved = JSON.parse(localStorage.getItem('arena-demo-routine:' + phone));
+  if (!saved) return null;
+  const restore = steps => steps.map(step => ({
+    ...step, product: catalog.get(step.product.id) ?? { ...step.product, inStock: false, unlisted: true },
+  }));
+  const routine = { morning: restore(saved.morning), evening: restore(saved.evening) };
+  return { ...routine, total: routineProducts(routine).reduce((total, product) => total + product.price, 0) };
 }

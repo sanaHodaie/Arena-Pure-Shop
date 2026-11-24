@@ -13,8 +13,8 @@
   align-self: start; display: grid; gap: 5px; padding: 12px;
   border: 1px solid #eadfee; border-radius: 18px; background: #fff;
 }
-.customer-menu a { display: flex; align-items: center; gap: 10px; padding: 11px 10px; border-radius: 8px; font-size: 13px; }
-.customer-menu a:hover, .customer-menu a:focus-visible { background: #f6eff8; }
+.customer-menu button { display: flex; align-items: center; gap: 10px; padding: 11px 10px; border-radius: 8px; font-size: 13px; }
+.customer-menu button:is(:hover, :focus-visible, [aria-selected="true"]) { background: #f6eff8; }
 .customer-content { display: grid; gap: 20px; }
 .customer-card { padding: clamp(16px, 3vw, 28px); border: 1px solid #eadfee; border-radius: 20px; background: #fff; scroll-margin-top: 130px; }
 .customer-card h2 { font-size: 19px; font-weight: 900; }
@@ -56,3 +56,7 @@
   .customer-profile { grid-template-columns: minmax(0, 1fr); }
   .customer-order summary { justify-content: flex-start; }
 }
+
+.customer-card[hidden] { display: none; }
+.customer-menu button[aria-selected="true"] { color: #542b64; font-weight: 850; }
+.customer-routine-link { color: #684279; text-decoration: underline; text-underline-offset: 3px; font-size: 13px; }
