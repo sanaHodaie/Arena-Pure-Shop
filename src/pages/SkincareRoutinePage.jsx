@@ -1,28 +1,55 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Bookmark, Droplets, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Bookmark, Droplets, ShoppingBag, Sparkles, X } from 'lucide-react';
 import RoutineSchedules from '../components/RoutineSchedules.jsx';
 import { formatPrice } from '../data/mockData.js';
 import { buildSkincareRoutine, replaceRoutineProduct, skinConcerns, skinTypes } from '../data/skincareRoutine.js';
 
 const budgets = [[2_500_000, 'تا ۲٫۵ میلیون'], [3_500_000, 'تا ۳٫۵ میلیون'], [5_000_000, 'تا ۵ میلیون'], [Infinity, 'بدون سقف']];
 
-export default function SkincareRoutinePage({ onSaveRoutine, onAddRoutineToCart }) {
-  const [skin, setSkin] = useState('');
-  const [concerns, setConcerns] = useState([]);
-  const [budget, setBudget] = useState(3_500_000);
-  const [result, setResult] = useState(null);
-  const [revision, setRevision] = useState(0);
-  const resultRef = useRef(null);
+function MissingSkinDialog({ onClose, onChoose }) {
+  const ref = useRef(null);
 
   useEffect(() => {
-    if (!result) return;
+    const dialog = ref.current;
+    dialog.showModal();
+    return () => dialog.close();
+  }, []);
+
+  return (
+    <dialog ref={ref} className="routine-validation" dir="rtl" aria-labelledby="routine-validation-title"
+      aria-describedby="routine-validation-message"
+      onCancel={event => { event.preventDefault(); onClose(); }}>
+      <button type="button" className="routine-validation-close" aria-label="بستن پیام" onClick={onClose}><X size={20} /></button>
+      <span className="routine-validation-icon" aria-hidden="true"><Sparkles size={24} /></span>
+      <h2 id="routine-validation-title">اول نوع پوستت رو انتخاب کن</h2>
+      <p id="routine-validation-message">با شناخت نوع پوستت می‌تونیم روتین صبح و شب مناسب‌تری پیشنهاد بدیم. اگر نمی‌دونی، گزینهٔ «مطمئن نیستم» رو بزن.</p>
+      <button type="button" className="account-primary" onClick={onChoose}>انتخاب نوع پوست <ArrowLeft size={16} aria-hidden="true" /></button>
+    </dialog>
+  );
+}
+
+export default function SkincareRoutinePage({ draft, onDraftChange, onSaveRoutine, onAddRoutineToCart }) {
+  const { skin, concerns, budget, result } = draft;
+  const [revision, setRevision] = useState(0);
+  const [showValidation, setShowValidation] = useState(false);
+  const resultRef = useRef(null);
+  const firstSkinInput = useRef(null);
+
+  useEffect(() => {
+    if (!revision || !resultRef.current) return;
     resultRef.current.focus({ preventScroll: true });
     resultRef.current.scrollIntoView({ block: 'start' });
   }, [revision]);
 
+  function updateDraft(fields) {
+    onDraftChange(current => ({ ...current, ...fields }));
+  }
+
   function toggleConcern(concern) {
-    setResult(null);
-    setConcerns(current => current.includes(concern) ? current.filter(item => item !== concern) : [...current, concern]);
+    updateDraft({
+      result: null,
+      concerns: concerns.includes(concern) ? concerns.filter(item => item !== concern) : [...concerns, concern],
+    });
   }
 
   return (
@@ -35,20 +62,23 @@ export default function SkincareRoutinePage({ onSaveRoutine, onAddRoutineToCart 
         <img src="/images/articles/cover-hydration.webp" alt="" width="1440" height="960" />
       </header>
 
-      <form className="routine-form" onSubmit={event => {
+      <form className="routine-form" noValidate onSubmit={event => {
         event.preventDefault();
-        if (skin) {
-          setResult(buildSkincareRoutine(skin, concerns, budget));
-          setRevision(value => value + 1);
+        if (!skin) {
+          setShowValidation(true);
+          return;
         }
+        updateDraft({ result: buildSkincareRoutine(skin, concerns, budget) });
+        setRevision(value => value + 1);
       }}>
         <fieldset>
           <legend>۱. نوع پوستت چیه؟</legend>
           <div className="routine-options">
-            {skinTypes.map(([type, label]) => (
+            {skinTypes.map(([type, label], index) => (
               <label key={type}>
                 <input type="radio" name="routine-skin" value={type} required checked={skin === type}
-                  onChange={() => { setSkin(type); setResult(null); }} />
+                  ref={index === 0 ? firstSkinInput : undefined}
+                  onChange={() => updateDraft({ skin: type, result: null })} />
                 {label}
               </label>
             ))}
@@ -72,7 +102,7 @@ export default function SkincareRoutinePage({ onSaveRoutine, onAddRoutineToCart 
             {budgets.map(([amount, label]) => (
               <label key={amount}>
                 <input type="radio" name="routine-budget" checked={budget === amount}
-                  onChange={() => { setBudget(amount); setResult(null); }} />
+                  onChange={() => updateDraft({ budget: amount, result: null })} />
                 {label}
               </label>
             ))}
@@ -82,7 +112,7 @@ export default function SkincareRoutinePage({ onSaveRoutine, onAddRoutineToCart 
       </form>
 
       {result && (
-        <section ref={resultRef} tabIndex={-1} className="routine-result" aria-labelledby="routine-result-title">
+        <section id="routine-result" ref={resultRef} tabIndex={-1} className="routine-result" aria-labelledby="routine-result-title">
           <div className="routine-result-header">
             <h2 id="routine-result-title">روتین پیشنهادی تو</h2>
             {result.routine && <strong aria-live="polite">جمع محصولات بدون تکرار {formatPrice(result.routine.total)} تومان</strong>}
@@ -97,9 +127,9 @@ export default function SkincareRoutinePage({ onSaveRoutine, onAddRoutineToCart 
                 <button type="button" className="account-primary" onClick={() => onAddRoutineToCart(result.routine)}><ShoppingBag size={17} aria-hidden="true" /> افزودن کل روتین به سبد</button>
                 <button type="button" className="account-secondary" onClick={() => onSaveRoutine(result.routine)}><Bookmark size={17} aria-hidden="true" /> ذخیرهٔ روتین من</button>
               </div>
-              <RoutineSchedules routine={result.routine} onReplace={key => setResult(current => ({
-                ...current, routine: replaceRoutineProduct(current.routine, key),
-              }))} />
+              <RoutineSchedules routine={result.routine} onReplace={key => updateDraft({
+                result: { ...result, routine: replaceRoutineProduct(result.routine, key) },
+              })} />
             </>
           ) : (
             <p className="routine-note" role="status"><Droplets size={18} aria-hidden="true" />
@@ -110,6 +140,10 @@ export default function SkincareRoutinePage({ onSaveRoutine, onAddRoutineToCart 
           )}
         </section>
       )}
+      {showValidation && <MissingSkinDialog onClose={() => setShowValidation(false)} onChoose={() => {
+        setShowValidation(false);
+        requestAnimationFrame(() => firstSkinInput.current?.focus());
+      }} />}
     </main>
   );
 }

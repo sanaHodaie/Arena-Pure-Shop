@@ -33,6 +33,7 @@ export default function App() {
   const previousPath = useRef(null);
   const pendingRoutine = useRef(null);
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
+  const [routineDraft, setRoutineDraft] = useState({ skin: '', concerns: [], budget: 3_500_000, result: null });
   const product = findProduct(window.location.pathname);
   const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
   const isRoutine = window.location.pathname === '/skincare-routine';
@@ -61,6 +62,12 @@ export default function App() {
     if (!window.location.hash && previous && product && previous.id !== product.id && family && family === getProductDetails(previous).family) return;
     if (isAccount && wasAccount) return;
     const frame = requestAnimationFrame(() => {
+      const routineResult = isRoutine && previous ? document.getElementById('routine-result') : null;
+      if (routineResult) {
+        routineResult.focus({ preventScroll: true });
+        routineResult.scrollIntoView({ block: 'start' });
+        return;
+      }
       const target = !isAccount && window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
       else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
@@ -269,7 +276,7 @@ export default function App() {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {isRoutine ? <SkincareRoutinePage onSaveRoutine={handleSaveRoutine} onAddRoutineToCart={handleAddRoutineToCart} /> : isWishlist ? (
+      {isRoutine ? <SkincareRoutinePage draft={routineDraft} onDraftChange={setRoutineDraft} onSaveRoutine={handleSaveRoutine} onAddRoutineToCart={handleAddRoutineToCart} /> : isWishlist ? (
         <WishlistPage products={favoriteProducts} wishlist={wishlist}
           onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
       ) : isAccount ? (

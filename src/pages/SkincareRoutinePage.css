@@ -70,3 +70,24 @@
 .routine-alternative summary { cursor: pointer; color: #593369; font-weight: 800; }
 .routine-alternative a { display: inline-block; margin-top: 6px; text-decoration: underline; }
 .routine-alternative .account-secondary { width: fit-content; min-height: 36px; margin-top: 8px; font-size: 12px; }
+
+.routine-validation {
+  position: fixed; inset: 0; margin: auto; width: min(400px, calc(100% - 28px));
+  padding: 30px 23px 23px; border: 1px solid #eee1f0; border-radius: 23px; text-align: center;
+  color: #43264f; background: radial-gradient(ellipse at 50% 0, #f1e2f6, #fff 65%);
+  box-shadow: 0 20px 70px #36214045;
+}
+.routine-validation::backdrop { background: #27173270; backdrop-filter: blur(4px); }
+.routine-validation[open] { animation: routine-validation-in .2s ease-out; }
+@keyframes routine-validation-in { from { opacity: 0; transform: translateY(6px); } }
+.routine-validation-close {
+  display: grid; place-items: center; position: absolute; top: 6px; inset-inline-end: 6px;
+  width: 44px; height: 44px; border-radius: 50%;
+}
+.routine-validation-icon {
+  display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 12px;
+  border-radius: 18px; background: #ead7f2; color: #69407b;
+}
+.routine-validation h2 { font-size: 19px; font-weight: 900; }
+.routine-validation p { margin: 9px auto 17px; font-size: 14px; line-height: 1.9; }
+@media (prefers-reduced-motion: reduce) { .routine-validation[open] { animation: none; } }

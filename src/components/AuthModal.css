@@ -97,9 +97,12 @@
   border: 1px solid #67467947;
   border-radius: 13px;
   background: #ffffffc7;
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
 }
-.account-field:focus-within { outline: 2px solid #9875ad; outline-offset: 1px; }
-.account-field input { flex: 1; min-width: 0; width: 100%; height: 44px; outline: none; }
+.account-field:focus-within { border-color: #876197; background: #fff; box-shadow: 0 0 0 3px #9875ad22; }
+.account-field input { flex: 1; min-width: 0; width: 100%; height: 44px; }
+.account-field input:focus-visible { outline: none; }
+@media (prefers-reduced-motion: reduce) { .account-field { transition: none; } }
 .account-password-toggle { background: transparent; }
 .account-switch { display: block; margin: 17px auto 0; font-size: 13px; font-weight: 800; }
 .account-error, .account-notice { font-size: 13px; line-height: 1.8; }
