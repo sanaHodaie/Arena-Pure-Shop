@@ -13,3 +13,30 @@
 .pd-routine-link { margin-top: 6px; text-decoration: underline; text-underline-offset: 3px; }
 .pd-routine-preview { border-top: 1px solid #ece0ee; margin-top: 10px; padding-top: 10px; }
 .pd-routine-preview .account-secondary { margin-top: 9px; width: fit-content; }
+
+.pd-shade-guide-trigger {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 42px; margin-top: 6px;
+  color: #644071; font-size: 12px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px;
+}
+.pd-shade-guide {
+  position: fixed; inset: 0; margin: auto; width: min(610px, calc(100% - 24px)); max-height: calc(100dvh - 24px);
+  overflow: auto; padding: clamp(12px, 4vw, 24px);
+  border: 1px solid #ebdeee; border-radius: 22px; background: #fffcff; color: #422b4c;
+}
+.pd-shade-guide::backdrop { background: #28193585; backdrop-filter: blur(5px); }
+.pd-shade-guide header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+.pd-shade-guide header h2 { font-size: clamp(17px, 4vw, 22px); font-weight: 900; }
+.pd-shade-guide header button { min-width: 40px; }
+.pd-shade-guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pd-shade-guide-grid article { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 8px; font-size: 12px; }
+.pd-shade-guide-photo { background: #f7eef5; border-radius: 11px; }
+.pd-shade-guide-photo img { width: 100%; height: clamp(95px, 27vw, 158px); object-fit: contain; }
+.pd-shade-guide-grid h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 14px; font-weight: 850; }
+.pd-shade-guide-grid h3 i { display: inline-block; width: 18px; height: 18px; padding: 0; border: 1px solid #4e385453; border-radius: 50%; }
+.pd-shade-guide-grid p, .pd-shade-guide-note { line-height: 1.75; }
+.pd-shade-guide .pd-shade-guide-grid a, .pd-shade-guide-current {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: auto; min-height: 38px;
+  padding: 4px 0; border: 0; font-size: 12px; font-weight: 800;
+}
+.pd-shade-guide .pd-shade-guide-grid a { color: #674078; text-decoration: underline; text-underline-offset: 3px; }
+.pd-shade-guide-note { border-top: 1px solid #ece1ee; padding-top: 10px; margin-top: 10px; font-size: 11px; }
