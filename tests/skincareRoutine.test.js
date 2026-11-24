@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildSkincareRoutine, replaceRoutineProduct, routineProducts, skinTypes } from '../src/data/skincareRoutine.js';
+import { products } from '../src/data/catalog.js';
+import { buildSkincareRoutine, getRoutinePlacement, replaceRoutineProduct, routineProducts, skinTypes } from '../src/data/skincareRoutine.js';
 
 const keys = steps => steps.map(step => step.key);
 
@@ -44,4 +45,27 @@ test('a cheaper cleanser replaces both daily steps and reduces the unique cart t
   assert.equal(updated.evening[0].product.id, cleanser.alternative.product.id);
   assert.equal(updated.total, routine.total - cleanser.product.price + cleanser.alternative.product.price);
   assert.equal(routineProducts(updated).length, 4);
+});
+
+test('product placement moves a replacement serum to its own schedule and recalculates price', () => {
+  const { routine } = buildSkincareRoutine('oily', ['shine'], 5_000_000);
+  const serum = products.find(product => product.id === 7);
+  const previous = routine.evening.find(step => step.key === 'serum').product;
+  const { schedule, existing, next } = getRoutinePlacement(serum, routine);
+  assert.equal(schedule[0].period, 'morning');
+  assert.deepEqual(existing.map(product => product.id), [previous.id]);
+  assert.deepEqual(keys(next.morning), ['cleanser', 'serum', 'moisturizer', 'sunscreen']);
+  assert.deepEqual(keys(next.evening), ['cleanser', 'moisturizer']);
+  assert.equal(next.total, routine.total - previous.price + serum.price);
+  assert.equal(getRoutinePlacement(serum, next).alreadyIncluded, true);
+});
+
+test('placement only offers a saved-routine change for compatible, available products', () => {
+  const { routine } = buildSkincareRoutine('sensitive', []);
+  const niacinamide = products.find(product => product.id === 6);
+  const hydrating = products.find(product => product.id === 7);
+  assert.equal(getRoutinePlacement(niacinamide, routine).next, null);
+  assert.equal(getRoutinePlacement({ ...hydrating, inStock: false }, routine).next, null);
+  assert.ok(getRoutinePlacement(hydrating, routine).next);
+  assert.equal(getRoutinePlacement(products.find(product => product.id === 12), routine), null);
 });
