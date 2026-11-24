@@ -3,9 +3,14 @@ import React from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { freeShippingThreshold, shippingCost } from '../data/customerAccount.js';
 import { formatPrice } from '../data/mockData.js';
+import { productUrl } from '../data/productDetails.js';
 
 export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCheckout }) {
   if (!isOpen) return null;
+
+  const openProduct = event => {
+    if (!event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onClose();
+  };
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const delivery = shippingCost(subtotal);
@@ -16,7 +21,6 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs transition-opacity">
       <div 
         className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden animate-slide-left"
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
         <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-purple-50/50">
@@ -88,17 +92,17 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
                 className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 hover:border-purple-200 bg-white transition shadow-2xs"
               >
                 {/* Item Thumbnail */}
-                <ProductImage
-                  src={item.image}
-                  alt={item.title}
-                  className="w-16 h-16 object-contain rounded-xl bg-slate-50 p-1 shrink-0"
-                />
+                <a href={productUrl(item)} onClick={openProduct} tabIndex={-1} aria-hidden="true" className="shrink-0">
+                  <ProductImage src={item.image} alt="" className="w-16 h-16 object-contain rounded-xl bg-slate-50 p-1" />
+                </a>
 
                 {/* Details */}
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] text-purple-600 font-bold block">{item.brand}</span>
                   <h4 className="text-xs font-bold text-slate-800 truncate" title={item.title}>
-                    {item.title}
+                    <a href={productUrl(item)} onClick={openProduct} className="hover:text-purple-800 hover:underline focus-visible:underline">
+                      {item.title}
+                    </a>
                   </h4>
                   <div className="mt-1 flex items-center justify-between">
                     <span className="text-xs font-extrabold text-slate-900">
