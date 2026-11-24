@@ -10,6 +10,11 @@ from .models import Category, Product
 class CatalogTests(TestCase):
     slug = "maybelline-vinyl-ink-35-cheeky"
 
+    def test_backend_home_links_to_health_catalog_and_admin(self):
+        response = self.client.get(reverse("index"))
+        for name in ("health", "catalog", "admin:index"):
+            self.assertContains(response, f'href="{reverse(name)}"')
+
     def test_catalog_and_stable_storefront_paths(self):
         self.assertEqual(Category.objects.count(), 7)
         self.assertEqual(Product.objects.count(), 70)

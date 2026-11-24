@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.urls import path
+from django.views.generic import TemplateView
 
 from catalog import views
 
 urlpatterns = [
+    path("", TemplateView.as_view(template_name="catalog/index.html"), name="index"),
     path("admin/", admin.site.urls),
     path("healthz/", views.health, name="health"),
     path("api/v1/catalog/", views.storefront, name="catalog"),
