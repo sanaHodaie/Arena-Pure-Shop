@@ -91,10 +91,10 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
           {step === 'welcome' ? 'به آرنا پیور خوش آمدید' : registering ? 'ثبت‌نام' : 'ورود به حساب'}
         </h2>
 
-        {!registering && (
-          <img className={`account-login-portrait${step === 'welcome' ? ' account-welcome-portrait' : ''}`}
+        {step === 'welcome' && (
+          <img className="account-welcome-portrait"
             src="/images/account/lipstick-portrait.webp" alt="تصویر سه‌بعدی زنی در حال زدن رژ لب دیور"
-            width="900" height="600" />
+            width="900" height="596" />
         )}
 
         {step === 'welcome' ? <>

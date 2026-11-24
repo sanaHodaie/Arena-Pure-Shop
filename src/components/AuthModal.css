@@ -84,10 +84,11 @@
 .customer-account h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 900; }
 .customer-account button { width: auto; min-width: 140px; }
 
-.account-login-portrait {
-  display: block; width: 100%; height: clamp(126px, 25dvh, 200px);
-  margin-bottom: 14px; border-radius: 16px; border: 1px solid #ffffffa0;
-  object-fit: cover; object-position: center 65%; background: #f3e8f4;
+.account-welcome-portrait {
+  display: block;
+  width: 100%;
+  height: clamp(178px, 35dvh, 252px);
+  margin-bottom: 17px;
+  object-fit: contain;
+  mask-image: linear-gradient(to bottom, #000 91%, transparent 100%);
 }
-
-.account-welcome-portrait { height: clamp(178px, 35dvh, 252px); margin-bottom: 17px; }
