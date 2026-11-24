@@ -44,11 +44,11 @@ export default function ProductInformation({ product, details }) {
         <section id="product-introduction" className="pi-panel">
           <PanelHeader sectionId="product-introduction" subtitle="نگاهی نزدیک‌تر به انتخاب شما">معرفی محصول</PanelHeader>
           <div className="pi-introduction"><span className="pi-brand-pill">{product.brand}</span><h3>{product.title}</h3><p>{product.title} در دسته {categoryNames[product.category]} قرار دارد.{details.shade ? ` این صفحه مربوط به رنگ ${details.shade} است؛ پیش از خرید، شماره و نام رنگ را بررسی کنید.` : ' نام انگلیسی و مدل درج‌شده در مشخصات، به شما کمک می‌کند نسخه موردنظر را دقیق‌تر شناسایی کنید.'}</p></div>
-          <a className="pi-source" href={product.sourceUrl} target="_blank" rel="noopener noreferrer"><span><ExternalLink size={17}/> منبع اطلاعات محصول</span><ArrowUpLeft size={17}/></a>
+          {product.sourceUrl && <a className="pi-source" href={product.sourceUrl} target="_blank" rel="noopener noreferrer"><span><ExternalLink size={17}/> منبع اطلاعات محصول</span><ArrowUpLeft size={17}/></a>}
         </section>
         <section id="product-suitability" className="pi-panel pi-suitability">
           <PanelHeader sectionId="product-suitability">{suitabilityTitle}</PanelHeader>
-          <p className="pi-suitability-copy">{productSuitability[product.id] || 'راهنمای انتخاب این مدل هنوز ثبت نشده است.'}</p>
+          <p className="pi-suitability-copy">{(product.suitability ?? productSuitability[product.id]) || 'راهنمای انتخاب این مدل هنوز ثبت نشده است.'}</p>
         </section>
         <section id="product-specifications" className="pi-panel">
           <PanelHeader sectionId="product-specifications" subtitle="اطلاعات کلیدی، یک‌جا و خوانا">مشخصات محصول</PanelHeader>

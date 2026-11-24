@@ -15,11 +15,14 @@ const identities = {
   12: { type: 'عطر زنانه', model: 'La Vie Est Belle', extra: [['غلظت', 'ادو پرفیوم (Eau de Parfum)']] },
 };
 export function getProductDetails(product) {
-  const identity = identities[product.id] || { type: product.type, model: product.model };
+  const identity = product.storefrontPath
+    ? { type: product.type, model: product.model, family: product.family, shade: product.shade,
+        color: product.color, undertone: product.undertone, shadeNote: product.shadeNote, extra: product.extra }
+    : identities[product.id] || { type: product.type, model: product.model };
   return { ...identity,
     specs: [['برند', product.brand], ['نام انگلیسی', product.englishName], ['نوع محصول', identity.type], ['مدل', identity.model], ...(identity.shade ? [['رنگ / شماره', identity.shade]] : []), ['دسته‌بندی', categoryNames[product.category]], ...(identity.extra || [])].filter(([, value]) => value),
-    variants: identity.family ? products.filter(item => identities[item.id]?.family === identity.family) : [],
-    related: products.filter(item => item.id !== product.id && item.category === product.category && (!identity.family || identities[item.id]?.family !== identity.family)).slice(0, 4),
+    variants: identity.family ? products.filter(item => (item.family ?? identities[item.id]?.family) === identity.family) : [],
+    related: products.filter(item => item.id !== product.id && item.category === product.category && (!identity.family || (item.family ?? identities[item.id]?.family) !== identity.family)).slice(0, 4),
     gallery: [{ src: product.image, alt: product.title }],
   };
 }
@@ -27,4 +30,4 @@ export function findProduct(pathname) {
   const match = /^\/products\/([^/]+)\/?$/.exec(pathname);
   return match ? products.find(product => product.slug === match[1]) || null : null;
 }
-export function productUrl(product) { return `/products/${product.slug}`; }
+export function productUrl(product) { return product.storefrontPath || `/products/${product.slug}`; }

@@ -26,7 +26,7 @@ export default function Categories({ selectedCategory, onSelectCategory }) {
           <span className={`beauty-category-circle category-photo-group tone-${index % 2} ${category.products.length === 1 ? 'single-photo' : 'double-photo'}`} aria-hidden="true">
             {category.products.map((id, photoIndex) => {
               const product = products.find(item => item.id === id);
-              return <ProductImage key={id} src={product.image} alt="" loading="lazy" className={`category-product-photo photo-${photoIndex}`}/>;
+              return <ProductImage key={id} src={product?.image} alt="" loading="lazy" className={`category-product-photo photo-${photoIndex}`}/>;
             })}
           </span>
           <span>{category.name}</span>
