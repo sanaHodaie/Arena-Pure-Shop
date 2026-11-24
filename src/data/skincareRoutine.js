@@ -12,22 +12,22 @@ export const skinConcerns = [
 
 const catalog = new Map(products.map(product => [product.id, product]));
 const steps = [
-  { label: 'شوینده', use: 'روی پوست مرطوب ماساژ بده و آبکشی کن؛ هنگام شست‌وشو پوست را نمال.', options: [
+  { key: 'cleanser', label: 'شوینده', use: 'روی پوست مرطوب ماساژ بده و آبکشی کن؛ هنگام شست‌وشو پوست را نمال.', options: [
     [22, ['dry', 'sensitive', 'unknown'], ['dryness', 'sensitivity'], 'شویندهٔ کرمی با کف کم، برای وقتی که شست‌وشوی کف‌دار به پوستت حس کشیدگی می‌دهد.'],
     [49, ['normal', 'combination', 'dry', 'unknown'], ['dryness'], 'از کرم به کف تبدیل می‌شود و برای شست‌وشوی روزمرهٔ پوست نرمال، مختلط یا متمایل به خشکی قابل بررسی است.'],
     [51, ['sensitive', 'dry', 'unknown'], ['sensitivity'], 'پاک‌کنندهٔ شیری برای وقتی که بافت کم‌کف را روی پوست خشک یا حساس ترجیح می‌دهی.'],
     [23, ['oily', 'combination', 'normal'], ['shine', 'pores'], 'ژل کف‌دار مناسب بررسی برای پوست چرب؛ اگر گونه‌ها بعد از شست‌وشو کشیده می‌شوند، دفعات مصرف را کمتر کن.'],
     [52, ['oily', 'combination'], ['shine', 'pores'], 'شویندهٔ ژلی و کف‌دار برای پوست چرب یا ناحیهٔ T براق؛ حس پوست بعد از آبکشی را معیار قرار بده.'],
   ] },
-  { label: 'سرم', use: 'بعد از شست‌وشو و پیش از مرطوب‌کننده بزن. اگر تازه شروع کرده‌ای، ابتدا روی بخش کوچکی از پوست امتحان کن.', options: [
+  { key: 'serum', label: 'سرم', use: 'بعد از شست‌وشو و پیش از مرطوب‌کننده بزن. اگر تازه شروع کرده‌ای، ابتدا روی بخش کوچکی از پوست امتحان کن.', options: [
     [7, ['dry', 'normal', 'combination', 'oily', 'sensitive', 'unknown'], ['dryness'], 'سرم هیالورونیک اسید یک لایهٔ آبرسان سبک است. روی پوست کمی مرطوب بزن و برای پوست خشک روی آن مرطوب‌کننده استفاده کن.'],
     [6, ['oily', 'combination'], ['shine', 'pores'], 'نیاسینامید ۱۰٪ برای وقتی که دغدغه‌ات برق اضافی و ظاهر منافذ است. از مقدار کم شروع کن.'],
   ] },
-  { label: 'مرطوب‌کننده', use: 'بعد از سرم، یا مستقیم بعد از شست‌وشو، روی پوست بزن.', options: [
+  { key: 'moisturizer', label: 'مرطوب‌کننده', use: 'بعد از سرم، یا مستقیم بعد از شست‌وشو، روی پوست بزن.', options: [
     [8, ['dry', 'sensitive', 'normal', 'unknown'], ['dryness', 'sensitivity'], 'کرم غلیظ‌تر برای نواحی خشک و پوست کشیده؛ برای زیر آرایش از مقدار کم شروع کن.'],
     [26, ['dry', 'normal', 'combination', 'oily', 'sensitive', 'unknown'], [], 'مرطوب‌کنندهٔ روزانه برای بعد از سرم و قبل از ضدآفتاب؛ روی ناحیهٔ T از مقدار کم شروع کن.'],
   ] },
-  { label: 'ضدآفتاب صبح', use: 'آخرین مرحلهٔ روتین صبح است. مقدار و زمان تمدید را طبق دستور روی بسته رعایت کن.', options: [
+  { key: 'sunscreen', label: 'ضدآفتاب صبح', use: 'آخرین مرحلهٔ روتین صبح است. مقدار و زمان تمدید را طبق دستور روی بسته رعایت کن.', options: [
     [31, ['dry', 'normal', 'combination'], ['dryness'], 'بافت کرمی‌تر برای روتین روزانهٔ پوست معمولی یا خشک؛ اگر پوستت در گرما براق می‌شود، جلوه را پس از جذب بسنج.'],
     [39, ['normal', 'dry', 'combination', 'unknown'], ['dryness'], 'بافت سرمی برای زمانی که ضدآفتاب غلیظ نمی‌خواهی. مقاومت در برابر آب را برای ورزش روی بسته بررسی کن.'],
     [9, ['sensitive', 'normal', 'combination', 'oily', 'unknown', 'dry'], ['sensitivity'], 'فلوئید بی‌رنگ و بدون عطر برای استفادهٔ روزانه. اگر پوستت واکنش‌پذیر است، ابتدا روی بخش کوچکی امتحان کن.'],
@@ -39,12 +39,12 @@ const steps = [
 export function buildSkincareRoutine(skin, concerns, budget = Infinity) {
   const cautious = skin === 'sensitive' || skin === 'unknown' || concerns.includes('sensitivity');
   const preferredSkin = cautious ? 'sensitive' : skin;
-  const candidates = steps.map(({ label, use, options }) => options.flatMap(([id, skins, matches, reason]) => {
+  const candidates = steps.map(({ key, label, use, options }) => options.flatMap(([id, skins, matches, reason]) => {
     const product = catalog.get(id);
     if (!product?.inStock || !skins.includes(preferredSkin)) return [];
-    if (label === 'سرم' && (!concerns.some(concern => matches.includes(concern)) || (cautious && id === 6))) return [];
+    if (key === 'serum' && (!concerns.some(concern => matches.includes(concern)) || (cautious && id === 6))) return [];
     const score = (skins[0] === preferredSkin ? 2 : 1) + matches.filter(concern => concerns.includes(concern)).length * 3;
-    return [{ label, use, product, reason, score }];
+    return [{ key, label, use, product, reason, score }];
   }));
   const [cleansers, serums, moisturizers, sunscreens] = candidates;
   let minimum = Infinity;
@@ -65,5 +65,32 @@ export function buildSkincareRoutine(skin, concerns, budget = Infinity) {
     }
   }
 
-  return { routine: best, minimum, serumAvailable: serums.length > 0 };
+  const morning = [];
+  const evening = [];
+  const dailyFrequency = '۷ بار در هفته';
+
+  for (const item of best?.items ?? []) {
+    if (item.key === 'serum') {
+      const isNiacinamide = item.product.id === 6;
+      const frequency = isNiacinamide ? 'برای شروع، ۲ تا ۳ شب در هفته' : dailyFrequency;
+      (isNiacinamide ? evening : morning).push({ ...item, frequency });
+      continue;
+    }
+
+    morning.push({ ...item, frequency: dailyFrequency });
+    if (item.key !== 'sunscreen') {
+      const use = item.key === 'cleanser'
+        ? 'ضدآفتاب و آلودگی روز را با شوینده و آب ولرم پاک کن. برای آرایش ضدآب، دستور پاک‌کردن روی بسته را بررسی کن.'
+        : item.use;
+      evening.push({ ...item, use, frequency: dailyFrequency });
+    }
+  }
+
+  const routine = best && {
+    morning,
+    evening,
+    total: best.total,
+    includesSerum: best.items.some(item => item.key === 'serum'),
+  };
+  return { routine, minimum, serumAvailable: serums.length > 0 };
 }

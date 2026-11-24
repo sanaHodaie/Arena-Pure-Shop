@@ -8,6 +8,34 @@ import './SkincareRoutinePage.css';
 
 const budgets = [[2_500_000, 'تا ۲٫۵ میلیون'], [3_500_000, 'تا ۳٫۵ میلیون'], [5_000_000, 'تا ۵ میلیون'], [Infinity, 'بدون سقف']];
 
+function RoutineSchedule({ id, title, Icon, steps }) {
+  return (
+    <section className={`routine-schedule routine-schedule--${id}`} aria-labelledby={`routine-${id}-title`}>
+      <h3 id={`routine-${id}-title`}><Icon size={20} aria-hidden="true" /> {title}</h3>
+      <ol className="routine-steps">
+        {steps.map(({ label, use, product, reason, frequency }, index) => (
+          <li key={product.id}>
+            <span className="routine-step-number" aria-hidden="true">{formatPrice(index + 1)}</span>
+            <div className="routine-product-image" aria-hidden="true">
+              <ProductImage src={product.image} alt="" loading="lazy" />
+            </div>
+            <div className="routine-step-copy">
+              <div className="routine-step-heading">
+                <h4>{label}</h4>
+                <span className="routine-frequency">{frequency}</span>
+              </div>
+              <a href={productUrl(product)} className="routine-product-link">{product.title} <ArrowLeft size={14} aria-hidden="true" /></a>
+              <p><strong>چرا این محصول؟</strong> {reason}</p>
+              <p><strong>روش استفاده</strong> {use}</p>
+            </div>
+            <strong>{formatPrice(product.price)} تومان</strong>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 export default function SkincareRoutinePage() {
   const [skin, setSkin] = useState('');
   const [concerns, setConcerns] = useState([]);
@@ -31,7 +59,7 @@ export default function SkincareRoutinePage() {
       <header className="routine-hero">
         <div>
           <h1 id="routine-title" tabIndex={-1}>روتین مراقبت پوستت را بساز</h1>
-          <p>نوع پوست، دغدغه‌ها و بودجه‌ات را انتخاب کن تا محصولات مناسب را به ترتیب مصرف ببینی.</p>
+          <p>نوع پوست، دغدغه‌ها و بودجه‌ات را انتخاب کن تا روتین صبح و شب را به ترتیب مصرف ببینی.</p>
         </div>
         <img src="/images/articles/cover-hydration.webp" alt="" width="1440" height="960" />
       </header>
@@ -82,33 +110,17 @@ export default function SkincareRoutinePage() {
       {result && (
         <section ref={resultRef} tabIndex={-1} className="routine-result" aria-labelledby="routine-result-title">
           <div className="routine-result-header">
-            <h2 id="routine-result-title"><Sun size={20} aria-hidden="true" /> روتین پیشنهادی صبح</h2>
-            {result.routine && <strong>جمع محصولات {formatPrice(result.routine.total)} تومان</strong>}
+            <h2 id="routine-result-title">روتین پیشنهادی تو</h2>
+            {result.routine && <strong>جمع محصولات بدون تکرار {formatPrice(result.routine.total)} تومان</strong>}
           </div>
           {result.routine ? (
             <>
-              {result.serumAvailable && result.routine.items.length === 3 && (
+              {result.serumAvailable && !result.routine.includesSerum && (
                 <p className="routine-note">برای اینکه مراحل پایه در بودجه جا بگیرند، سرم در این روتین پیشنهاد نشده.</p>
               )}
               {concerns.includes('dullness') && <p className="routine-note">برای کدری یا ناهماهنگی رنگ، محافظت روزانه در برابر آفتاب را در اولویت بگذار. این روتین محصولی برای درمان لک پیشنهاد نمی‌دهد.</p>}
-              <ol className="routine-steps">
-                {result.routine.items.map(({ label, use, product, reason }, index) => (
-                  <li key={product.id}>
-                    <span className="routine-step-number" aria-hidden="true">{formatPrice(index + 1)}</span>
-                    <div className="routine-product-image" aria-hidden="true">
-                      <ProductImage src={product.image} alt="" loading="lazy" />
-                    </div>
-                    <div>
-                      <h3>{label}</h3>
-                      <a href={productUrl(product)} className="routine-product-link">{product.title} <ArrowLeft size={14} aria-hidden="true" /></a>
-                      <p><strong>چرا این محصول؟</strong> {reason}</p>
-                      <p><strong>روش استفاده</strong> {use}</p>
-                    </div>
-                    <strong>{formatPrice(product.price)} تومان</strong>
-                  </li>
-                ))}
-              </ol>
-              <p className="routine-note"><Moon size={17} aria-hidden="true" /> شب شوینده و مرطوب‌کننده را استفاده کن. اگر سرمی پیشنهاد شده، پیش از مرطوب‌کننده و طبق برچسب استفاده کن. ضدآفتاب برای روز است.</p>
+              <RoutineSchedule id="morning" title="روتین صبح" Icon={Sun} steps={result.routine.morning} />
+              <RoutineSchedule id="evening" title="روتین شب" Icon={Moon} steps={result.routine.evening} />
             </>
           ) : (
             <p className="routine-note" role="status"><Droplets size={18} aria-hidden="true" />
