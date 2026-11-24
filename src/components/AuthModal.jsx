@@ -91,18 +91,18 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
           {step === 'welcome' ? 'به آرنا پیور خوش آمدید' : registering ? 'ثبت‌نام' : 'ورود به حساب'}
         </h2>
 
+        {!registering && (
+          <img className={`account-login-portrait${step === 'welcome' ? ' account-welcome-portrait' : ''}`}
+            src="/images/account/lipstick-portrait.webp" alt="تصویر سه‌بعدی زنی در حال زدن رژ لب دیور"
+            width="900" height="600" />
+        )}
+
         {step === 'welcome' ? <>
-          <div className="account-art" aria-hidden="true">
-            <img className="account-perfume" src="/images/products/lancome-la-vie-est-belle-edp-320.webp" alt="" />
-            <img className="account-lipstick" src="/images/products/maybelline-vinyl-ink-35-cheeky-320.webp" alt="" />
-          </div>
           <div className="account-actions">
             <button type="button" className="account-primary" onClick={() => changeStep('register')}>ثبت‌نام <ArrowLeft size={17} /></button>
             <button type="button" className="account-secondary" onClick={() => changeStep('login')}>ورود</button>
           </div>
         </> : <>
-          {step === 'login' && <img className="account-login-portrait" src="/images/account/lipstick-portrait.webp"
-            alt="تصویر سه‌بعدی زنی در حال زدن رژ لب دیور" width="900" height="600" />}
           {notice && <p className="account-notice" role="status">{notice}</p>}
           <form className="account-form" onSubmit={submit}>
             <label htmlFor="account-phone">شماره موبایل</label>

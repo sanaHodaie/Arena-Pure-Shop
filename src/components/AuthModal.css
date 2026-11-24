@@ -39,36 +39,6 @@
   line-height: 1.5;
 }
 .account-dialog h2:focus { outline: none; }
-.account-art {
-  position: relative;
-  isolation: isolate;
-  height: clamp(175px, 34dvh, 248px);
-  perspective: 650px;
-}
-.account-art::before {
-  content: '';
-  position: absolute;
-  inset: 4% 12% 10%;
-  border-radius: 50%;
-  background: repeating-radial-gradient(ellipse at center, transparent 0 12px, #ffffff85 13px 14px);
-  mask-image: radial-gradient(ellipse, #000 25%, transparent 72%);
-}
-.account-art img {
-  position: absolute;
-  bottom: 6%;
-  object-fit: contain;
-  filter: drop-shadow(4px 15px 13px #54264e58);
-  transform: rotateZ(var(--art-angle));
-  animation: account-float 6s ease-in-out var(--art-delay, 0s) infinite alternate;
-}
-.account-perfume { left: 4%; width: 62%; height: 88%; --art-angle: -13deg; }
-.account-lipstick { right: 9%; width: 46%; height: 77%; --art-angle: 22deg; --art-delay: -2.6s; }
-@keyframes account-float {
-  to { transform: translateY(-15px) rotateY(18deg) rotateZ(calc(var(--art-angle) + 7deg)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .account-art img { animation: none; }
-}
 .account-actions, .account-form { display: grid; gap: 10px; }
 .account-primary, .account-secondary {
   display: flex;
@@ -119,3 +89,5 @@
   margin-bottom: 14px; border-radius: 16px; border: 1px solid #ffffffa0;
   object-fit: cover; object-position: center 65%; background: #f3e8f4;
 }
+
+.account-welcome-portrait { height: clamp(178px, 35dvh, 252px); margin-bottom: 17px; }
