@@ -660,3 +660,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .hero-finder-link:focus-visible { outline-color: #fff; }
 
 #categories { scroll-margin-top: 135px; }
+
+.catalog-offline {
+  display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px 14px;
+  padding: 8px 16px; background: #f7eef9; color: #4d3457; font-size: 13px; text-align: center;
+}
+.catalog-offline button { font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }

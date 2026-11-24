@@ -31,7 +31,7 @@ import AuthModal from './components/AuthModal.jsx';
 import { readDemoSession, writeDemoSession } from './data/demoAccount.js';
 import Toast from './components/Toast.jsx';
 
-export default function App() {
+export default function App({ catalogOffline = false }) {
   const previousProduct = useRef(null);
   const previousPath = useRef(null);
   const pendingRoutine = useRef(null);
@@ -219,6 +219,10 @@ export default function App() {
   };
 
   const handleCheckout = async () => {
+    if (catalogOffline) {
+      showToast('برای ثبت سفارش، ابتدا اتصال به کاتالوگ زنده را دوباره بررسی کنید.', 'info');
+      return;
+    }
     if (!cart.length || checkoutPending.current) return;
     setIsCartOpen(false);
     if (!accountPhone) {

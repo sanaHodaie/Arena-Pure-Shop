@@ -1,8 +1,8 @@
 import { products } from './catalog.js';
 import { categoryPages } from './categories.js';
 
-export async function loadStorefrontCatalog(apiBase, signal) {
-  const response = await fetch(`${apiBase.replace(/\/+$/, '')}/api/v1/catalog/`, { signal });
+export async function loadStorefrontCatalog(endpoint, signal) {
+  const response = await fetch(endpoint, { signal, cache: 'no-store' });
   if (!response.ok) throw new Error(`Catalog HTTP ${response.status}`);
 
   const data = await response.json();

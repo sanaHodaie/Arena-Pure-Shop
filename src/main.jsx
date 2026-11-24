@@ -8,25 +8,44 @@ import './theme.css';
 const root = createRoot(document.getElementById('root'));
 const apiBase = import.meta.env.VITE_API_BASE_URL?.trim();
 
-function CatalogStatus({ failed = false }) {
-  return <main className="arena-container pd-not-found" dir="rtl" role={failed ? 'alert' : 'status'}>
-    <h1>{failed ? 'کاتالوگ در دسترس نیست' : 'در حال بارگیری کاتالوگ…'}</h1>
-    {failed && <button type="button" className="account-secondary" onClick={startStorefront}>تلاش دوباره</button>}
-  </main>;
+const renderCatalogOrigin = 'https://arena-pure-catalog.onrender.com';
+
+async function loadCatalog() {
+  const origin = apiBase.replace(/\/+$/, '');
+  const signal = AbortSignal.timeout(45_000);
+  if (import.meta.env.PROD && origin === renderCatalogOrigin) {
+    try {
+      await loadStorefrontCatalog('/_catalog', signal);
+      return;
+    } catch {
+      if (signal.aborted) throw signal.reason;
+    }
+  }
+  await loadStorefrontCatalog(`${origin}/api/v1/catalog/`, signal);
 }
 
 async function startStorefront() {
+  let catalogOffline = false;
   if (apiBase) {
-    root.render(<CatalogStatus />);
+    root.render(<main className="arena-container pd-not-found" dir="rtl" role="status">
+      <h1>در حال بارگیری کاتالوگ…</h1>
+    </main>);
     try {
-      await loadStorefrontCatalog(apiBase, AbortSignal.timeout(60_000));
+      await loadCatalog();
     } catch {
-      root.render(<CatalogStatus failed />);
-      return;
+      catalogOffline = true;
     }
   }
   const { default: App } = await import('./App.jsx');
-  root.render(<React.StrictMode><App /></React.StrictMode>);
+  root.render(<React.StrictMode>
+    {catalogOffline && (
+      <div className="catalog-offline" role="status" dir="rtl">
+        <span>ارتباط با کاتالوگ زنده قطع است. قیمت و موجودی این نسخه نمایشی است.</span>
+        <button type="button" onClick={() => window.location.reload()}>تلاش دوباره</button>
+      </div>
+    )}
+    <App catalogOffline={catalogOffline} />
+  </React.StrictMode>);
 }
 
 startStorefront();

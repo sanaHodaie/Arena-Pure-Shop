@@ -66,7 +66,7 @@ Product image paths beginning with `/images/` resolve on the storefront origin. 
    ```
 
    Sign in at `/admin/` on the Render service. Keep the connection string out of the repository and chat.
-5. In **Vercel**, set `VITE_API_BASE_URL` to the Render service origin such as `https://<render-service>.onrender.com` without an API path, then redeploy. Change a product price in Render Admin and reload its product page on Vercel to verify the connection.
+5. In **Vercel**, set `VITE_API_BASE_URL` to the Render service origin such as `https://<render-service>.onrender.com` without an API path, then redeploy. For the production service at `arena-pure-catalog.onrender.com`, Vercel forwards `/_catalog` to Render on behalf of the storefront. If changing the production backend hostname, update the rewrite and its matching origin in `src/main.jsx`. If the live catalog is unavailable, the storefront labels its bundled demo catalog and blocks order submission. Change a product price in Render Admin and reload its product page on Vercel to verify the connection.
 
 Render and Neon may suspend idle compute on their Free plans, so the first request after inactivity can take longer. PostgreSQL data lives in Neon and is independent of Render restarts.
 
