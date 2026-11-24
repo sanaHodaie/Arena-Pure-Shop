@@ -32,6 +32,7 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
   const [routineError, setRoutineError] = useState(false);
   const [orders, setOrders] = useState([]);
   const [profile, setProfile] = useState({});
+  const [savedFirstName, setSavedFirstName] = useState('');
   const [filter, setFilter] = useState('all');
   const [orderPending, setOrderPending] = useState(false);
   const [orderError, setOrderError] = useState('');
@@ -52,7 +53,11 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
     if (!phone) return;
     try { setSavedRoutine(readCustomerRoutine(phone)); }
     catch { setRoutineError(true); }
-    try { setProfile(readCustomerProfile(phone)); }
+    try {
+      const saved = readCustomerProfile(phone);
+      setProfile(saved);
+      setSavedFirstName(saved.firstName?.trim() || '');
+    }
     catch { setProfileMessage({ error: true, text: 'خواندن مشخصات ذخیره‌شده ممکن نیست.' }); }
   }, [phone]);
 
@@ -79,6 +84,7 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
     try {
       saveCustomerProfile(phone, values);
       setProfile(values);
+      setSavedFirstName(values.firstName);
       setProfileMessage({ text: 'مشخصات و آدرس ذخیره شد.' });
     } catch {
       setProfileMessage({ error: true, text: 'ذخیرهٔ مشخصات در این مرورگر ممکن نیست.' });
@@ -87,20 +93,23 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
 
   if (!phone) return (
     <main className="arena-container customer-account flex-1" dir="rtl">
-      <h1 id="customer-account-title" tabIndex={-1}>پنل مشتری</h1>
+      <h1 id="customer-account-title" tabIndex={-1}>خوش آمدید</h1>
       <p>برای مشاهدهٔ سفارش‌ها و مشخصات خود وارد شوید.</p>
       <button type="button" className="account-primary" onClick={onLogin}>ورود یا ثبت‌نام</button>
     </main>
   );
 
+  const greetingName = /[اآو]$/.test(savedFirstName) ? savedFirstName + 'ی' : savedFirstName;
   const visibleOrders = orders.filter(order => filter === 'all' || order.status === filter);
 
   return (
     <main className="arena-container customer-dashboard flex-1" dir="rtl">
       <header className="customer-hero">
         <div>
-          <h1 id="customer-account-title" tabIndex={-1}>پنل مشتری</h1>
-          <p>{profile.firstName ? `${profile.firstName}، خوش آمدید` : 'حساب آرنا پیور'} · <bdi>{phone}</bdi></p>
+          <h1 id="customer-account-title" tabIndex={-1}>
+            {greetingName ? `${greetingName} عزیز، خوش آمدید` : 'خوش آمدید'}
+          </h1>
+          <p>حساب آرنا پیور · <bdi>{phone}</bdi></p>
         </div>
         <button type="button" className="account-secondary" onClick={onLogout}><LogOut size={18}/> خروج از حساب</button>
       </header>
