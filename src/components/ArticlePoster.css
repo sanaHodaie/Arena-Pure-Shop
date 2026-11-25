@@ -54,3 +54,10 @@
   }
   .article-poster-copy { margin-top: -18px; }
 }
+
+.article-layout { display:grid; grid-template-columns:220px minmax(0,760px); gap:40px; margin-block:40px; }
+.article-layout aside { display:flex; flex-direction:column; gap:16px; padding:24px; background:#f5edf7; border-radius:20px; align-self:start; }
+.article-body { line-height:2.4; }.article-body section { scroll-margin-top:120px; margin-block:30px; }.article-body h2 { font-size:22px; font-weight:800; color:#533160; }.article-lead { padding:24px; border-right:3px solid #b8a2be; background:#faf6fb; }
+@media (max-width: 640px) {
+  .article-layout { grid-template-columns: 1fr; gap: 20px; }
+}

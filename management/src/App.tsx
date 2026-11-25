@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Products from './components/Products';
-import CatalogDialog, { controlStyle } from './components/CatalogDialog';
+import SalesReport from './components/SalesReport';
+import CatalogDialog from './components/CatalogDialog';
 import LoginModal from './components/LoginModal';
 import { Articles, LoginLogs, Reviews } from './components/ContentManagement';
 import { Button, Heading, Panel } from './components/ManagementUI';
@@ -144,12 +145,7 @@ export default function App() {
         <p>{account.name} <span className="text-pearl-500" dir="ltr">@{account.username}</span></p>
         <Button secondary onClick={logout}>خروج از حساب</Button>
       </Panel>}
-      {page === 'settings' && <Panel className="max-w-md space-y-3"><Heading title="تنظیمات نمایش" />
-        <label htmlFor="theme">تم پنل</label>
-        <select id="theme" className={controlStyle} value={theme} onChange={(event) => setTheme(event.target.value)}>
-          <option value="auto">مطابق تنظیمات دستگاه</option><option value="light">روشن</option><option value="dark">تاریک</option>
-        </select>
-      </Panel>}
+      {page === 'sales' && account.salesReports && <SalesReport />}
       {['dashboard', 'products'].includes(page) && !catalog && <div className="glass-panel p-6">
         {account.can_view
           ? error ? <button onClick={() => { setError(''); loadCatalog(); }}>تلاش دوباره</button> : <p role="status">در حال دریافت محصولات…</p>
@@ -159,7 +155,7 @@ export default function App() {
       {catalog && page === 'dashboard' && <Dashboard {...catalog} name={account.name} onProducts={() => navigate('products')} onRefresh={loadCatalog} />}
       {catalog && page === 'products' && <Products {...catalog} account={account} search={search} onSearch={setSearch}
         onEdit={setDialog} onUpload={() => setDialog('workbook')} onAction={productAction} busy={busy} />}
-      {!['dashboard', 'products', 'account', 'settings', ...(account.articles ? ['articles'] : []), ...(account.reviews ? ['reviews'] : []), ...(account.loginLogs ? ['login-logs'] : []), ...Object.keys(pendingPages)].includes(page) &&
+      {!['dashboard', 'products', 'account', ...(account.salesReports ? ['sales'] : []), ...(account.articles ? ['articles'] : []), ...(account.reviews ? ['reviews'] : []), ...(account.loginLogs ? ['login-logs'] : []), ...Object.keys(pendingPages)].includes(page) &&
         <Button secondary onClick={() => navigate('dashboard')}>بازگشت به داشبورد</Button>}
       {dialog !== null && <CatalogDialog key={dialog} item={dialog} onClose={() => setDialog(null)} onSaved={(message: string) => {
         setDialog(null);

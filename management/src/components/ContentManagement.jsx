@@ -1,5 +1,8 @@
-import { Edit2, Eye, EyeOff, ImagePlus } from 'lucide-react';
+import { Check, Edit2, Eye, EyeOff, ImagePlus, X } from 'lucide-react';
 import ArticlePoster from '../../../src/components/ArticlePoster.jsx';
+import { ArticleContent } from '../../../src/pages/ArticlePage.jsx';
+import { createPortal } from 'react-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { request, post } from '../api';
 import { Button, ErrorBox, Heading, Panel, inputClass } from './ManagementUI';
@@ -29,14 +32,14 @@ function RowStatus({ resource, error, refresh }) {
 export function Articles({ account }) {
   const rows = useRows('articles/');
   const [selection, setSelection] = useState(null);
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState(null);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState(false);
   const editor = useRef(null);
 
   function openEditor(article) {
     setSelection(article);
-    setNotice('');
+    setNotice(null);
     setError('');
   }
 
@@ -44,12 +47,22 @@ export function Articles({ account }) {
     if (selection) editor.current?.scrollIntoView({ block: 'start' });
   }, [selection]);
 
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 4500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  function notify(message) {
+    setNotice({ message });
+  }
+
   async function changeVisibility(article) {
     setError('');
     setUpdating(true);
     try {
       await post(`articles/${article.id}/visibility/`, { published: String(!article.published) });
-      setNotice(article.published ? 'مقاله غیرفعال شد.' : 'مقاله منتشر شد.');
+      notify(article.published ? 'مقاله از سایت پنهان شد.' : 'مقاله دوباره در سایت نمایش داده می‌شود.');
       rows.refresh();
     } catch (failure) {
       setError(failure.message);
@@ -60,26 +73,29 @@ export function Articles({ account }) {
 
   return <div className="space-y-4">
     <Heading title="خواندنی‌ها" subtitle="مقاله‌های صفحهٔ اصلی و صفحهٔ هر مطلب">
-      {account.articleAdd && <Button disabled={!rows.resource} onClick={() => openEditor({ author: account.username })}>مقالهٔ جدید</Button>}
+      {!selection && account.articleAdd && <Button disabled={!rows.resource} onClick={() => openEditor({ author: account.username })}>مقالهٔ جدید</Button>}
     </Heading>
-    {notice && <p role="status">{notice}</p>}
+    <ArticleNotice notice={notice} onClose={() => setNotice(null)} />
     <ErrorBox message={error} />
     <RowStatus {...rows} />
     {selection && <div ref={editor} className="scroll-mt-20">
       <ArticleEditor key={selection.id || 'new'} article={selection}
         categories={rows.resource?.categories || []} onCancel={() => setSelection(null)} onSaved={(published) => {
           setSelection(null);
-          setNotice(published ? 'مقاله منتشر شد.' : 'پیش‌نویس ذخیره شد.');
+          notify(published
+            ? selection.id ? 'ویرایش‌ها ذخیره شدند و مقاله به‌روز شد.' : 'مقاله منتشر شد.'
+            : selection.id ? 'ویرایش‌ها به‌عنوان پیش‌نویس ذخیره شدند.' : 'مقاله به‌عنوان پیش‌نویس ذخیره شد.');
           rows.refresh();
         }} />
     </div>}
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {rows.resource?.articles.map((article) => <article key={article.id} className="glass-panel grid aspect-square grid-rows-[minmax(0,1fr)_auto] overflow-hidden">
-        <img src={article.cover.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+    {!selection && <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      {rows.resource?.articles.map((article) => <article key={article.id} className="glass-panel grid min-w-0 grid-cols-[minmax(96px,32%)_minmax(0,1fr)] overflow-hidden">
+        <div className="aspect-square self-start overflow-hidden rounded-2xl m-3"><img src={article.cover.image} alt="" loading="lazy" className="h-full w-full object-cover" /></div>
         <div className="space-y-3 p-4">
           <h2 className="line-clamp-2 text-sm font-bold">{article.title}</h2>
+          <p className="line-clamp-2 text-xs leading-relaxed text-pearl-600 dark:text-pearl-300">{article.excerpt}</p>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs text-pearl-600 dark:text-pearl-300">{article.published ? 'فعال' : 'غیرفعال'}</span>
+            <span className="text-xs text-pearl-600 dark:text-pearl-300">{article.published ? 'منتشرشده' : 'پیش‌نویس'}</span>
             {account.articleChange && <div className="flex gap-2">
               <Button type="button" secondary disabled={updating || Boolean(selection)} aria-pressed={article.published}
                 aria-label={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
@@ -92,7 +108,7 @@ export function Articles({ account }) {
           </div>
         </div>
       </article>)}
-    </div>
+    </div>}
   </div>;
 }
 
@@ -137,6 +153,8 @@ function ArticleEditor({ article, categories, onCancel, onSaved }) {
       data,
       article: {
         title: data.get('title'), author: data.get('author'), readTime: data.get('read_time'),
+        excerpt: data.get('excerpt'), body: data.get('body'),
+        relatedCategory: categories.find((item) => String(item.id) === data.get('related_category'))?.title,
         cover: { image: image || article.cover?.image, theme: data.get('cover_theme'),
           topic: data.get('topic'), summary: data.get('summary') },
       },
@@ -165,18 +183,11 @@ function ArticleEditor({ article, categories, onCancel, onSaved }) {
   const values = { date: defaultDate, readTime: '۵ دقیقه', ...article, ...article.cover };
   const feedback = (key) => errors[key]?.map((text) => <small key={text} className="text-rose-700 dark:text-rose-300">{text}</small>);
   return <Panel>
-    <Heading title={preview ? 'پیش‌نمایش پوستر' : article.id ? 'ویرایش مقاله' : 'مقالهٔ جدید'} />
+    <Heading title={article.id ? 'ویرایش مقاله' : 'مقالهٔ جدید'} />
     <ErrorBox message={error} />
     {feedback('__all__')}
-    {preview && <div className="space-y-4">
-      <ArticlePoster article={preview.article} preview />
-      <div className="flex flex-wrap gap-2">
-        <Button disabled={busy} type="button" onClick={() => save(true)}>انتشار مقاله</Button>
-        <Button disabled={busy} secondary type="button" onClick={() => save(false)}>ذخیره به‌عنوان پیش‌نویس</Button>
-        <Button disabled={busy} secondary type="button" onClick={() => setPreview(null)}>بازگشت به ویرایش</Button>
-      </div>
-    </div>}
-    <form className={preview ? 'hidden' : 'grid gap-4 sm:grid-cols-2'} onSubmit={showPreview}>
+    {preview && <ArticlePreview article={preview.article} busy={busy} onClose={() => setPreview(null)} onSave={save} />}
+    <form className="grid gap-4 sm:grid-cols-2" onSubmit={showPreview}>
       <div className="space-y-2 sm:col-span-2">
         <label className="group block cursor-pointer">
           <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
@@ -212,6 +223,43 @@ function ArticleEditor({ article, categories, onCancel, onSaved }) {
       </div>
     </form>
   </Panel>;
+}
+
+function ArticleNotice({ notice, onClose }) {
+  const reduced = useReducedMotion();
+  return createPortal(<AnimatePresence>
+    {notice && <motion.div key={notice.message} role="status" className="article-notice"
+      initial={{ opacity: 0, y: reduced ? 0 : 10 }} animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: reduced ? 0 : 8 }} transition={{ duration: .2 }}>
+      <Check size={18} /><span>{notice.message}</span>
+      <button type="button" onClick={onClose} aria-label="بستن اعلان"><X size={16} /></button>
+    </motion.div>}
+  </AnimatePresence>, document.body);
+}
+
+function ArticlePreview({ article, busy, onClose, onSave }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    dialog.showModal();
+    return () => dialog.close();
+  }, []);
+  return <dialog ref={ref} className="article-preview" aria-labelledby="admin-preview-title"
+    onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}>
+    <div className="article-preview-top">
+      <h2 id="admin-preview-title">پیش‌نمایش مقاله</h2>
+      <Button type="button" secondary disabled={busy} aria-label="بستن پیش‌نمایش" onClick={onClose}><X size={18} /></Button>
+    </div>
+    <div className="p-4 sm:p-6">
+      <ArticlePoster article={article} preview />
+      <ArticleContent article={article} preview />
+    </div>
+    <div className="article-preview-actions">
+      <Button disabled={busy} type="button" onClick={() => onSave(true)}>ذخیره و انتشار</Button>
+      <Button disabled={busy} secondary type="button" onClick={() => onSave(false)}>ذخیره به‌عنوان پیش‌نویس</Button>
+      <Button disabled={busy} secondary type="button" onClick={onClose}>بازگشت به ویرایش</Button>
+    </div>
+  </dialog>;
 }
 
 const reviewStates = { pending: 'در انتظار بررسی', approved: 'تأییدشده', rejected: 'ردشده' };

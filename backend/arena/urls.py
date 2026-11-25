@@ -1,7 +1,7 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-from catalog import content_views, panel_views, views
+from catalog import content_views, panel_views, sales_reports, views
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="catalog/index.html"), name="index"),
@@ -13,6 +13,8 @@ urlpatterns = [
     path("media/articles/<int:pk>/<str:digest>/", content_views.article_photo, name="article-photo"),
     path("api/management/reviews/", content_views.reviews),
     path("api/management/reviews/<int:pk>/", content_views.moderate_review),
+    path("api/management/sales/", sales_reports.sales_report),
+    path("api/management/sales/export/", sales_reports.sales_report, {"export": True}),
     path("api/management/login-logs/", content_views.login_logs),
     path("api/v1/articles/", content_views.public_articles),
     path("api/v1/products/<slug:slug>/reviews/", content_views.public_reviews),

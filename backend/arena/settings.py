@@ -103,3 +103,6 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
+
+# Disable generated figures before launch. Zero figures are shown until paid orders are connected.
+SALES_REPORT_DEMO = os.getenv("SALES_REPORT_DEMO", "1") == "1"

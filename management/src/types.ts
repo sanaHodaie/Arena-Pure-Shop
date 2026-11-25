@@ -8,6 +8,7 @@ export interface Account {
   reviews: boolean;
   reviewChange: boolean;
   loginLogs: boolean;
+  salesReports: boolean;
   can_view: boolean;
   can_add: boolean;
   can_change: boolean;

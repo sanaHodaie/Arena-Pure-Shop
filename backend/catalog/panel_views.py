@@ -67,6 +67,7 @@ def session(request):
             "reviews": any(user.has_perm(f"catalog.{action}_productreview") for action in ("view", "change")),
             "reviewChange": user.has_perm("catalog.change_productreview"),
             "loginLogs": user.has_perm("catalog.view_adminlogin"),
+            "salesReports": allowed(user, "view"),
         }
     return JsonResponse({"account": account, "csrf": get_token(request)})
 

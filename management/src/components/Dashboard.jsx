@@ -4,7 +4,7 @@ import { AnimatedDonutChart } from './AnimatedChart';
 import DashboardPoster from './DashboardPoster';
 import { Button, Heading, Panel, number } from './ManagementUI';
 
-const colors = ['#784d72', '#a9607f', '#806379', '#a17d70', '#8d607d', '#633a5f', '#b97990'];
+const colors = ['#8a61df', '#17a998', '#f1a043', '#5d8bea', '#e16c97', '#4faf75', '#d97a56'];
 
 export default function Dashboard({ products, categories, name, onProducts, onRefresh }) {
   const active = products.filter((product) => product.active);

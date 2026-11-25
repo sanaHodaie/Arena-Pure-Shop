@@ -3,11 +3,6 @@ import ArticlePoster from '../components/ArticlePoster.jsx';
 import { articleSections } from '../data/articleContent.js';
 
 export default function ArticlePage({ article, articles }) {
-  const sections = article.body ? article.body.split(/(?=^## )/m).filter(part => part.trim()).map((part) => {
-    if (!part.startsWith('## ')) return ['', part.trim()];
-    const [title, ...paragraphs] = part.split('\n');
-    return [title.slice(3).trim(), paragraphs.join('\n').trim()];
-  }) : articleSections[article.id - 1];
 
   return (
     <main className="arena-container article-page" dir="rtl">
@@ -16,22 +11,7 @@ export default function ArticlePage({ article, articles }) {
       <article>
         <ArticlePoster article={article} />
 
-        <div className="article-layout">
-          <aside>
-            <strong>در این مطلب</strong>
-            {sections.map(([title], index) => title && <a key={index} href={`#section-${index}`}>{title}</a>)}
-          </aside>
-          <div className="article-body">
-            <p className="article-lead">{article.excerpt.replace(/\.\.\.$/, '')}</p>
-            {sections.map(([title, body], index) => (
-              <section id={`section-${index}`} key={index}>
-                {title && <h2>{title}</h2>}
-                <p className="whitespace-pre-line">{body}</p>
-              </section>
-            ))}
-            {(article.relatedCategory || !article.body) && <a href={`/categories/${article.relatedCategory || (article.id === 2 ? 'skincare' : 'cosmetics')}`}>دیدن محصولات مرتبط ←</a>}
-          </div>
-        </div>
+        <ArticleContent article={article} />
       </article>
 
       <section aria-labelledby="article-related-heading">
@@ -46,5 +26,32 @@ export default function ArticlePage({ article, articles }) {
         </div>
       </section>
     </main>
+  );
+}
+
+export function ArticleContent({ article, preview = false }) {
+  const sections = article.body ? article.body.split(/(?=^## )/m).filter(part => part.trim()).map((part) => {
+    if (!part.startsWith('## ')) return ['', part.trim()];
+    const [title, ...paragraphs] = part.split('\n');
+    return [title.slice(3).trim(), paragraphs.join('\n').trim()];
+  }) : articleSections[article.id - 1];
+
+  return (
+        <div className="article-layout">
+          <aside>
+            <strong>در این مطلب</strong>
+            {sections.map(([title], index) => title && (preview ? <span key={index}>{title}</span> : <a key={index} href={`#section-${index}`}>{title}</a>))}
+          </aside>
+          <div className="article-body">
+            <p className="article-lead">{article.excerpt.replace(/\.\.\.$/, '')}</p>
+            {sections.map(([title, body], index) => (
+              <section id={preview ? undefined : `section-${index}`} key={index}>
+                {title && <h2>{title}</h2>}
+                <p className="whitespace-pre-line">{body}</p>
+              </section>
+            ))}
+            {(article.relatedCategory || !article.body) && (preview ? <span>محصولات مرتبط · {article.relatedCategory}</span> : <a href={`/categories/${article.relatedCategory || (article.id === 2 ? 'skincare' : 'cosmetics')}`}>دیدن محصولات مرتبط ←</a>)}
+          </div>
+        </div>
   );
 }

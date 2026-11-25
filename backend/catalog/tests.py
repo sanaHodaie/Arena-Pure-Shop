@@ -241,3 +241,34 @@ class CatalogTests(TestCase):
         self.assertEqual(manager.post(toggle, {"published": "false"}, headers=manager_headers).status_code, 200)
         self.assertEqual(guest.get(media_url).status_code, 404)
         self.assertNotIn(pk, [row["id"] for row in guest.get("/api/v1/articles/").json()["articles"]])
+
+    def test_sales_report_excel_matches_charts_and_demo_can_be_zeroed(self):
+        from datetime import date, timedelta
+
+        from django.utils import timezone
+
+        endpoint = "/api/management/sales/"
+        end = timezone.localdate()
+        start = end - timedelta(days=59)
+        query = {"start": start.isoformat(), "end": end.isoformat()}
+        self.assertEqual(self.client.get(endpoint, query).status_code, 401)
+        manager = get_user_model().objects.create_superuser("sales-admin", password=None)
+        self.client.force_login(manager)
+        self.assertEqual(self.client.get(endpoint, {"start": "bad"}).status_code, 400)
+        self.assertEqual(self.client.get(endpoint, {"start": date(2000, 1, 1), "end": end}).status_code, 400)
+        with override_settings(SALES_REPORT_DEMO=True):
+            report = self.client.get(endpoint, query).json()
+            self.assertTrue(report["demo"])
+            self.assertEqual(len(report["days"]), 60)
+            self.assertGreater(report["totals"]["revenue"], 0)
+            self.assertEqual(sum(row["revenue"] for row in report["series"]), report["totals"]["revenue"])
+            file = self.client.get(endpoint + "export/", query)
+            self.assertIn("arena-demo-sales", file["Content-Disposition"])
+            workbook = load_workbook(BytesIO(file.content))
+            self.assertEqual(workbook["خلاصه"]["B4"].value, report["totals"]["revenue"])
+            self.assertEqual(workbook["آمار روزانه"].max_row, 61)
+            self.assertEqual(len(workbook["نمودارها"]._charts), 2)
+        with override_settings(SALES_REPORT_DEMO=False):
+            report = self.client.get(endpoint, query).json()
+            self.assertFalse(report["demo"])
+            self.assertEqual(report["totals"], {"revenue": 0, "orders": 0})

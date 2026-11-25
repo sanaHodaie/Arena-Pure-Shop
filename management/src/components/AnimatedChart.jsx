@@ -1,100 +1,51 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { toPersianDigits } from '../utils/formatters';
+import { motion, useReducedMotion } from 'motion/react';
+import { number } from './ManagementUI';
 
 export function AnimatedDonutChart({ data = [] }) {
-  const [activeIdx, setActiveIdx] = useState(null);
-  const activeIndex = data[activeIdx] ? activeIdx : null;
-  const total = data.reduce((acc, curr) => acc + curr.value, 0) || 1;
+  const [active, setActive] = useState(null);
+  const reduced = useReducedMotion();
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const focused = data.find((item) => item.name === active);
+  const radius = 76;
+  const circle = 2 * Math.PI * radius;
+  let offset = 0;
 
-  const size = 180;
-  const strokeWidth = 22;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  let accumulatedPercent = 0;
-
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full min-w-0 overflow-hidden">
-      {/* Donut SVG with Drawing Segment Animations */}
-      <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center flex-shrink-0">
-        <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full transform -rotate-90">
-          {/* Background circle */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="transparent"
-            stroke="currentColor"
-            className="text-pearl-100 dark:text-pearl-800"
-            strokeWidth={strokeWidth}
-          />
-
-          {data.map((item, idx) => {
-            const percent = (item.value / total) * 100;
-            const strokeDasharray = `${(percent / 100) * circumference} ${circumference}`;
-            const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
-            accumulatedPercent += percent;
-
-            const isHovered = activeIdx === idx;
-
-            return (
-              <motion.circle
-                key={idx}
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="transparent"
-                stroke={item.color}
-                strokeWidth={isHovered ? strokeWidth + 4 : strokeWidth}
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                initial={{ strokeDashoffset: circumference }}
-                animate={{ strokeDashoffset }}
-                transition={{ duration: 1.4, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="cursor-pointer transition-all duration-300"
-                onMouseEnter={() => setActiveIdx(idx)}
-                onMouseLeave={() => setActiveIdx(null)}
-              />
-            );
-          })}
-        </svg>
-
-        {/* Center Label */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-2">
-          <span className="text-[10px] sm:text-xs text-pearl-500 dark:text-pearl-400 font-medium truncate max-w-full">
-            {activeIndex !== null ? data[activeIndex].name.split('(')[0] : 'کل دسته‌ها'}
-          </span>
-          <span className="text-base sm:text-lg font-extrabold text-pearl-800 dark:text-white mt-0.5">
-            {activeIndex !== null ? `${toPersianDigits(data[activeIndex].value)}` : `${toPersianDigits(total)}`}
-          </span>
-        </div>
-      </div>
-
-      {/* Legend with Interactive Hover */}
-      <div className="flex flex-col gap-2 w-full min-w-0 flex-1">
-        {data.map((item, idx) => (
-          <div
-            key={idx}
-            onMouseEnter={() => setActiveIdx(idx)}
-            onMouseLeave={() => setActiveIdx(null)}
-            className={`flex items-center justify-between p-1.5 px-2 rounded-xl transition-all cursor-pointer min-w-0 ${
-              activeIdx === idx ? 'bg-plum-50 dark:bg-plum-950/40 tranpearl-x-0.5' : 'hover:bg-pearl-50 dark:hover:bg-pearl-800/40'
-            }`}
-          >
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-              <span className="text-[11px] sm:text-xs font-medium text-pearl-700 dark:text-pearl-300 truncate min-w-0">{item.name}</span>
-            </div>
-            <span className="text-[11px] sm:text-xs font-bold text-pearl-900 dark:text-white tabular-nums flex-shrink-0 mr-1">
-              {toPersianDigits(item.value)}
-            </span>
-          </div>
-        ))}
+  return <div className="grid items-center gap-6 sm:grid-cols-[minmax(142px,1fr)_minmax(0,1fr)]">
+    <div className="relative mx-auto aspect-square w-full max-w-52">
+      <motion.svg viewBox="0 0 200 200" role="img" aria-label="نسبت محصولات فعال به تفکیک دسته"
+        initial={reduced ? false : { opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: reduced ? 0 : .4 }}>
+        <circle cx="100" cy="100" r={radius} fill="none" stroke="currentColor" className="text-pearl-100 dark:text-pearl-800" strokeWidth="20" />
+        {data.map((item) => {
+          const length = circle * item.value / total;
+          const start = offset;
+          offset += length;
+          const gap = data.length > 1 ? Math.min(5, length * .2) : 0;
+          return <circle key={item.name} cx="100" cy="100" r={radius} fill="none" stroke={item.color}
+            strokeWidth={active === item.name ? 26 : 20} strokeDasharray={`${Math.max(0, length - gap)} ${circle}`}
+            strokeDashoffset={-start} transform="rotate(-90 100 100)"
+            opacity={active && active !== item.name ? .35 : 1}
+            className="origin-center transition-opacity motion-reduce:transition-none"
+            onPointerEnter={() => setActive(item.name)} onPointerLeave={() => setActive(null)}>
+            <title>{item.name} · {number(item.value)}</title>
+          </circle>;
+        })}
+      </motion.svg>
+      <div className="pointer-events-none absolute inset-0 grid place-content-center gap-1 text-center">
+        <span className="text-xs text-pearl-600 dark:text-pearl-300">{focused?.name || 'کل محصولات فعال'}</span>
+        <strong className="text-2xl">{number(focused?.value ?? total)}</strong>
       </div>
     </div>
-  );
+    <div className="grid gap-1.5">
+      {data.map((item) => <button type="button" key={item.name} aria-pressed={active === item.name}
+        onPointerEnter={() => setActive(item.name)} onPointerLeave={() => setActive(null)}
+        onFocus={() => setActive(item.name)} onBlur={() => setActive(null)}
+        onClick={() => setActive(active === item.name ? null : item.name)}
+        className="flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs hover:bg-pearl-100 dark:hover:bg-pearl-800">
+        <span className="flex items-center gap-2"><span className="size-2.5 rounded-full" style={{ background: item.color }} />{item.name}</span>
+        <span className="shrink-0 font-bold">{number(Math.round(item.value / total * 100))}٪</span>
+      </button>)}
+    </div>
+  </div>;
 }
-
-// Animated Bar Chart

@@ -8,7 +8,7 @@ import {
   History,
   ShoppingBag,
   Users,
-  Settings as SettingsIcon,
+  ChartNoAxesCombined,
   Sun,
   Moon,
   Volume2,
@@ -46,7 +46,7 @@ export default function Layout({
     ...(currentUser.loginLogs ? [{ id: 'login-logs', label: 'لاگ ورود مدیران', icon: History }] : []),
     { id: 'orders', label: 'سفارش‌ها و فاکتورها', icon: ShoppingBag },
     { id: 'customers', label: 'حساب‌های کاربران', icon: Users },
-    { id: 'settings', label: 'تنظیمات سیستم', icon: SettingsIcon },
+    ...(currentUser.salesReports ? [{ id: 'sales', label: 'گزارش فروش', icon: ChartNoAxesCombined }] : []),
     { id: 'account', label: 'حساب مدیریت', icon: UserCheck },
   ].filter((item) => !['dashboard', 'products'].includes(item.id) || can('products:read'));
 
