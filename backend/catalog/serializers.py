@@ -24,6 +24,7 @@ class ProductSerializer(serializers.ModelSerializer):
     sourceUrl = serializers.CharField(source="source_url")
     discountPercent = serializers.SerializerMethodField()
     inStock = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
     storefrontPath = serializers.SerializerMethodField()
 
     class Meta:
@@ -32,7 +33,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "id", "slug", "title", "englishName", "category", "brand", "type", "model",
             "family", "shade", "color", "undertone", "shadeNote", "price", "oldPrice",
             "discountPercent", "inStock", "image", "sourceUrl", "description",
-            "suitability", "extra", "storefrontPath",
+            "suitability", "usage", "ingredients", "faq", "extra", "storefrontPath",
         )
 
     def get_discountPercent(self, product):
@@ -42,6 +43,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_inStock(self, product):
         return product.stock > 0
+
+    def get_image(self, product):
+        photo = getattr(product, "uploaded_photo", None)
+        if photo:
+            return self.context["request"].build_absolute_uri(photo.url())
+        return product.image
 
     def get_storefrontPath(self, product):
         return f"/products/{product.slug}"

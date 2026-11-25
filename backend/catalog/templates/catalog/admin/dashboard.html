@@ -1,0 +1,18 @@
+{% extends "admin/index.html" %}
+{% block content %}
+<section class="arena-dashboard">
+  <header class="arena-admin-hero">
+    <div><h2>داشبورد فروشگاه</h2><p>محصولات، قیمت و موجودی را از اینجا مدیریت کنید.</p></div>
+    {% if perms.catalog.add_product %}<a class="arena-button arena-button-primary" href="{% url 'admin:catalog_product_add' %}">افزودن محصول</a>{% endif %}
+  </header>
+  {% if metrics %}
+  <div class="arena-admin-metrics">
+    <div><small>کل محصولات</small><strong>{{ metrics.total }}</strong></div>
+    <div><small>فعال در فروشگاه</small><strong>{{ metrics.active }}</strong></div>
+    <div><small>بدون موجودی</small><strong>{{ metrics.out_of_stock }}</strong></div>
+    {% if category_count != None %}<div><small>دسته‌ها</small><strong>{{ category_count }}</strong></div>{% endif %}
+  </div>
+  {% endif %}
+</section>
+{{ block.super }}
+{% endblock %}

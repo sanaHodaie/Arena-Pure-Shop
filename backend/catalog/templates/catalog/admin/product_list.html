@@ -1,0 +1,20 @@
+{% extends "admin/change_list.html" %}
+{% block content_title %}
+<h1>مدیریت محصولات</h1>
+{% endblock %}
+{% block object-tools-items %}
+{% if can_import %}<li><a class="arena-import-action" href="{% url 'admin:catalog_product_import' %}">ورود از اکسل</a></li>{% endif %}
+{{ block.super }}
+{% endblock %}
+{% block content %}
+{{ block.super }}
+{% if can_toggle %}
+  {% for product in cl.result_list %}
+  <form id="arena-toggle-{{ product.pk }}" method="post" action="{% url 'admin:catalog_product_visibility' product.pk %}" hidden>
+    {% csrf_token %}
+    <input type="hidden" name="is_active" value="{% if product.is_active %}false{% else %}true{% endif %}">
+    <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+  </form>
+  {% endfor %}
+{% endif %}
+{% endblock %}

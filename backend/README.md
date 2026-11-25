@@ -38,6 +38,14 @@ VITE_API_BASE_URL=http://127.0.0.1:8000 npm run dev
 
 Alternatively put `VITE_API_BASE_URL=http://127.0.0.1:8000` in `.env.local` at the repository root and run `npm run dev`. Open the storefront at `http://localhost:3000` and Django Admin at `http://127.0.0.1:8000/admin/`. Change a product price in Django Admin, then reload its storefront page to see the new price. With no API environment variable, the storefront uses the original bundled catalog for standalone frontend development.
 
+## مدیریت کاتالوگ
+
+در پنل `/admin/` وارد «محصولات» شوید. فیلتر دسته و برند در فهرست قرار دارد. با مداد فرم کامل محصول باز می‌شود. کلید نمایش محصول را بدون تغییر موجودی از کاتالوگ عمومی پنهان یا دوباره منتشر می‌کند.
+
+- **عکس محصول** — یک تصویر ثابت JPG، PNG یا WebP تا ۵ مگابایت و حداکثر ۴۰۹۶ پیکسل در هر ضلع بارگذاری کنید. سرور محتوای فایل را بررسی و تصویر را به WebP با ضلع حداکثر ۱۶۰۰ پیکسل تبدیل می‌کند. عکس در دیتابیس می‌ماند و با بازسازی Render پاک نمی‌شود. برای عکس خارجی از آدرس HTTPS استفاده کنید.
+- **ورود از اکسل** — قالب XLSX را از صفحهٔ ورود محصولات دانلود کنید. ستون‌های `slug`، `title`، `category`، `brand` و `price` ضروری‌اند. دسته را با اسلاگ و قیمت را به تومان وارد کنید. فایل حداکثر ۲ مگابایت و ۱۰۰۰ ردیف محصول است. اسلاگ تکراری یا ردیف نامعتبر کل ورود را متوقف می‌کند. برای ویرایش محصولات موجود از پنل استفاده کنید.
+- **به‌روزرسانی لوکال** — با همان تنظیمات PostgreSQL محلی، وابستگی‌ها را دوباره از `requirements.txt` نصب کنید و `python manage.py migrate` را اجرا کنید. Render این مهاجرت‌ها را هنگام شروع سرویس اعمال می‌کند.
+
 ## API routes
 
 | Route | Response |

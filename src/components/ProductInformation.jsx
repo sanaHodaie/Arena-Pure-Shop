@@ -43,7 +43,7 @@ export default function ProductInformation({ product, details }) {
       <div className="pi-content">
         <section id="product-introduction" className="pi-panel">
           <PanelHeader sectionId="product-introduction" subtitle="نگاهی نزدیک‌تر به انتخاب شما">معرفی محصول</PanelHeader>
-          <div className="pi-introduction"><span className="pi-brand-pill">{product.brand}</span><h3>{product.title}</h3><p>{product.title} در دسته {categoryNames[product.category]} قرار دارد.{details.shade ? ` این صفحه مربوط به رنگ ${details.shade} است؛ پیش از خرید، شماره و نام رنگ را بررسی کنید.` : ' نام انگلیسی و مدل درج‌شده در مشخصات، به شما کمک می‌کند نسخه موردنظر را دقیق‌تر شناسایی کنید.'}</p></div>
+          <div className="pi-introduction"><span className="pi-brand-pill">{product.brand}</span><h3>{product.title}</h3><p>{product.description || <>{product.title} در دسته {categoryNames[product.category]} قرار دارد.{details.shade ? ` این صفحه مربوط به رنگ ${details.shade} است؛ پیش از خرید، شماره و نام رنگ را بررسی کنید.` : ' نام انگلیسی و مدل درج‌شده در مشخصات، به شما کمک می‌کند نسخه موردنظر را دقیق‌تر شناسایی کنید.'}</>}</p></div>
           {product.sourceUrl && <a className="pi-source" href={product.sourceUrl} target="_blank" rel="noopener noreferrer"><span><ExternalLink size={17}/> منبع اطلاعات محصول</span><ArrowUpLeft size={17}/></a>}
         </section>
         <section id="product-suitability" className="pi-panel pi-suitability">
@@ -57,12 +57,12 @@ export default function ProductInformation({ product, details }) {
         </section>
         <section id="product-usage" className="pi-panel">
           <PanelHeader sectionId="product-usage" subtitle="قبل از استفاده، برچسب محصول را بخوانید">روش مصرف و ترکیبات</PanelHeader>
-          <div className="pi-guide-grid"><div><span className="pi-guide-number">۰۱</span><h3>روش مصرف</h3><p>دستور استفاده و هشدارهای روی بسته‌بندی همین مدل را مبنا قرار دهید.</p></div><div><span className="pi-guide-number">۰۲</span><h3>فهرست ترکیبات</h3><p>ترکیبات نسخه عرضه‌شده پس از بررسی برچسب محصول در این بخش تکمیل می‌شود.</p></div></div>
+          <div className="pi-guide-grid"><div><span className="pi-guide-number">۰۱</span><h3>روش مصرف</h3><p>{product.usage || 'دستور استفاده و هشدارهای روی بسته‌بندی همین مدل را مبنا قرار دهید.'}</p></div><div><span className="pi-guide-number">۰۲</span><h3>فهرست ترکیبات</h3><p>{product.ingredients || 'ترکیبات نسخه عرضه‌شده پس از بررسی برچسب محصول در این بخش تکمیل می‌شود.'}</p></div></div>
           <p className="pi-guide-note"><Check size={15}/> برای انتخاب آگاهانه، اطلاعات تأییدنشده درج نمی‌کنیم.</p>
         </section>
         <section id="product-questions" className="pi-panel">
           <PanelHeader sectionId="product-questions" subtitle="پاسخ کوتاه به سؤال‌های رایج">پرسش‌های متداول</PanelHeader>
-          <div className="pi-questions">{questions.map(({ question, answer }) => <details key={question}><summary>{question}<Plus size={18}/></summary><p>{answer}</p></details>)}</div>
+          <div className="pi-questions">{(product.faq?.length ? product.faq : questions).map(({ question, answer }, index) => <details key={index}><summary>{question}<Plus size={18}/></summary><p>{answer}</p></details>)}</div>
         </section>
         <section id="product-reviews" className="pi-panel">
           <PanelHeader sectionId="product-reviews" subtitle="تجربه‌های مربوط به همین محصول">دیدگاه خریداران</PanelHeader>

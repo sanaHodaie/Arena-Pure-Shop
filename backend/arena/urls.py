@@ -7,6 +7,7 @@ from catalog import views
 urlpatterns = [
     path("", TemplateView.as_view(template_name="catalog/index.html"), name="index"),
     path("admin/", admin.site.urls),
+    path("media/products/<int:product_id>/<str:digest>/", views.product_photo, name="product-photo"),
     path("healthz/", views.health, name="health"),
     path("api/v1/catalog/", views.storefront, name="catalog"),
     path("api/v1/categories/", views.Categories.as_view(), name="categories"),
