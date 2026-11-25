@@ -1,7 +1,7 @@
 let csrf;
 
 export async function request(path, data) {
-  const response = await fetch('/admin/api/' + path, data ? {
+  const response = await fetch('/api/management/' + path, data ? {
     method: 'POST',
     headers: { 'X-CSRFToken': csrf || '' },
     body: data,

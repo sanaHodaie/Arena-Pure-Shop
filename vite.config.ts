@@ -1,21 +1,42 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
-import {defineConfig} from 'vite';
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vite';
+
+const fromRoot = (file: string) => fileURLToPath(new URL(file, import.meta.url));
 
 export default defineConfig(() => {
+  const backend = process.env.API_PROXY_TARGET || 'http://127.0.0.1:8000';
   return {
-    plugins: [react(), tailwindcss()],
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, '.'),
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'arena-management-entry',
+        configureServer(server) {
+          server.middlewares.use((request, _response, next) => {
+            if (/^\/admin\/?(?:\?|$)/.test(request.url || '')) request.url = '/management/index.html';
+            next();
+          });
+        },
+        configurePreviewServer(server) {
+          server.middlewares.use((request, _response, next) => {
+            if (/^\/admin\/?(?:\?|$)/.test(request.url || '')) request.url = '/management/index.html';
+            next();
+          });
+        },
       },
+    ],
+    build: {
+      rollupOptions: { input: { storefront: fromRoot('./index.html'), management: fromRoot('./management/index.html') } },
     },
+    resolve: { alias: { '@': fromRoot('./') } },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modify—file watching is disabled to prevent flickering during agent edits.
+      proxy: {
+        '/api/management/': backend,
+        '/media/products/': backend,
+      },
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };

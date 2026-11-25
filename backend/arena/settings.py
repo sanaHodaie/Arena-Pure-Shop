@@ -24,7 +24,7 @@ if render_host:
     ALLOWED_HOSTS.append(render_host)
 
 INSTALLED_APPS = [
-    "arena.apps.ArenaAdminConfig", "django.contrib.auth", "django.contrib.contenttypes",
+    "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
     "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
     "corsheaders", "rest_framework", "catalog",
 ]
@@ -74,9 +74,6 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 storefront_images = BASE_DIR.parent / "public" / "images"
 STATICFILES_DIRS = [("storefront", storefront_images)] if DEBUG and storefront_images.is_dir() else []
-MANAGEMENT_BUILD = BASE_DIR / "generated" / "management"
-if MANAGEMENT_BUILD.is_dir():
-    STATICFILES_DIRS.append(("management", MANAGEMENT_BUILD))
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": (
@@ -90,7 +87,8 @@ CORS_ALLOWED_ORIGINS = [
         "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000" if DEBUG else "",
     )
 ]
-CORS_URLS_REGEX = r"^/api/"
+CSRF_TRUSTED_ORIGINS = csv_env("ADMIN_FRONTEND_ORIGINS") or CORS_ALLOWED_ORIGINS
+CORS_URLS_REGEX = r"^/api/v1/"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],

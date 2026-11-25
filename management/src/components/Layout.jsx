@@ -4,9 +4,7 @@ import {
   LayoutDashboard,
   Gem,
   ShoppingBag,
-  MessageSquare,
   Users,
-  BarChart3,
   Settings as SettingsIcon,
   Sun,
   Moon,
@@ -14,38 +12,37 @@ import {
   VolumeX,
   Menu,
   X,
-  Search,
   Sparkles,
   ChevronLeft,
   ShieldCheck,
-  LogOut
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 import { playTactileClick, setAudioMuted, getAudioMuted } from '../utils/sound';
-import { toPersianDigits } from '../utils/formatters';
+import AdminSearch from './AdminSearch';
 
 export default function Layout({
   activePage,
   onNavigate,
   children,
-  themeMode,
   onToggleTheme,
   currentUser,
   onLogout,
-  search,
-  onSearch
+  can = (_permission) => true,
+  onSearch,
+  products
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMutedState, setIsMutedState] = useState(getAudioMuted());
 
   const navItems = [
-    { id: 'dashboard', label: 'داشبورد اصلی', icon: LayoutDashboard, badge: null },
-    { id: 'products', label: 'ویترین و محصولات', icon: Gem, badge: null },
-    { id: 'orders', label: 'سفارشات و فاکتورها', icon: ShoppingBag, badge: null },
-    { id: 'messages', label: 'مرکز پیام‌ها', icon: MessageSquare, badge: null },
-    { id: 'customers', label: 'مشتریان', icon: Users, badge: null },
-    { id: 'analytics', label: 'گزارشات و چارت‌ها', icon: BarChart3, badge: null },
-    { id: 'settings', label: 'تنظیمات سیستم', icon: SettingsIcon, badge: null }
-  ];
+    { id: 'dashboard', label: 'داشبورد اصلی', icon: LayoutDashboard },
+    { id: 'products', label: 'محصولات و موجودی', icon: Gem },
+    { id: 'orders', label: 'سفارش‌ها و فاکتورها', icon: ShoppingBag },
+    { id: 'customers', label: 'حساب‌های کاربران', icon: Users },
+    { id: 'settings', label: 'تنظیمات سیستم', icon: SettingsIcon },
+    { id: 'account', label: 'حساب مدیریت', icon: UserCheck },
+  ].filter((item) => !['dashboard', 'products'].includes(item.id) || can('products:read'));
 
   const handleNavClick = (pageId) => {
     playTactileClick();
@@ -64,7 +61,7 @@ export default function Layout({
     <div className="min-h-screen h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300 overflow-hidden">
       <div className="flex-1 flex flex-row overflow-hidden relative h-full">
         {/* Desktop Glassmorphism Sidebar (Fixed 72 width) */}
-        <aside className="hidden lg:flex flex-col w-72 flex-shrink-0 border-l border-purple-100/70 dark:border-purple-950/40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-5 justify-between select-none h-full">
+        <aside className="admin-nav-scroll hidden lg:flex flex-col w-72 flex-shrink-0 border-l border-purple-100/70 dark:border-purple-950/40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-5 justify-between select-none h-full overflow-y-auto">
           {/* Brand Logo & Title */}
           <div className="space-y-6">
             <div
@@ -72,7 +69,7 @@ export default function Layout({
               className="flex items-center gap-3 cursor-pointer group"
             >
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-fuchsia-600 to-pink-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-500/25 group-hover:scale-105 transition-transform">
-                آ
+                A
               </div>
               <div>
                 <h2 className="font-black text-base text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -80,7 +77,7 @@ export default function Layout({
                   <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
                 </h2>
                 <span className="text-[11px] text-slate-400 font-medium block">
-                  پنل جامع مدیریت فروشگاه
+                  پنل مدیریت فروشگاه
                 </span>
               </div>
             </div>
@@ -115,17 +112,7 @@ export default function Layout({
                       <span>{item.label}</span>
                     </div>
 
-                    {item.badge && (
-                      <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          typeof item.badge === 'number'
-                            ? 'bg-pink-600 text-white animate-pulse'
-                            : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300'
-                        }`}
-                      >
-                        {typeof item.badge === 'number' ? toPersianDigits(item.badge) : item.badge}
-                      </span>
-                    )}
+
                   </motion.button>
                 );
               })}
@@ -144,19 +131,21 @@ export default function Layout({
                     {currentUser?.name || 'مدیریت آرنا پیور'}
                   </span>
                   <span className="text-[10px] text-slate-400 block truncate">
-                    {currentUser?.username ? `@${currentUser.username}` : 'پروانه کسب: ۷۴۸۲۹'}
+                    {currentUser?.username ? `@${currentUser.username}` : 'دسترسی مدیریت'}
                   </span>
                 </div>
               </div>
 
               {/* Logout / Switch User Button */}
               <button
+                aria-label="منوی مدیریت"
+                aria-expanded={isMobileMenuOpen}
                 onClick={() => {
                   playTactileClick();
                   if (onLogout) onLogout();
                 }}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                title="خروج از حساب"
+                title="خروج از حساب / باز کردن صفحه ورود"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -182,20 +171,11 @@ export default function Layout({
 
               <div className="hidden sm:block truncate min-w-0">
                 <h2 className="text-sm font-black text-slate-800 dark:text-white truncate">
-                  {navItems.find((n) => n.id === activePage)?.label || 'پنل مدیریت فروشگاه'}
+                  {navItems.find((n) => n.id === activePage)?.label || 'پنل مدیریت آرنا پیور'}
                 </h2>
               </div>
 
-              {/* Quick Global Search in Bento Style */}
-              <div className="hidden md:flex items-center gap-2 flex-1 px-3 py-1.5 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-purple-100/60 dark:border-purple-900/30 text-xs text-slate-400 focus-within:border-purple-400 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all min-w-0">
-                <Search className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
-                <input
-                  type="text"
-                  placeholder="جست‌وجوی محصولات…" aria-label="جست‌وجوی محصولات"
-                  value={search} onChange={(event) => onSearch(event.target.value)}
-                  className="bg-transparent border-none outline-none text-xs text-slate-700 dark:text-slate-200 w-full placeholder:text-slate-400 min-w-0"
-                />
-              </div>
+              {can('products:read') && <div className="hidden md:flex min-w-0 flex-1"><AdminSearch onSearch={onSearch} products={products}/></div>}
             </div>
 
             {/* Right: Sound, Dark Mode, Notifications, User/Login Quick Actions */}
@@ -226,23 +206,9 @@ export default function Layout({
                 className="p-2 sm:p-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-amber-500 shadow-xs transition-colors"
                 title="تغییر تم تاریک / روشن"
               >
-                {themeMode === 'dark' ? (
-                  <Sun className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <Moon className="w-4 h-4 text-purple-600" />
-                )}
+                <Sun className="w-4 h-4 text-amber-400 hidden dark:block"/><Moon className="w-4 h-4 text-purple-600 dark:hidden"/>
               </motion.button>
 
-              {/* Messages Quick Badge */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleNavClick('messages')}
-                className="relative p-2 sm:p-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-pink-600 shadow-xs transition-colors"
-                title="پیام‌ها"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </motion.button>
 
               {/* Quick Login / Logout Screen Trigger */}
               <motion.button
@@ -260,6 +226,7 @@ export default function Layout({
               </motion.button>
             </div>
           </header>
+          {can('products:read') && <div className="md:hidden relative z-20 px-3 py-2 bg-white dark:bg-slate-900"><AdminSearch onSearch={onSearch} products={products}/></div>}
 
           {/* Page Container */}
           <main className="flex-1 p-3 sm:p-6 md:p-8 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
@@ -287,13 +254,13 @@ export default function Layout({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-72 max-w-[80vw] h-full bg-white dark:bg-slate-900 border-l border-purple-200/80 dark:border-purple-900/40 p-6 flex flex-col justify-between shadow-2xl z-10"
+              className="admin-nav-scroll relative w-72 max-w-[80vw] h-full bg-white dark:bg-slate-900 border-l border-purple-200/80 dark:border-purple-900/40 p-6 flex flex-col justify-between overflow-y-auto shadow-2xl z-10"
             >
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white font-black text-lg">
-                      آ
+                      A
                     </div>
                     <span className="font-black text-slate-900 dark:text-white">آرنا پیور</span>
                   </div>
@@ -323,11 +290,7 @@ export default function Layout({
                           <Icon className="w-4 h-4" />
                           <span>{item.label}</span>
                         </div>
-                        {item.badge && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-pink-500 text-white">
-                            {typeof item.badge === 'number' ? toPersianDigits(item.badge) : item.badge}
-                          </span>
-                        )}
+
                       </button>
                     );
                   })}

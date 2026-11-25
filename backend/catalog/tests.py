@@ -17,9 +17,9 @@ from .models import Category, Product, ProductPhoto
 class CatalogTests(TestCase):
     slug = "maybelline-vinyl-ink-35-cheeky"
 
-    def test_backend_home_links_to_health_catalog_and_admin(self):
+    def test_backend_home_links_to_health_and_catalog(self):
         response = self.client.get(reverse("index"))
-        for name in ("health", "catalog", "management"):
+        for name in ("health", "catalog"):
             self.assertContains(response, f'href="{reverse(name)}"')
 
     def test_catalog_and_stable_storefront_paths(self):
@@ -48,45 +48,28 @@ class CatalogTests(TestCase):
         user = get_user_model().objects.create_superuser("test-admin", password="temporary-test-password")
         self.client.force_login(user)
         product = Product.objects.select_related("category", "brand").get(slug=self.slug)
-        response = self.client.post(reverse("admin:catalog_product_change", args=[product.pk]), {
+        response = self.client.post(f"/api/management/products/{product.pk}/", {
             "slug": product.slug, "category": product.category_id, "brand": product.brand_id,
             "title": product.title, "english_name": product.english_name, "price": 123456,
             "stock": 0, "is_active": "on", "image": product.image, "extra": "[]", "_save": "Save",
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         call_command("seed_catalog", verbosity=0)
         data = self.client.get(reverse("product", args=[self.slug])).json()
         self.assertEqual(data["price"], 123456)
         self.assertFalse(data["inStock"])
         self.assertEqual(Product.objects.count(), 70)
 
-    def test_admin_list_login_and_visibility(self):
-        self.assertContains(self.client.get(reverse("admin:login")), "ورود به مدیریت آرنا پیور")
-        admin = get_user_model().objects.create_superuser("visibility-admin", password="temporary-test-password")
-        self.client.force_login(admin)
-        index = self.client.get(reverse("admin:index"))
-        self.assertContains(index, "فعال در فروشگاه")
-        product = Product.objects.get(slug=self.slug)
-        category_filter = f"?category__id__exact={product.category_id}"
-        listing = self.client.get(reverse("admin:catalog_product_changelist") + category_filter)
-        self.assertContains(listing, "arena-thumbnail")
-        self.assertContains(listing, f'id="arena-toggle-{product.pk}"')
-        self.assertContains(listing, reverse("admin:catalog_product_import"))
-        url = reverse("admin:catalog_product_visibility", args=[product.pk])
-        self.assertEqual(self.client.get(url).status_code, 405)
-        result = self.client.post(url, {"is_active": "false", "return_to": listing.wsgi_request.get_full_path()})
-        self.assertTrue(result["Location"].endswith(category_filter))
-        self.assertEqual(self.client.get(reverse("product", args=[self.slug])).status_code, 404)
-        self.assertEqual(len(self.client.get(reverse("catalog")).json()["products"]), 69)
-        self.client.post(url, {"is_active": "true"})
-        self.assertEqual(self.client.get(reverse("product", args=[self.slug])).status_code, 200)
+    def test_django_has_no_management_ui_routes(self):
+        for url in ("/admin/", "/django-admin/"):
+            self.assertEqual(self.client.get(url).status_code, 404)
 
     def test_excel_sample_import_and_rollback(self):
         admin = get_user_model().objects.create_superuser("import-admin", password="temporary-test-password")
-        path = reverse("admin:catalog_product_import")
-        self.assertEqual(self.client.get(path).status_code, 302)
+        path = "/api/management/workbook/"
+        self.assertEqual(self.client.get(path).status_code, 401)
         self.client.force_login(admin)
-        sample = self.client.get(reverse("admin:catalog_product_sample"))
+        sample = self.client.get(path)
         self.assertEqual(next(load_workbook(BytesIO(sample.content)).active.values)[:5],
                          ("slug", "title", "category", "brand", "price"))
 
@@ -102,19 +85,19 @@ class CatalogTests(TestCase):
 
         product = ("example-test", "Test", "skincare", "Import brand", 85000, 3, False)
         error = post_rows([product, ("bad-item", "Malformed", "skincare", "Other", "=2+2")])
-        self.assertContains(error, "فرمول")
+        self.assertIn("فرمول", error.json()["error"])
         self.assertFalse(Product.objects.filter(slug=product[0]).exists())
-        self.assertEqual(post_rows([product]).status_code, 302)
+        self.assertEqual(post_rows([product]).status_code, 200)
         self.assertFalse(Product.objects.get(slug=product[0]).is_active)
-        self.assertContains(post_rows([product]), "اسلاگ تکراری")
-        self.assertContains(self.client.post(path, {"workbook": SimpleUploadedFile("broken.xlsx", b"not a ZIP")}),
-                            "محتوای فایل اکسل معتبر نیست")
+        self.assertIn("اسلاگ تکراری", post_rows([product]).json()["error"])
+        self.assertIn("محتوای فایل اکسل معتبر نیست",
+                      self.client.post(path, {"workbook": SimpleUploadedFile("broken.xlsx", b"not a ZIP")}).json()["error"])
 
     def test_photo_upload_check_and_persistence(self):
         admin = get_user_model().objects.create_superuser("photo-admin", password="temporary-test-password")
         self.client.force_login(admin)
         product = Product.objects.get(slug=self.slug)
-        path = reverse("admin:catalog_product_change", args=[product.pk])
+        path = f"/api/management/products/{product.pk}/"
         fields = {
             "slug": product.slug, "category": product.category_id, "brand": product.brand_id,
             "title": product.title, "english_name": product.english_name, "price": product.price,
@@ -123,14 +106,14 @@ class CatalogTests(TestCase):
         }
         for filename, content in (("wrong.png", b"not an image"), ("large.png", b"x" * (IMAGE_LIMIT + 1))):
             response = self.client.post(path, {**fields, "photo": SimpleUploadedFile(filename, content)})
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue(response.context["adminform"].form.errors["photo"])
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue(response.json()["errors"]["photo"])
             self.assertFalse(ProductPhoto.objects.exists())
         output = BytesIO()
         Image.new("RGB", (20, 20), "purple").save(output, "PNG")
         wrong_extension = self.client.post(path, {**fields, "photo": SimpleUploadedFile("wrong.jpg", output.getvalue())})
-        self.assertContains(wrong_extension, "پسوند فایل")
-        self.assertEqual(self.client.post(path, {**fields, "photo": SimpleUploadedFile("good.png", output.getvalue())}).status_code, 302)
+        self.assertIn("پسوند فایل", wrong_extension.json()["errors"]["photo"][0])
+        self.assertEqual(self.client.post(path, {**fields, "photo": SimpleUploadedFile("good.png", output.getvalue())}).status_code, 200)
         photo = ProductPhoto.objects.get(product=product)
         self.client.logout()
         data = self.client.get(reverse("product", args=[self.slug])).json()
@@ -145,8 +128,8 @@ class CatalogTests(TestCase):
         admin = account.objects.create_superuser("react-admin", password="temporary-test-password")
         account.objects.create_user("customer", password="temporary-test-password")
         staff = account.objects.create_user("staff", is_staff=True)
-        session = "/admin/api/session/"
-        catalog = "/admin/api/catalog/"
+        session = "/api/management/session/"
+        catalog = "/api/management/catalog/"
         self.assertEqual(client.get(catalog).status_code, 401)
         credentials = {"username": "react-admin", "password": "temporary-test-password"}
         self.assertEqual(client.post(session, credentials).status_code, 403)
@@ -162,7 +145,7 @@ class CatalogTests(TestCase):
         self.assertEqual(len(client.get(catalog).json()["products"]), 70)
 
         product = Product.objects.get(slug=self.slug)
-        editor = f"/admin/api/products/{product.pk}/"
+        editor = f"/api/management/products/{product.pk}/"
         fields = client.get(editor).json()["fields"]
         values = {field["name"]: field["value"] for field in fields if field["value"] is not None}
         values["price"] = 123456
@@ -187,7 +170,7 @@ class CatalogTests(TestCase):
         workbook.active.append(("react-panel-import", "Imported product", "skincare", "Example", 100000))
         output = BytesIO()
         workbook.save(output)
-        response = client.post("/admin/api/workbook/", {"workbook": SimpleUploadedFile("products.xlsx", output.getvalue())},
+        response = client.post("/api/management/workbook/", {"workbook": SimpleUploadedFile("products.xlsx", output.getvalue())},
                                headers=headers)
         self.assertEqual(response.json(), {"count": 1})
         self.assertTrue(Product.objects.filter(slug="react-panel-import").exists())

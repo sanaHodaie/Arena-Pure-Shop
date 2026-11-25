@@ -1,11 +1,10 @@
 from functools import wraps
 
-from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
-from django.http import FileResponse, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
@@ -13,17 +12,13 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from .forms import ProductAdminForm
 from .models import Brand, Category, Product
-from .photos import product_image_url, save_product_photo
+from .photos import save_product_photo
 from .spreadsheets import import_products, sample_workbook
 
 
-@never_cache
-@require_GET
-def panel(request):
-    index = settings.MANAGEMENT_BUILD / "index.html"
-    if not index.is_file():
-        return HttpResponse("Build the management panel with npm run build:management.", status=503)
-    return FileResponse(index.open("rb"), content_type="text/html; charset=utf-8")
+def image_url(product):
+    photo = getattr(product, "uploaded_photo", None)
+    return photo.url() if photo else product.image
 
 
 def staff_api(view):
@@ -72,8 +67,9 @@ def product_row(product):
     return {
         "id": product.pk, "name": product.title, "sku": product.slug,
         "category": product.category_id, "categoryName": product.category.title,
-        "brand": product.brand.name, "image": product_image_url(product), "stock": product.stock,
+        "brand": product.brand.name, "image": image_url(product), "stock": product.stock,
         "price": product.price, "active": product.is_active,
+        "description": product.description, "type": product.product_type, "model": product.model,
     }
 
 
@@ -104,7 +100,7 @@ def edit_payload(product):
             "name": field.name, "label": str(field.label), "type": kind, "value": value,
             "required": field.field.required, "choices": choices, "help": str(field.help_text),
         })
-    return {"fields": fields, "image": product_image_url(product) if product else ""}
+    return {"fields": fields, "image": image_url(product) if product else ""}
 
 
 @staff_api

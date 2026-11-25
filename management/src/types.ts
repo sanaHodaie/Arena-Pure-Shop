@@ -19,6 +19,9 @@ export interface Product {
   stock: number;
   price: number;
   active: boolean;
+  model: string;
+  description: string;
+  type: string;
 }
 
 export interface Catalog {

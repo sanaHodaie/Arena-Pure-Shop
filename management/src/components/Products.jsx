@@ -1,92 +1,90 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Gem, Plus, Search, Edit2, Trash2, Eye, EyeOff, Upload } from 'lucide-react';
-import { toPersianDigits, formatToman } from '../utils/formatters';
-import { playTactileClick } from '../utils/sound';
+import { Edit2, Eye, EyeOff, FileSpreadsheet, Plus, Trash2 } from 'lucide-react';
+import { Button, Empty, Heading, Pager, Panel, inputClass, money, number } from './ManagementUI';
+import Select from './Select';
 
-const buttonStyle = 'inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold';
-const filterStyle = 'w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs dark:border-slate-700 dark:bg-slate-800 focus:ring-2 focus:ring-purple-500';
-const iconStyle = 'rounded-xl border border-purple-100 p-2 text-purple-600 hover:bg-purple-50 disabled:opacity-50 dark:border-slate-700 dark:text-purple-300 dark:hover:bg-slate-800';
+const pageSize = 20;
 
 export default function Products({ products, categories, search, onSearch, account, onEdit, onUpload, onAction, busy }) {
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
   const [brand, setBrand] = useState('');
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [search, category, status, brand]);
+
   const brands = [...new Set(products.map((product) => product.brand))].sort((a, b) => a.localeCompare(b, 'fa'));
   const query = search.trim().toLocaleLowerCase('fa');
   const filtered = products.filter((product) =>
     (!category || String(product.category) === category) &&
     (!brand || product.brand === brand) &&
     (!status || product.active === (status === 'active')) &&
-    [product.name, product.sku, product.brand].some((value) => value.toLocaleLowerCase('fa').includes(query))
+    [product.name, product.sku, product.brand, product.model].some((value) => value.toLocaleLowerCase('fa').includes(query))
   );
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(filtered.length / pageSize)));
+  const rows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
-    <div className="space-y-6 pb-12 w-full min-w-0">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="p-2 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-lg shadow-purple-500/20"><Gem className="w-5 h-5" /></span>
-            <h1 className="text-2xl md:text-3xl font-black">ویترین و موجودی محصولات</h1>
-          </div>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{toPersianDigits(filtered.length)} محصول</p>
-        </div>
+    <div className="space-y-6 pb-12">
+      <Heading title="محصولات و موجودی" subtitle="موجودی و قیمت محصولات را مدیریت کنید. قیمت‌ها به تومان نمایش داده می‌شوند.">
         {account.can_add && <div className="flex flex-wrap gap-2">
-          <motion.button whileTap={{ scale: 0.97 }} onClick={onUpload} className={buttonStyle + ' glass-panel text-purple-700 dark:text-purple-300'}><Upload size={16} /> ورود از اکسل</motion.button>
-          <motion.button whileTap={{ scale: 0.97 }} onClick={() => onEdit('new')} className={buttonStyle + ' bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 text-white shadow-lg shadow-purple-500/25'}><Plus size={16} /> افزودن محصول</motion.button>
+          <Button secondary onClick={onUpload}><FileSpreadsheet size={15} className="inline ml-2" />ورود از اکسل</Button>
+          <Button onClick={() => onEdit('new')}><Plus size={15} className="inline ml-2" />محصول جدید</Button>
         </div>}
-      </div>
+      </Heading>
 
-      <div className="glass-panel rounded-3xl p-5 space-y-4">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          {[{ id: '', title: 'همهٔ محصولات' }, ...categories].map((item) => (
-            <button key={item.id} aria-pressed={category === String(item.id)} onClick={() => { playTactileClick(); setCategory(String(item.id)); }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${category === String(item.id) ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20' : 'bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 hover:border-purple-300'}`}>
-              {item.title}
-            </button>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <label className="sm:col-span-2 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
-            <input value={search} onChange={(event) => onSearch(event.target.value)} aria-label="نام یا شناسهٔ محصول" placeholder="جست‌وجو بر اساس نام، برند یا شناسه" className={filterStyle + ' pr-10'} />
-          </label>
-          <select value={status} onChange={(event) => setStatus(event.target.value)} className={filterStyle} aria-label="وضعیت نمایش">
-            <option value="">همهٔ وضعیت‌ها</option><option value="active">فعال</option><option value="hidden">غیرفعال</option>
-          </select>
-          <select value={brand} onChange={(event) => setBrand(event.target.value)} className={filterStyle} aria-label="برند">
-            <option value="">همهٔ برندها</option>{brands.map((name) => <option key={name}>{name}</option>)}
-          </select>
-        </div>
-      </div>
+      <Panel className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <input aria-label="جستجوی محصولات" className={inputClass} value={search} onChange={(event) => onSearch(event.target.value)} placeholder="نام، مدل، برند یا شناسهٔ محصول…" />
+        <Select aria-label="فیلتر دسته‌بندی محصولات" className={inputClass} value={category} onChange={(event) => setCategory(event.target.value)}>
+          <option value="">همهٔ دسته‌بندی‌ها</option>
+          {categories.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+        </Select>
+        <Select aria-label="وضعیت نمایش" className={inputClass} value={status} onChange={(event) => setStatus(event.target.value)}>
+          <option value="">همهٔ وضعیت‌ها</option>
+          <option value="active">فعال</option>
+          <option value="hidden">غیرفعال</option>
+        </Select>
+        <Select aria-label="برند" className={inputClass} value={brand} onChange={(event) => setBrand(event.target.value)}>
+          <option value="">همهٔ برندها</option>
+          {brands.map((name) => <option key={name} value={name}>{name}</option>)}
+        </Select>
+      </Panel>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {filtered.map((product) => (
-          <motion.article key={product.id} layout whileHover={{ y: -3 }} className="glass-panel glass-card-hover p-4 flex flex-col justify-between gap-4 min-w-0">
-            <div className="flex gap-3 items-start">
-              <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 grid place-items-center">
-                {product.image ? <img src={product.image} alt="" loading="lazy" referrerPolicy="no-referrer" className="size-full object-contain" /> : <Gem className="text-slate-400" />}
-              </div>
-              <div className="min-w-0 space-y-1">
-                <span className="text-[10px] text-purple-700 dark:text-purple-300 font-bold">{product.categoryName} · {product.brand}</span>
-                <h3 className="font-bold text-sm leading-relaxed">{product.name}</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">موجودی {toPersianDigits(product.stock)}</p>
-              </div>
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        {rows.map((product) => (
+          <motion.article key={product.id} data-category={product.category} layout whileHover={{ y: -5 }}
+            className="glass-panel glass-card-hover group flex flex-col overflow-hidden rounded-3xl sm:flex-row">
+            <div className="relative m-3 aspect-square w-40 shrink-0 self-start overflow-hidden rounded-2xl bg-white">
+              {product.image && <img loading="lazy" src={product.image} alt={product.name} className="size-full object-contain transition-transform duration-500 group-hover:scale-105" />}
+              <span className="absolute right-2 top-2 rounded-lg bg-slate-900/80 px-2 py-1 text-[10px] font-bold text-white">{product.categoryName}</span>
+              <span className={`absolute bottom-2 right-2 rounded-lg px-2 py-1 text-[10px] font-bold text-white ${product.active ? 'bg-emerald-600/90' : 'bg-slate-600/90'}`}>
+                {product.active ? `موجودی ${number(product.stock)}` : 'غیرفعال'}
+              </span>
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-purple-50 pt-3 dark:border-slate-800">
-              <span className="text-xs font-black">{formatToman(product.price)}</span>
-              <div className="flex gap-1.5">
-                {account.can_change && <>
-                  <button className={iconStyle} disabled={busy} onClick={() => onAction(product, product.active ? 'hide' : 'show')} aria-pressed={product.active} title={product.active ? 'غیرفعال کردن محصول' : 'فعال کردن محصول'} aria-label="نمایش محصول">{product.active ? <Eye size={16} /> : <EyeOff size={16} />}</button>
-                  <button className={iconStyle} onClick={() => onEdit(product.id)} title="ویرایش محصول" aria-label="ویرایش محصول"><Edit2 size={16} /></button>
-                </>}
-                {account.can_delete && <button className={iconStyle} disabled={busy} onClick={() => onAction(product, 'delete')} title="حذف محصول" aria-label="حذف محصول"><Trash2 size={16} /></button>}
+            <div className="flex min-w-0 flex-1 flex-col gap-3 p-5">
+              <span className="break-all text-[11px] text-slate-400" dir="ltr">{product.sku}</span>
+              <h2 className="text-sm font-bold leading-relaxed">{product.name}</h2>
+              <div className="rounded-2xl bg-slate-50 p-3 text-xs dark:bg-slate-800/60">
+                <strong>{product.brand}</strong>{product.type && <span className="text-slate-500 dark:text-slate-400"> · {product.type}</span>}
+              </div>
+              {product.description && <p className="line-clamp-3 text-xs leading-6 text-slate-600 dark:text-slate-300">{product.description}</p>}
+              <div className="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+                <strong className="text-sm text-purple-700 dark:text-pink-400">{money(product.price)}</strong>
+                <div className="flex gap-1">
+                  {account.can_change && <>
+                    <button title={product.active ? 'غیرفعال کردن' : 'فعال کردن'} aria-label="نمایش محصول" aria-pressed={product.active} disabled={busy} onClick={() => onAction(product, product.active ? 'hide' : 'show')} className="rounded-xl p-2 text-purple-600 disabled:opacity-40 dark:text-purple-300">
+                      {product.active ? <Eye size={15} /> : <EyeOff size={15} />}
+                    </button>
+                    <button title="ویرایش محصول" aria-label="ویرایش محصول" className="rounded-xl bg-purple-50 p-2 text-purple-600 dark:bg-purple-950/40 dark:text-purple-300" onClick={() => onEdit(product.id)}><Edit2 size={15} /></button>
+                  </>}
+                  {account.can_delete && <button title="حذف محصول" aria-label="حذف محصول" disabled={busy} onClick={() => onAction(product, 'delete')} className="rounded-xl p-2 text-rose-500 disabled:opacity-40"><Trash2 size={15} /></button>}
+                </div>
               </div>
             </div>
           </motion.article>
         ))}
       </div>
-      {!filtered.length && <p className="glass-panel p-8 text-center text-sm text-slate-500 dark:text-slate-400">محصولی پیدا نشد.</p>}
+      {rows.length ? <Pager data={{ total: filtered.length, pageSize }} page={currentPage} setPage={(update) => setPage(update(currentPage))} /> : <Empty>محصولی پیدا نشد.</Empty>}
     </div>
   );
 }

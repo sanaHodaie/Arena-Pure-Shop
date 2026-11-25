@@ -50,7 +50,7 @@ export default function CatalogDialog({ item, onClose, onSaved }) {
       {message && <p role="alert" className="mb-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-950 dark:text-rose-200">{message}</p>}
       <form onSubmit={submit} className="space-y-5">
         {upload && <div className="space-y-3">
-          <a className="inline-block text-sm font-bold text-purple-700 underline dark:text-purple-300" href="/admin/api/workbook/">دریافت فایل نمونه</a>
+          <a className="inline-block text-sm font-bold text-purple-700 underline dark:text-purple-300" href="/api/management/workbook/">دریافت فایل نمونه</a>
           <p className="text-xs text-slate-500 dark:text-slate-400">فرمت XLSX، حداکثر ۲ مگابایت و ۱۰۰۰ ردیف. برای دسته‌بندی از شناسهٔ دسته در فایل نمونه استفاده کنید.</p>
           <input type="file" required name="workbook" aria-label="فایل اکسل محصولات" accept=".xlsx" className={controlStyle} />
         </div>}

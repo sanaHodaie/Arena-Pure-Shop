@@ -5,6 +5,18 @@
       "destination": "https://arena-pure-catalog.onrender.com/api/v1/catalog/"
     },
     {
+      "source": "/admin",
+      "destination": "/management/index.html"
+    },
+    {
+      "source": "/api/management/:path*",
+      "destination": "https://arena-pure-catalog.onrender.com/api/management/:path*"
+    },
+    {
+      "source": "/media/products/:path*",
+      "destination": "https://arena-pure-catalog.onrender.com/media/products/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
