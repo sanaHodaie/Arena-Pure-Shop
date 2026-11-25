@@ -10,6 +10,7 @@ urlpatterns = [
     path("api/management/articles/new/", content_views.save_article),
     path("api/management/articles/<int:pk>/", content_views.save_article),
     path("api/management/articles/<int:pk>/visibility/", content_views.article_visibility),
+    path("api/management/articles/<int:pk>/delete/", content_views.delete_article),
     path("media/articles/<int:pk>/<str:digest>/", content_views.article_photo, name="article-photo"),
     path("api/management/reviews/", content_views.reviews),
     path("api/management/reviews/<int:pk>/", content_views.moderate_review),

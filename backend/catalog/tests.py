@@ -241,6 +241,13 @@ class CatalogTests(TestCase):
         self.assertEqual(manager.post(toggle, {"published": "false"}, headers=manager_headers).status_code, 200)
         self.assertEqual(guest.get(media_url).status_code, 404)
         self.assertNotIn(pk, [row["id"] for row in guest.get("/api/v1/articles/").json()["articles"]])
+        delete_url = f"/api/management/articles/{pk}/delete/"
+        self.assertEqual(guest.post(delete_url, headers=review_headers).status_code, 401)
+        self.assertEqual(manager.get(delete_url).status_code, 405)
+        self.assertTrue(Article.objects.filter(pk=pk).exists())
+        self.assertEqual(manager.post(delete_url, headers=manager_headers).json(), {"deleted": True})
+        self.assertFalse(Article.objects.filter(pk=pk).exists())
+        self.assertEqual(manager.get(media_url).status_code, 404)
 
     def test_sales_report_excel_matches_charts_and_demo_can_be_zeroed(self):
         from datetime import date, timedelta

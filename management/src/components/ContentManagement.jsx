@@ -1,6 +1,7 @@
-import { Check, Edit2, Eye, EyeOff, ImagePlus, X } from 'lucide-react';
+import { Check, Edit2, Eye, EyeOff, ImagePlus, Trash2, X } from 'lucide-react';
 import ArticlePoster from '../../../src/components/ArticlePoster.jsx';
 import { ArticleContent } from '../../../src/pages/ArticlePage.jsx';
+import Select from './Select.jsx';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -35,6 +36,8 @@ export function Articles({ account }) {
   const [notice, setNotice] = useState(null);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
   const editor = useRef(null);
 
   function openEditor(article) {
@@ -71,11 +74,29 @@ export function Articles({ account }) {
     }
   }
 
+  async function removeArticle() {
+    if (!deleting || updating) return;
+    setUpdating(true);
+    setDeleteError('');
+    try {
+      await post(`articles/${deleting.id}/delete/`, {});
+      setDeleting(null);
+      notify('مقاله حذف شد.');
+      rows.refresh();
+    } catch (failure) {
+      setDeleteError(failure.message);
+    } finally {
+      setUpdating(false);
+    }
+  }
+
   return <div className="space-y-4">
     <Heading title="خواندنی‌ها" subtitle="مقاله‌های صفحهٔ اصلی و صفحهٔ هر مطلب">
       {!selection && account.articleAdd && <Button disabled={!rows.resource} onClick={() => openEditor({ author: account.username })}>مقالهٔ جدید</Button>}
     </Heading>
     <ArticleNotice notice={notice} onClose={() => setNotice(null)} />
+    {deleting && <ArticleDeleteDialog article={deleting} busy={updating} error={deleteError}
+      onClose={() => setDeleting(null)} onConfirm={removeArticle} />}
     <ErrorBox message={error} />
     <RowStatus {...rows} />
     {selection && <div ref={editor} className="scroll-mt-20">
@@ -96,15 +117,19 @@ export function Articles({ account }) {
           <p className="line-clamp-2 text-xs leading-relaxed text-pearl-600 dark:text-pearl-300">{article.excerpt}</p>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs text-pearl-600 dark:text-pearl-300">{article.published ? 'منتشرشده' : 'پیش‌نویس'}</span>
-            {account.articleChange && <div className="flex gap-2">
-              <Button type="button" secondary disabled={updating || Boolean(selection)} aria-pressed={article.published}
-                aria-label={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
-                data-tooltip={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
-                onClick={() => changeVisibility(article)}>
-                {article.published ? <Eye size={17} /> : <EyeOff size={17} />}
-              </Button>
-              <Button type="button" secondary aria-label="ویرایش مقاله" data-tooltip="ویرایش مقاله" onClick={() => openEditor(article)}><Edit2 size={17} /></Button>
-            </div>}
+            <div className="flex gap-2">
+              {account.articleChange && <>
+                <Button type="button" secondary disabled={updating} aria-pressed={article.published}
+                  aria-label={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
+                  onClick={() => changeVisibility(article)}>
+                  {article.published ? <Eye size={17} /> : <EyeOff size={17} />}
+                </Button>
+                <Button type="button" secondary disabled={updating} aria-label="ویرایش مقاله" onClick={() => openEditor(article)}><Edit2 size={17} /></Button>
+              </>}
+              {account.articleDelete && <Button type="button" secondary disabled={updating} aria-label="حذف مقاله"
+                className="text-rose-700 dark:text-rose-300"
+                onClick={() => { setDeleteError(''); setDeleting(article); }}><Trash2 size={17} /></Button>}
+            </div>
           </div>
         </div>
       </article>)}
@@ -124,6 +149,8 @@ function ArticleEditor({ article, categories, onCancel, onSaved }) {
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
   const [fileError, setFileError] = useState('');
+  const [theme, setTheme] = useState(article.cover?.theme || 'matte');
+  const [category, setCategory] = useState(String(article.categoryId || ''));
   const [image, setImage] = useState('');
   const [preview, setPreview] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -205,14 +232,24 @@ function ArticleEditor({ article, categories, onCancel, onSaved }) {
         {label}<input required name={name} className={inputClass} maxLength={length} defaultValue={values[key]} />
         {feedback(name)}
       </label>)}
-      <label className="grid gap-1 text-sm">رنگ پوستر<select name="cover_theme" className={inputClass} defaultValue={values.theme || 'matte'}>
-        <option value="matte">آلویی</option><option value="dry-skin">رز</option>
-        <option value="hydration">آبی</option><option value="eyeliner">تیره</option>
-      </select>{feedback('cover_theme')}</label>
-      <label className="grid gap-1 text-sm">دستهٔ مرتبط<select name="related_category" className={inputClass} defaultValue={article.categoryId || ''}>
-        <option value="">بدون دستهٔ مرتبط</option>
-        {categories.map((category) => <option value={category.id} key={category.id}>{category.title}</option>)}
-      </select>{feedback('related_category')}</label>
+      <div className="grid gap-1 text-sm">
+        <label htmlFor="article-cover-theme">رنگ پوستر</label>
+        <Select id="article-cover-theme" name="cover_theme" aria-label="رنگ پوستر" className={inputClass}
+          value={theme} onChange={(event) => setTheme(event.target.value)}>
+          <option value="matte">آلویی</option><option value="dry-skin">رز</option>
+          <option value="hydration">آبی</option><option value="eyeliner">تیره</option>
+        </Select>
+        {feedback('cover_theme')}
+      </div>
+      <div className="grid gap-1 text-sm">
+        <label htmlFor="article-category">دستهٔ مرتبط</label>
+        <Select id="article-category" name="related_category" aria-label="دستهٔ مرتبط" className={inputClass}
+          value={category} onChange={(event) => setCategory(event.target.value)}>
+          <option value="">بدون دستهٔ مرتبط</option>
+          {categories.map((item) => <option value={item.id} key={item.id}>{item.title}</option>)}
+        </Select>
+        {feedback('related_category')}
+      </div>
       <label className="grid gap-1 text-sm sm:col-span-2">متن کامل
         <textarea required rows={12} name="body" className={inputClass} maxLength={20000} defaultValue={article.body} />
         <small>برای عنوان بخش، ابتدای خط از «##» و یک فاصله استفاده کنید.</small>{feedback('body')}
@@ -235,6 +272,34 @@ function ArticleNotice({ notice, onClose }) {
       <button type="button" onClick={onClose} aria-label="بستن اعلان"><X size={16} /></button>
     </motion.div>}
   </AnimatePresence>, document.body);
+}
+
+function ArticleDeleteDialog({ article, busy, error, onClose, onConfirm }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    dialog.showModal();
+    return () => dialog.close();
+  }, []);
+
+  return <dialog ref={ref} role="alertdialog" aria-labelledby="delete-article-title" aria-describedby="delete-article-warning"
+    className="article-preview article-delete-dialog"
+    onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}>
+    <div className="space-y-4 p-6">
+      <span className="inline-flex rounded-2xl bg-rose-100 p-3 text-rose-700 dark:bg-rose-950 dark:text-rose-300"><Trash2 size={24} /></span>
+      <h2 id="delete-article-title" className="text-base font-black">آیا از حذف این مقاله مطمئن هستید؟</h2>
+      <p className="break-words text-sm font-bold">{article.title}</p>
+      <p id="delete-article-warning" className="text-sm text-pearl-600 dark:text-pearl-300">این عمل بدون بازگشت است.</p>
+      <ErrorBox message={error} />
+      <div className="flex flex-wrap gap-2">
+        <Button autoFocus secondary type="button" disabled={busy} onClick={onClose}>لغو</Button>
+        <button type="button" disabled={busy} onClick={onConfirm}
+          className="rounded-2xl bg-rose-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+          {busy ? 'در حال حذف…' : 'تأیید حذف'}
+        </button>
+      </div>
+    </div>
+  </dialog>;
 }
 
 function ArticlePreview({ article, busy, onClose, onSave }) {

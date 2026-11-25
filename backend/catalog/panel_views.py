@@ -64,6 +64,7 @@ def session(request):
             "can_delete": allowed(user, "delete"),
             "articles": any(user.has_perm(f"catalog.{action}_article") for action in ("view", "add", "change")),
             "articleAdd": user.has_perm("catalog.add_article"), "articleChange": user.has_perm("catalog.change_article"),
+            "articleDelete": user.has_perm("catalog.delete_article"),
             "reviews": any(user.has_perm(f"catalog.{action}_productreview") for action in ("view", "change")),
             "reviewChange": user.has_perm("catalog.change_productreview"),
             "loginLogs": user.has_perm("catalog.view_adminlogin"),

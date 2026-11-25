@@ -398,3 +398,14 @@
 }
 @keyframes admin-tooltip-in { from { opacity: 0; translate: 0 3px; } }
 @media (prefers-reduced-motion: reduce) { .admin-tooltip { animation: none; } }
+
+.article-delete-dialog {
+  width: min(420px, calc(100vw - 30px));
+  background: color-mix(in srgb, var(--color-pearl-50) 90%, transparent);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 25px 80px #2617253d;
+}
+
+.dark .article-delete-dialog {
+  background: color-mix(in srgb, var(--color-pearl-900) 92%, transparent);
+}

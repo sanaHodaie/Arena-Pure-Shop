@@ -2,7 +2,7 @@ import React, {useEffect, useId, useLayoutEffect, useRef, useState} from 'react'
 import {createPortal} from 'react-dom';
 import {Check, ChevronDown} from 'lucide-react';
 
-export default function Select({value,onChange,children,disabled=false,className='',...props}) {
+export default function Select({value,onChange,children,disabled=false,className='',name,...props}) {
   const options=React.Children.toArray(children).map(child=>child.props);
   const selected=options.findIndex(option=>String(option.value)===String(value));
   const [open,setOpen]=useState(false),[active,setActive]=useState(Math.max(0,selected));
@@ -34,6 +34,7 @@ export default function Select({value,onChange,children,disabled=false,className
     else if(e.key==='Tab')setOpen(false);
   };
   return <div ref={root} className="relative min-w-0" onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))setOpen(false);}}>
+    {name && <input type="hidden" name={name} value={value ?? ''} disabled={disabled} />}
     <button {...props} ref={button} type="button" role="combobox" disabled={disabled} aria-haspopup="listbox" aria-expanded={open} aria-controls={id} aria-activedescendant={open?`${id}-${active}`:undefined} onKeyDown={key} onClick={()=>{setActive(Math.max(0,selected));setOpen(v=>!v);}} className={`flex items-center justify-between gap-3 text-right transition-shadow hover:border-plum-400 disabled:opacity-50 ${className}`}>
       <span className="truncate">{options[selected]?.children || 'انتخاب کنید'}</span><ChevronDown size={17} className={`shrink-0 text-plum-500 transition-transform ${open?'rotate-180':''}`}/>
     </button>

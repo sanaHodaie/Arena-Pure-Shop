@@ -78,6 +78,16 @@ def save_article(request, pk=None):
 
 @staff_api
 @require_POST
+def delete_article(request, pk):
+    if not request.user.has_perm("catalog.delete_article"):
+        return forbidden()
+    article = get_object_or_404(Article, pk=pk)
+    article.delete()
+    return JsonResponse({"deleted": True})
+
+
+@staff_api
+@require_POST
 def article_visibility(request, pk):
     if not request.user.has_perm("catalog.change_article"):
         return forbidden()

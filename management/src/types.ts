@@ -5,6 +5,7 @@ export interface Account {
   articles: boolean;
   articleAdd: boolean;
   articleChange: boolean;
+  articleDelete: boolean;
   reviews: boolean;
   reviewChange: boolean;
   loginLogs: boolean;
