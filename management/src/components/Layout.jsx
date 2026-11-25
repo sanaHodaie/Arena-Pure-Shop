@@ -70,23 +70,23 @@ export default function Layout({
         <aside className="admin-nav-scroll admin-sidebar hidden lg:flex flex-col flex-shrink-0 border-l border-plum-100/70 dark:border-plum-950/40 bg-white/70 dark:bg-pearl-900/70 backdrop-blur-xl p-5 justify-between select-none h-full overflow-y-auto">
           {/* Brand Logo & Title */}
           <div className="space-y-6">
-            <div
+            <button type="button" aria-label="داشبورد آرنا پیور"
               onClick={() => handleNavClick('dashboard')}
               className="flex items-center gap-3 cursor-pointer group admin-sidebar-brand"
             >
-              <div className="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-tr from-plum-600 via-rosewood-600 to-rosewood-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-plum-500/25 group-hover:scale-105 transition-transform">
+              <span className="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-tr from-plum-600 via-rosewood-600 to-rosewood-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-plum-500/25 group-hover:scale-105 transition-transform">
                 A
-              </div>
-              <div className="admin-sidebar-label">
-                <h2 className="font-black text-base text-pearl-900 dark:text-white flex items-center gap-1.5">
+              </span>
+              <span className="admin-sidebar-label text-start">
+                <span className="font-black text-base text-pearl-900 dark:text-white flex items-center gap-1.5">
                   آرنا پیور
                   <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
-                </h2>
+                </span>
                 <span className="text-[11px] text-pearl-400 font-medium block">
                   پنل مدیریت فروشگاه
                 </span>
-              </div>
-            </div>
+              </span>
+            </button>
 
             {/* Navigation Links */}
             <nav className="space-y-1.5" aria-label="منوی مدیریت">
@@ -97,7 +97,7 @@ export default function Layout({
                   <motion.button
                     key={item.id}
                     aria-label={item.label}
-                    title={item.label}
+                    data-tooltip={item.label}
                     whileHover={{ x: -3 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleNavClick(item.id)}
@@ -152,7 +152,7 @@ export default function Layout({
                   if (onLogout) onLogout();
                 }}
                 className="p-1.5 rounded-xl text-pearl-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                title="خروج از حساب / باز کردن صفحه ورود"
+                data-tooltip="خروج از حساب / باز کردن صفحه ورود"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -167,6 +167,8 @@ export default function Layout({
             {/* Left: Mobile Menu Toggle, Title & Search Bar */}
             <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-lg min-w-0">
               <button
+                aria-label={isMobileMenuOpen ? 'بستن منوی مدیریت' : 'باز کردن منوی مدیریت'}
+                aria-expanded={isMobileMenuOpen}
                 onClick={() => {
                   playTactileClick();
                   setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -193,7 +195,8 @@ export default function Layout({
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSoundToggle}
                 className="p-2 sm:p-2.5 rounded-2xl bg-white dark:bg-pearl-800 border border-pearl-200 dark:border-pearl-700 text-pearl-600 dark:text-pearl-300 hover:text-plum-600 shadow-xs transition-colors"
-                title={isMutedState ? 'فعال‌سازی صدای لمس دکمه‌ها' : 'بی‌صدا کردن'}
+                aria-label={isMutedState ? 'فعال‌سازی صدای دکمه‌ها' : 'بی‌صدا کردن'}
+                data-tooltip={isMutedState ? 'فعال‌سازی صدای لمس دکمه‌ها' : 'بی‌صدا کردن'}
               >
                 {isMutedState ? (
                   <VolumeX className="w-4 h-4 text-pearl-400" />
@@ -211,7 +214,7 @@ export default function Layout({
                   onToggleTheme();
                 }}
                 className="p-2 sm:p-2.5 rounded-2xl bg-white dark:bg-pearl-800 border border-pearl-200 dark:border-pearl-700 text-pearl-600 dark:text-pearl-300 hover:text-amber-500 shadow-xs transition-colors"
-                title="تغییر تم تاریک / روشن"
+                aria-label="تغییر تم تاریک یا روشن"
               >
                 <Sun className="w-4 h-4 text-amber-400 hidden dark:block"/><Moon className="w-4 h-4 text-plum-600 dark:hidden"/>
               </motion.button>
@@ -226,7 +229,7 @@ export default function Layout({
                   onLogout();
                 }}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-gradient-to-r from-plum-50 to-rosewood-50 dark:from-pearl-800 dark:to-plum-950/50 border border-plum-200 dark:border-plum-800 text-plum-700 dark:text-plum-300 text-xs font-bold shadow-xs hover:border-plum-400 transition-all cursor-pointer"
-                title="خروج از حساب کاربری"
+                data-tooltip="خروج از حساب کاربری"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-plum-600 dark:text-plum-400" />
                 <span>خروج</span>
@@ -273,6 +276,7 @@ export default function Layout({
                   </div>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
+                    aria-label="بستن منوی مدیریت"
                     className="p-2 rounded-xl text-pearl-400 hover:text-pearl-700"
                   >
                     <X className="w-5 h-5" />

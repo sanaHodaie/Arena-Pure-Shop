@@ -72,12 +72,12 @@ export default function Products({ products, categories, search, onSearch, accou
                 <strong className="text-sm text-plum-700 dark:text-rosewood-400">{money(product.price)}</strong>
                 <div className="flex gap-1">
                   {account.can_change && <>
-                    <button title={product.active ? 'غیرفعال کردن' : 'فعال کردن'} aria-label="نمایش محصول" aria-pressed={product.active} disabled={busy} onClick={() => onAction(product, product.active ? 'hide' : 'show')} className="rounded-xl p-2 text-plum-600 disabled:opacity-40 dark:text-plum-300">
+                    <button data-tooltip={product.active ? 'غیرفعال کردن' : 'فعال کردن'} aria-label="نمایش محصول" aria-pressed={product.active} disabled={busy} onClick={() => onAction(product, product.active ? 'hide' : 'show')} className="rounded-xl p-2 text-plum-600 disabled:opacity-40 dark:text-plum-300">
                       {product.active ? <Eye size={15} /> : <EyeOff size={15} />}
                     </button>
-                    <button title="ویرایش محصول" aria-label="ویرایش محصول" className="rounded-xl bg-plum-50 p-2 text-plum-600 dark:bg-plum-950/40 dark:text-plum-300" onClick={() => onEdit(product.id)}><Edit2 size={15} /></button>
+                    <button data-tooltip="ویرایش محصول" aria-label="ویرایش محصول" className="rounded-xl bg-plum-50 p-2 text-plum-600 dark:bg-plum-950/40 dark:text-plum-300" onClick={() => onEdit(product.id)}><Edit2 size={15} /></button>
                   </>}
-                  {account.can_delete && <button title="حذف محصول" aria-label="حذف محصول" disabled={busy} onClick={() => onAction(product, 'delete')} className="rounded-xl p-2 text-rose-500 disabled:opacity-40"><Trash2 size={15} /></button>}
+                  {account.can_delete && <button data-tooltip="حذف محصول" aria-label="حذف محصول" disabled={busy} onClick={() => onAction(product, 'delete')} className="rounded-xl p-2 text-rose-500 disabled:opacity-40"><Trash2 size={15} /></button>}
                 </div>
               </div>
             </div>

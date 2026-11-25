@@ -303,8 +303,10 @@
 .article-notice {
   position: fixed;
   z-index: 110;
-  inset-block-end: 24px;
-  inset-inline-start: 20px;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
   display: flex;
   gap: 12px;
   align-items: center;
@@ -375,3 +377,24 @@
 .sales-export:hover { background: var(--color-plum-100); }
 .dark .sales-export { color: var(--color-plum-200); border-color: var(--color-plum-700); }
 .dark .sales-export:hover { background: var(--color-plum-900); }
+
+
+.admin-tooltip {
+  position: fixed;
+  z-index: 120;
+  pointer-events: none;
+  max-width: min(285px, calc(100vw - 16px));
+  padding: 7px 11px;
+  border: 1px solid var(--color-plum-500);
+  border-radius: 10px;
+  background: var(--color-plum-900);
+  color: var(--color-plum-50);
+  box-shadow: 0 6px 20px #3e223f32;
+  text-align: center;
+  overflow-wrap: anywhere;
+  font-size: .75rem;
+  line-height: 1.6;
+  animation: admin-tooltip-in .15s ease-out;
+}
+@keyframes admin-tooltip-in { from { opacity: 0; translate: 0 3px; } }
+@media (prefers-reduced-motion: reduce) { .admin-tooltip { animation: none; } }

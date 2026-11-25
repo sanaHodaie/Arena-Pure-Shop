@@ -99,11 +99,11 @@ export function Articles({ account }) {
             {account.articleChange && <div className="flex gap-2">
               <Button type="button" secondary disabled={updating || Boolean(selection)} aria-pressed={article.published}
                 aria-label={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
-                title={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
+                data-tooltip={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
                 onClick={() => changeVisibility(article)}>
                 {article.published ? <Eye size={17} /> : <EyeOff size={17} />}
               </Button>
-              <Button type="button" secondary aria-label="ویرایش مقاله" title="ویرایش مقاله" onClick={() => openEditor(article)}><Edit2 size={17} /></Button>
+              <Button type="button" secondary aria-label="ویرایش مقاله" data-tooltip="ویرایش مقاله" onClick={() => openEditor(article)}><Edit2 size={17} /></Button>
             </div>}
           </div>
         </div>
@@ -189,7 +189,7 @@ function ArticleEditor({ article, categories, onCancel, onSaved }) {
     {preview && <ArticlePreview article={preview.article} busy={busy} onClose={() => setPreview(null)} onSave={save} />}
     <form className="grid gap-4 sm:grid-cols-2" onSubmit={showPreview}>
       <div className="space-y-2 sm:col-span-2">
-        <label className="group block cursor-pointer">
+        <label className="group block cursor-pointer" data-tooltip="انتخاب تصویر پوستر">
           <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
             onChange={chooseImage} required={!article.id} aria-label="انتخاب تصویر پوستر" className="sr-only" />
           <span className="relative grid min-h-36 max-w-md place-items-center overflow-hidden rounded-2xl border border-dashed border-plum-500 bg-plum-50 group-focus-within:outline-2 group-focus-within:outline-plum-600 dark:bg-plum-950">
