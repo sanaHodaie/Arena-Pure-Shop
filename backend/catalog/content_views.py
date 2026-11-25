@@ -1,3 +1,4 @@
+from django.db import OperationalError, ProgrammingError
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
@@ -32,7 +33,19 @@ def public_articles(request):
 def articles(request):
     if not any(request.user.has_perm(f"catalog.{action}_article") for action in ("view", "add", "change")):
         return forbidden()
-    rows = Article.objects.select_related("related_category")
+    try:
+        rows = list(Article.objects.select_related("related_category"))
+    except (OperationalError, ProgrammingError) as error:
+        cause = error.__cause__
+        missing_postgres_table = (
+            getattr(cause, "sqlstate", None) == "42P01" and '"catalog_article"' in str(cause)
+        )
+        if not (missing_postgres_table or str(cause) == "no such table: catalog_article"):
+            raise
+        return JsonResponse({
+            "error": "جدول خواندنی‌ها هنوز ساخته نشده است. در لوکال python manage.py migrate را اجرا کنید. "
+                     "در نسخهٔ آنلاین، اجرای مهاجرت‌ها را در لاگ آخرین دیپلوی Render بررسی کنید.",
+        }, status=503)
     return JsonResponse({
         "articles": [{
             **article_data(article), "published": article.is_published, "categoryId": article.related_category_id,
