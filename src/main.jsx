@@ -27,8 +27,8 @@ async function loadCatalog() {
 async function startStorefront() {
   let catalogOffline = false;
   if (apiBase) {
-    root.render(<main className="arena-container pd-not-found" dir="rtl" role="status">
-      <h1>در حال بارگیری کاتالوگ…</h1>
+    root.render(<main className="arena-container catalog-placeholder" aria-busy="true">
+      <div aria-hidden="true" />
     </main>);
     try {
       await loadCatalog();

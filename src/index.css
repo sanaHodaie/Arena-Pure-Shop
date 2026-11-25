@@ -666,3 +666,10 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   padding: 8px 16px; background: #f7eef9; color: #4d3457; font-size: 13px; text-align: center;
 }
 .catalog-offline button { font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+
+.catalog-placeholder { padding-top: 28px; }
+.catalog-placeholder > div {
+  min-height: clamp(240px, 36vw, 440px);
+  border-radius: 24px;
+  background: #f7f1f9;
+}
