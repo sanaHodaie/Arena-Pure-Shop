@@ -33,14 +33,15 @@ class BrandAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
     change_list_template = "catalog/admin/product_list.html"
-    list_display = ("product_card", "category", "price", "stock", "visibility", "edit_link")
-    list_display_links = ("product_card",)
+    list_display = ("title", "category", "price", "stock")
     list_filter = ("category", "brand", "is_active")
     list_editable = ("price", "stock")
     search_fields = ("title", "english_name", "slug", "shade")
     autocomplete_fields = ("category", "brand")
     prepopulated_fields = {"slug": ("english_name",)}
-    list_per_page = 25
+    list_per_page = 24
+    actions = None
+    show_facets = admin.ShowFacets.NEVER
     fieldsets = (
         ("هویت و دسته‌بندی", {"fields": ("title", "english_name", "slug", "category", "brand", "product_type", "model")}),
         ("قیمت و موجودی", {"fields": ("price", "old_price", "stock", "is_active")}),
@@ -50,21 +51,12 @@ class ProductAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("photo_preview",)
 
-    def get_list_display(self, request):
-        if self.has_change_permission(request):
-            return self.list_display
-        return tuple("visibility_readonly" if column == "visibility" else column for column in self.list_display)
-
-    @admin.display(description="نمایش در فروشگاه", boolean=True)
-    def visibility_readonly(self, obj):
-        return obj.is_active
-
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
             "category", "brand", "uploaded_photo",
         ).defer("uploaded_photo__data")
 
-    def thumbnail(self, obj):
+    def photo_url(self, obj):
         photo = getattr(obj, "uploaded_photo", None)
         src = photo.url() if photo else obj.image
         if src and src.startswith("/images/"):
@@ -73,43 +65,61 @@ class ProductAdmin(admin.ModelAdmin):
             else:
                 origin = next(iter(settings.CORS_ALLOWED_ORIGINS), "http://localhost:3000")
                 src = f"{origin}{src}"
+        return src
+
+    def thumbnail(self, obj):
+        src = self.photo_url(obj)
         if src:
             return format_html('<img class="arena-thumbnail" src="{}" alt="" loading="lazy">', src)
         return format_html('<span class="arena-thumbnail arena-thumbnail-empty">{}</span>', "بدون عکس")
-
-    @admin.display(description="محصول", ordering="title")
-    def product_card(self, obj):
-        return format_html('<span class="arena-product-cell">{}<span><strong>{}</strong><small>{}</small></span></span>',
-                           self.thumbnail(obj), obj.title, obj.brand)
 
     @admin.display(description="تصویر فعلی")
     def photo_preview(self, obj):
         return self.thumbnail(obj) if obj and obj.pk else "—"
 
-    @admin.display(description="نمایش در فروشگاه")
-    def visibility(self, obj):
-        state = "active" if obj.is_active else "inactive"
-        label = "فعال — برای غیرفعال‌کردن بزنید" if obj.is_active else "غیرفعال — برای فعال‌کردن بزنید"
-        return format_html(
-            '<button class="arena-toggle {}" type="submit" form="arena-toggle-{}" title="{}" aria-label="{}">'
-            '<span aria-hidden="true"></span></button>', state, obj.pk, label, label,
-        )
-
-    @admin.display(description="ویرایش")
-    def edit_link(self, obj):
-        return format_html(
-            '<a class="arena-edit" href="{}" title="ویرایش محصول" aria-label="ویرایش {}">'
-            '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">'
-            '<path d="m15 6 3 3M5 19l4-.8L20 7a2 2 0 0 0-3-3L6 15z"/></svg></a>',
-            reverse("admin:catalog_product_change", args=[obj.pk]), obj.title,
-        )
-
     def changelist_view(self, request, extra_context=None):
-        return super().changelist_view(request, {
+        if request.method == "GET":
+            params = request.GET.copy()
+            for name in ("brand__id__exact", "is_active__exact"):
+                if name in params and not params[name]:
+                    del params[name]
+            if params != request.GET:
+                query = params.urlencode()
+                return HttpResponseRedirect(request.path + ("?" + query if query else ""))
+
+        response = super().changelist_view(request, {
             **(extra_context or {}),
             "can_toggle": self.has_change_permission(request),
             "can_import": self.has_add_permission(request),
         })
+        context = getattr(response, "context_data", None)
+        if not context or "cl" not in context:
+            return response
+
+        cl = context["cl"]
+        rows = cl.formset.forms if cl.formset is not None else []
+        forms = {form.instance.pk: form for form in rows}
+        categories = list(Category.objects.values_list("pk", "title"))
+        brands = Brand.objects.values_list("pk", "name")
+        selected_category = request.GET.get("category__id__exact", "")
+        context.update({
+            "product_cards": [
+                {"product": product, "photo": self.photo_url(product), "form": forms.get(product.pk)}
+                for product in cl.result_list
+            ],
+            "category_choices": [
+                {"title": title, "selected": str(pk or "") == selected_category,
+                 "href": cl.get_query_string({"category__id__exact": pk, "p": None})}
+                for pk, title in [(None, "همهٔ محصولات"), *categories]
+            ],
+            "brand_choices": [
+                {"id": pk, "name": name, "selected": request.GET.get("brand__id__exact") == str(pk)}
+                for pk, name in brands
+            ],
+            "selected_category": selected_category,
+            "selected_status": request.GET.get("is_active__exact", ""),
+        })
+        return response
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
