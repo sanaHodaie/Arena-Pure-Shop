@@ -56,26 +56,26 @@ export default function Products({ products, categories, search, onSearch, accou
             className="glass-panel glass-card-hover group flex flex-col overflow-hidden rounded-3xl sm:flex-row">
             <div className="relative m-3 aspect-square w-40 shrink-0 self-start overflow-hidden rounded-2xl bg-white">
               {product.image && <img loading="lazy" src={product.image} alt={product.name} className="size-full object-contain transition-transform duration-500 group-hover:scale-105" />}
-              <span className="absolute right-2 top-2 rounded-lg bg-slate-900/80 px-2 py-1 text-[10px] font-bold text-white">{product.categoryName}</span>
-              <span className={`absolute bottom-2 right-2 rounded-lg px-2 py-1 text-[10px] font-bold text-white ${product.active ? 'bg-emerald-600/90' : 'bg-slate-600/90'}`}>
+              <span className="absolute right-2 top-2 rounded-lg bg-pearl-900/80 px-2 py-1 text-[10px] font-bold text-white">{product.categoryName}</span>
+              <span className={`absolute bottom-2 right-2 rounded-lg px-2 py-1 text-[10px] font-bold text-white ${product.active ? 'bg-emerald-600/90' : 'bg-pearl-600/90'}`}>
                 {product.active ? `موجودی ${number(product.stock)}` : 'غیرفعال'}
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-3 p-5">
-              <span className="break-all text-[11px] text-slate-400" dir="ltr">{product.sku}</span>
+              <span className="break-all text-[11px] text-pearl-400" dir="ltr">{product.sku}</span>
               <h2 className="text-sm font-bold leading-relaxed">{product.name}</h2>
-              <div className="rounded-2xl bg-slate-50 p-3 text-xs dark:bg-slate-800/60">
-                <strong>{product.brand}</strong>{product.type && <span className="text-slate-500 dark:text-slate-400"> · {product.type}</span>}
+              <div className="rounded-2xl bg-pearl-50 p-3 text-xs dark:bg-pearl-800/60">
+                <strong>{product.brand}</strong>{product.type && <span className="text-pearl-500 dark:text-pearl-400"> · {product.type}</span>}
               </div>
-              {product.description && <p className="line-clamp-3 text-xs leading-6 text-slate-600 dark:text-slate-300">{product.description}</p>}
-              <div className="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-                <strong className="text-sm text-purple-700 dark:text-pink-400">{money(product.price)}</strong>
+              {product.description && <p className="line-clamp-3 text-xs leading-6 text-pearl-600 dark:text-pearl-300">{product.description}</p>}
+              <div className="mt-auto flex items-center justify-between gap-2 border-t border-pearl-100 pt-3 dark:border-pearl-800">
+                <strong className="text-sm text-plum-700 dark:text-rosewood-400">{money(product.price)}</strong>
                 <div className="flex gap-1">
                   {account.can_change && <>
-                    <button title={product.active ? 'غیرفعال کردن' : 'فعال کردن'} aria-label="نمایش محصول" aria-pressed={product.active} disabled={busy} onClick={() => onAction(product, product.active ? 'hide' : 'show')} className="rounded-xl p-2 text-purple-600 disabled:opacity-40 dark:text-purple-300">
+                    <button title={product.active ? 'غیرفعال کردن' : 'فعال کردن'} aria-label="نمایش محصول" aria-pressed={product.active} disabled={busy} onClick={() => onAction(product, product.active ? 'hide' : 'show')} className="rounded-xl p-2 text-plum-600 disabled:opacity-40 dark:text-plum-300">
                       {product.active ? <Eye size={15} /> : <EyeOff size={15} />}
                     </button>
-                    <button title="ویرایش محصول" aria-label="ویرایش محصول" className="rounded-xl bg-purple-50 p-2 text-purple-600 dark:bg-purple-950/40 dark:text-purple-300" onClick={() => onEdit(product.id)}><Edit2 size={15} /></button>
+                    <button title="ویرایش محصول" aria-label="ویرایش محصول" className="rounded-xl bg-plum-50 p-2 text-plum-600 dark:bg-plum-950/40 dark:text-plum-300" onClick={() => onEdit(product.id)}><Edit2 size={15} /></button>
                   </>}
                   {account.can_delete && <button title="حذف محصول" aria-label="حذف محصول" disabled={busy} onClick={() => onAction(product, 'delete')} className="rounded-xl p-2 text-rose-500 disabled:opacity-40"><Trash2 size={15} /></button>}
                 </div>

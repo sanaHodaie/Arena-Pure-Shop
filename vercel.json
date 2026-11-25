@@ -17,6 +17,10 @@
       "destination": "https://arena-pure-catalog.onrender.com/media/products/:path*"
     },
     {
+      "source": "/api/v1/:path*",
+      "destination": "https://arena-pure-catalog.onrender.com/api/v1/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

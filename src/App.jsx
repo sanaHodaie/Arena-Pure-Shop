@@ -38,7 +38,26 @@ export default function App({ catalogOffline = false }) {
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
   const [routineDraft, setRoutineDraft] = useState({ skin: '', concerns: [], budget: 3_500_000, result: null });
   const product = findProduct(window.location.pathname);
-  const article = blogArticles.find(item => window.location.pathname === '/articles/' + item.id);
+  const [articles, setArticles] = useState(import.meta.env.VITE_API_BASE_URL ? null : blogArticles);
+  const [articleError, setArticleError] = useState(false);
+  const articlePage = /^\/articles\/\d+\/?$/.test(window.location.pathname);
+  const wantsArticles = articlePage || window.location.pathname === '/';
+
+  useEffect(() => {
+    if (!wantsArticles) return;
+    const controller = new AbortController();
+    fetch('/api/v1/articles/', { signal: controller.signal }).then(async (response) => {
+      if (!response.ok) throw Error(response.status);
+      const data = await response.json();
+      if (!Array.isArray(data.articles)) throw Error('Invalid articles');
+      setArticles(data.articles.sort((a, b) => a.id <= 4 && b.id <= 4 ? a.id - b.id : b.id - a.id));
+    }).catch(() => {
+      if (!controller.signal.aborted && import.meta.env.VITE_API_BASE_URL) setArticleError(true);
+    });
+    return () => controller.abort();
+  }, [wantsArticles]);
+
+  const article = articles?.find(item => window.location.pathname.replace(/\/$/, '') === '/articles/' + item.id);
   const isFragranceFinder = window.location.pathname === '/fragrance-finder';
   const isRoutine = window.location.pathname === '/skincare-routine';
   const isWishlist = window.location.pathname === '/wishlist';
@@ -61,7 +80,7 @@ export default function App({ catalogOffline = false }) {
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = isFragranceFinder ? 'عطریاب | آرنا پیور' : isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = isFragranceFinder ? 'عطریاب | آرنا پیور' : isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : articlePage ? 'خواندنی‌ها | آرنا پیور' : 'محصول پیدا نشد | آرنا پیور';
     const wasAccount = previousPath.current === '/account';
     previousPath.current = window.location.pathname;
     const previous = previousProduct.current;
@@ -81,7 +100,7 @@ export default function App({ catalogOffline = false }) {
       else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('fragrance-finder-title') || document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
-  }, [location]);
+  }, [location, article?.id, Boolean(articles && location === '/#blog')]);
   const handleLink = event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest('a[href]');
@@ -325,7 +344,9 @@ export default function App({ catalogOffline = false }) {
           onLogin={() => setIsAuthOpen(true)}
           onLogout={handleLogout}
         />
-      ) : article ? <ArticlePage article={article}/> : isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
+      ) : article ? <ArticlePage article={article} articles={articles}/> : articlePage && !articles ? (
+        <main className="arena-container py-12" role="status">{articleError ? 'خواندنی‌ها در دسترس نیستند.' : 'در حال دریافت خواندنی…'}</main>
+      ) : isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
         {/* Screenshot 1: Hero Banners */}
         <HeroBanners />
 
@@ -366,7 +387,7 @@ export default function App({ catalogOffline = false }) {
         <BrandLogos />
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
-        <BlogSection />
+        {articles && <BlogSection articles={articles} />}
       </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} accountPhone={accountPhone} onSaveRoutine={handleSaveRoutine} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}

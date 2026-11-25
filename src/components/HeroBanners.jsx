@@ -12,6 +12,8 @@ const INTERVAL = 6000;
 
 export default function HeroBanners() {
   const [active, setActive] = useState(0);
+  const [laterImage, setLaterImage] = useState(false);
+  const firstImage = useRef(null);
   const [paused, setPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -33,6 +35,15 @@ export default function HeroBanners() {
     const timer = window.setTimeout(() => setActive(index => (index + 1) % slides.length), INTERVAL);
     return () => window.clearTimeout(timer);
   }, [active, stopped]);
+  useEffect(() => {
+    let timer;
+    let disposed = false;
+    firstImage.current?.decode().catch(() => {}).then(() => {
+      if (!disposed) timer = window.setTimeout(() => setLaterImage(true), 1500);
+    });
+    return () => { disposed = true; window.clearTimeout(timer); };
+  }, []);
+  useEffect(() => { if (active > 0) setLaterImage(true); }, [active]);
   const move = direction => setActive(index => (index + direction + slides.length) % slides.length);
 
   return <section className="arena-container arena-hero" aria-label="محصولات زیبایی آرنا پیور">
@@ -45,7 +56,7 @@ export default function HeroBanners() {
       onTouchEnd={event => { if (touchStart.current !== null) { const distance = event.changedTouches[0].clientX - touchStart.current.x; const vertical = event.changedTouches[0].clientY - touchStart.current.y; if (Math.abs(distance) > 45 && Math.abs(distance) > Math.abs(vertical)) { swiped.current = true; move(distance > 0 ? 1 : -1); } touchStart.current = null; } }}>
       {slides.map((slide, index) => <div key={slide.id} className={`arena-main-banner hero-carousel-slide ${active === index ? 'is-active' : ''}`} aria-hidden={active !== index} inert={active !== index} role="group" aria-roledescription="اسلاید" aria-label={`${index + 1} از ${slides.length}`}>
         <a className="campaign-link campaign-slide-link" href={categoryUrl(slide.category)} aria-label={slide.button}>
-          <picture className="hero-carousel-picture"><source media="(max-width: 640px)" srcSet={`/images/banners/slide-${slide.id}-mobile.webp`}/><img src={`/images/banners/slide-${slide.id}-desktop.webp`} alt="" width="1920" height="640" decoding="async" loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'}/></picture>
+          {(index === 0 || laterImage || active === index) && <picture className="hero-carousel-picture"><source media="(max-width: 640px)" srcSet={`/images/banners/slide-${slide.id}-mobile.webp`}/><img ref={index === 0 ? firstImage : null} src={`/images/banners/slide-${slide.id}-desktop.webp`} alt="" width="1920" height="640" decoding="async" loading="eager" fetchPriority={index === 0 ? 'high' : 'low'}/></picture>}
           <div className="arena-hero-copy carousel-copy">
             <span className="hero-eyebrow"><Sparkles size={15}/>{slide.eyebrow}</span>
             {index === 0 ? <h1>{slide.title[0]}<br/>{slide.title[1]}</h1> : <h2 className="carousel-title">{slide.title[0]}<br/>{slide.title[1]}</h2>}

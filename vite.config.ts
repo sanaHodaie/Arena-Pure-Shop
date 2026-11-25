@@ -34,6 +34,7 @@ export default defineConfig(() => {
     server: {
       proxy: {
         '/api/management/': backend,
+        '/api/v1/': backend,
         '/media/products/': backend,
       },
       hmr: process.env.DISABLE_HMR !== 'true',

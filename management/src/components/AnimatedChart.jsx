@@ -26,7 +26,7 @@ export function AnimatedDonutChart({ data = [] }) {
             r={radius}
             fill="transparent"
             stroke="currentColor"
-            className="text-slate-100 dark:text-slate-800"
+            className="text-pearl-100 dark:text-pearl-800"
             strokeWidth={strokeWidth}
           />
 
@@ -63,10 +63,10 @@ export function AnimatedDonutChart({ data = [] }) {
 
         {/* Center Label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-2">
-          <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-full">
+          <span className="text-[10px] sm:text-xs text-pearl-500 dark:text-pearl-400 font-medium truncate max-w-full">
             {activeIndex !== null ? data[activeIndex].name.split('(')[0] : 'کل دسته‌ها'}
           </span>
-          <span className="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">
+          <span className="text-base sm:text-lg font-extrabold text-pearl-800 dark:text-white mt-0.5">
             {activeIndex !== null ? `${toPersianDigits(data[activeIndex].value)}` : `${toPersianDigits(total)}`}
           </span>
         </div>
@@ -80,14 +80,14 @@ export function AnimatedDonutChart({ data = [] }) {
             onMouseEnter={() => setActiveIdx(idx)}
             onMouseLeave={() => setActiveIdx(null)}
             className={`flex items-center justify-between p-1.5 px-2 rounded-xl transition-all cursor-pointer min-w-0 ${
-              activeIdx === idx ? 'bg-purple-50 dark:bg-purple-950/40 translate-x-0.5' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+              activeIdx === idx ? 'bg-plum-50 dark:bg-plum-950/40 tranpearl-x-0.5' : 'hover:bg-pearl-50 dark:hover:bg-pearl-800/40'
             }`}
           >
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-              <span className="text-[11px] sm:text-xs font-medium text-slate-700 dark:text-slate-300 truncate min-w-0">{item.name}</span>
+              <span className="text-[11px] sm:text-xs font-medium text-pearl-700 dark:text-pearl-300 truncate min-w-0">{item.name}</span>
             </div>
-            <span className="text-[11px] sm:text-xs font-bold text-slate-900 dark:text-white tabular-nums flex-shrink-0 mr-1">
+            <span className="text-[11px] sm:text-xs font-bold text-pearl-900 dark:text-white tabular-nums flex-shrink-0 mr-1">
               {toPersianDigits(item.value)}
             </span>
           </div>

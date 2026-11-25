@@ -11,7 +11,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from .forms import ProductAdminForm
-from .models import Brand, Category, Product
+from .login_history import recent_logins
+from .models import AdminLogin, Brand, Category, Product
 from .photos import save_product_photo
 from .spreadsheets import import_products, sample_workbook
 
@@ -49,6 +50,8 @@ def session(request):
             user = authenticate(request, username=request.POST.get("username"), password=request.POST.get("password"))
             if not user or not user.is_active or not user.is_staff:
                 return JsonResponse({"error": "نام کاربری یا رمز عبور مدیر درست نیست."}, status=400)
+            recent_logins()
+            AdminLogin.objects.create(username=user.get_username())
             login(request, user)
             request.session.set_expiry(None if request.POST.get("remember") == "1" else 0)
     user = request.user
@@ -59,6 +62,11 @@ def session(request):
             "role": "مدیر فروشگاه", "can_view": allowed(user, "view") or allowed(user, "change"),
             "can_add": allowed(user, "add"), "can_change": allowed(user, "change"),
             "can_delete": allowed(user, "delete"),
+            "articles": any(user.has_perm(f"catalog.{action}_article") for action in ("view", "add", "change")),
+            "articleAdd": user.has_perm("catalog.add_article"), "articleChange": user.has_perm("catalog.change_article"),
+            "reviews": any(user.has_perm(f"catalog.{action}_productreview") for action in ("view", "change")),
+            "reviewChange": user.has_perm("catalog.change_productreview"),
+            "loginLogs": user.has_perm("catalog.view_adminlogin"),
         }
     return JsonResponse({"account": account, "csrf": get_token(request)})
 

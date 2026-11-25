@@ -11,10 +11,18 @@
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Google Font: Vazirmatn -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+      if (location.pathname === '/') {
+        const preload = document.createElement('link');
+        preload.rel = 'preload';
+        preload.as = 'image';
+        preload.fetchPriority = 'high';
+        preload.href = matchMedia('(max-width: 640px)').matches
+          ? '/images/banners/slide-care-mobile.webp'
+          : '/images/banners/slide-care-desktop.webp';
+        document.head.append(preload);
+      }
+    </script>
   </head>
   <body class="bg-brand-background text-slate-800 antialiased selection:bg-purple-600 selection:text-white font-sans">
     <div id="root"></div>

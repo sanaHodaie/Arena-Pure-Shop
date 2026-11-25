@@ -2,6 +2,12 @@ export interface Account {
   username: string;
   name: string;
   role: string;
+  articles: boolean;
+  articleAdd: boolean;
+  articleChange: boolean;
+  reviews: boolean;
+  reviewChange: boolean;
+  loginLogs: boolean;
   can_view: boolean;
   can_add: boolean;
   can_change: boolean;

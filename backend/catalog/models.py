@@ -80,3 +80,48 @@ class ProductPhoto(models.Model):
 
     def url(self):
         return reverse("product-photo", args=[self.product_id, self.digest])
+
+
+class Article(models.Model):
+    title = models.CharField(max_length=220)
+    excerpt = models.TextField(max_length=800)
+    author = models.CharField(max_length=120)
+    date_label = models.CharField(max_length=45)
+    read_time = models.CharField(max_length=45)
+    cover_image = models.CharField(max_length=500, validators=[validate_image_path])
+    cover_theme = models.CharField(max_length=20, choices=[(value, value) for value in ("dry-skin", "hydration", "eyeliner", "matte")], default="matte")
+    topic = models.CharField(max_length=140)
+    summary = models.CharField(max_length=300)
+    body = models.TextField(max_length=20000)
+    related_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    is_published = models.BooleanField(default=True, db_index=True)
+
+    class Meta:
+        ordering = ["-pk"]
+
+
+class ProductReview(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "در انتظار بررسی"
+        APPROVED = "approved", "تأییدشده"
+        REJECTED = "rejected", "ردشده"
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
+    name = models.CharField(max_length=80)
+    body = models.TextField(max_length=1500)
+    status = models.CharField(max_length=12, choices=Status, default=Status.PENDING, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    moderated_at = models.DateTimeField(null=True, blank=True)
+    moderated_by = models.CharField(max_length=150, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["product", "status", "-id"])]
+
+
+class AdminLogin(models.Model):
+    username = models.CharField(max_length=150)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]

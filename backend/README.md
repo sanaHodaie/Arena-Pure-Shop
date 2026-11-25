@@ -83,3 +83,9 @@ Render and Neon may suspend idle compute on their Free plans, so the first reque
 ## Checks
 
 Run `python manage.py test` inside `backend` with the environment from local setup. From the repository root run `npm run build`, `npm run lint`, and `node --test tests/*.test.js`.
+
+### خواندنی‌ها، دیدگاه‌ها و لاگ ورود
+
+با `python manage.py migrate` جدول‌ها و چهار مقالهٔ فعلی ایجاد می‌شوند. مقاله‌ها در «خواندنی‌ها» و دیدگاه‌ها در «نظرات محصولات» پنل مدیریت می‌شوند. حساب‌های غیرسوپریوزر به مجوزهای Django برای مدل‌های Article، ProductReview و AdminLogin نیاز دارند.
+
+تاریخچه فقط ورودهای موفق مدیر را با نام کاربری و زمان نگه می‌دارد. ورودی‌های بیش از ده روز هنگام شروع سرویس، ورود مدیر یا باز کردن لاگ‌ها پاک می‌شوند. برای پاک‌سازی زمان‌بندی‌شده حتی در روزهایی که مدیر وارد نمی‌شود، `python manage.py prune_admin_logins` را در زمان‌بند میزبان اجرا کنید. این دستور به اتصال همان دیتابیس نیاز دارد.

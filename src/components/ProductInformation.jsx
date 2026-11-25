@@ -3,6 +3,7 @@ import { ArrowUpLeft, BookOpen, Check, ChevronDown, ExternalLink, HelpCircle, In
 import { categoryNames } from '../data/productDetails.js';
 import { productSuitability } from '../data/productSuitability.js';
 import './ProductInformation.css';
+import { useProductReviews, ReviewPanel } from './ProductReviews.jsx';
 
 const suitabilityTitle = 'این محصول برای من مناسبه؟';
 
@@ -21,6 +22,7 @@ function PanelHeader({ sectionId, children, subtitle }) {
 }
 
 export default function ProductInformation({ product, details }) {
+  const reviews = useProductReviews(product.slug);
   const [active, setActive] = useState(sections[0].id);
   useEffect(() => {
     const observer = new IntersectionObserver(entries => {
@@ -39,7 +41,7 @@ export default function ProductInformation({ product, details }) {
   return <section className="product-information" aria-label="راهنمای شناخت محصول">
     <div className="pi-heading"><div><span>جزئیات، برای انتخاب بهتر</span><h2>محصولت را بهتر بشناس</h2></div><span className="pi-heading-line" aria-hidden="true"/></div>
     <div className="pi-layout">
-      <aside className="pi-sidebar"><div className="pi-sidebar-inner"><span className="pi-sidebar-caption">در این صفحه</span><nav aria-label="بخش‌های اطلاعات محصول">{sections.map(({ id, label, Icon }) => <a key={id} href={`#${id}`} aria-current={active === id ? 'location' : undefined} onClick={() => setActive(id)}><Icon size={17}/><span>{label}</span>{id === 'product-reviews' ? <small>۰</small> : <ArrowUpLeft size={13} className="pi-nav-arrow"/>}</a>)}</nav><p className="pi-sidebar-note"><Info size={15}/> مشخصات هر نسخه را با بسته‌بندی آن تطبیق دهید.</p></div></aside>
+      <aside className="pi-sidebar"><div className="pi-sidebar-inner"><span className="pi-sidebar-caption">در این صفحه</span><nav aria-label="بخش‌های اطلاعات محصول">{sections.map(({ id, label, Icon }) => <a key={id} href={`#${id}`} aria-current={active === id ? 'location' : undefined} onClick={() => setActive(id)}><Icon size={17}/><span>{label}</span>{id === 'product-reviews' ? <small>{reviews.count.toLocaleString('fa-IR')}</small> : <ArrowUpLeft size={13} className="pi-nav-arrow"/>}</a>)}</nav><p className="pi-sidebar-note"><Info size={15}/> مشخصات هر نسخه را با بسته‌بندی آن تطبیق دهید.</p></div></aside>
       <div className="pi-content">
         <section id="product-introduction" className="pi-panel">
           <PanelHeader sectionId="product-introduction" subtitle="نگاهی نزدیک‌تر به انتخاب شما">معرفی محصول</PanelHeader>
@@ -66,7 +68,7 @@ export default function ProductInformation({ product, details }) {
         </section>
         <section id="product-reviews" className="pi-panel">
           <PanelHeader sectionId="product-reviews" subtitle="تجربه‌های مربوط به همین محصول">دیدگاه خریداران</PanelHeader>
-          <div className="pi-reviews-empty"><span><MessageCircle size={26} strokeWidth={1.3}/></span><div><h3>هنوز تجربه‌ای ثبت نشده</h3><p>پس از ثبت دیدگاه برای این محصول، تجربه خریداران اینجا نمایش داده می‌شود.</p><small>۰ دیدگاه</small></div></div>
+          <ReviewPanel {...reviews} />
         </section>
       </div>
     </div>

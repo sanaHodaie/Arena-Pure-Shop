@@ -1,9 +1,8 @@
 import SectionHeading from './SectionHeading.jsx';
 import React from 'react';
 import { User, ChevronLeft, Calendar, ArrowLeft } from 'lucide-react';
-import { blogArticles } from '../data/mockData.js';
 
-export default function BlogSection() {
+export default function BlogSection({ articles }) {
   return (
     <section id="blog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Section Header */}
@@ -11,7 +10,7 @@ export default function BlogSection() {
 
       {/* 4 Article Cards Grid (Screenshot 4) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {blogArticles.map((article) => (
+        {articles.map((article) => (
           <a
             href={`/articles/${article.id}`}
             aria-label={article.title}

@@ -1,11 +1,19 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-from catalog import panel_views, views
+from catalog import content_views, panel_views, views
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="catalog/index.html"), name="index"),
     path("api/management/session/", panel_views.session),
+    path("api/management/articles/", content_views.articles),
+    path("api/management/articles/new/", content_views.save_article),
+    path("api/management/articles/<int:pk>/", content_views.save_article),
+    path("api/management/reviews/", content_views.reviews),
+    path("api/management/reviews/<int:pk>/", content_views.moderate_review),
+    path("api/management/login-logs/", content_views.login_logs),
+    path("api/v1/articles/", content_views.public_articles),
+    path("api/v1/products/<slug:slug>/reviews/", content_views.public_reviews),
     path("api/management/catalog/", panel_views.catalog),
     path("api/management/products/new/", panel_views.product_editor),
     path("api/management/products/<int:pk>/", panel_views.product_editor),

@@ -176,3 +176,52 @@ class CatalogTests(TestCase):
         self.assertTrue(Product.objects.filter(slug="react-panel-import").exists())
         self.assertIsNone(client.post(session, {"action": "logout"}, headers=headers).json()["account"])
         self.assertEqual(client.get(catalog).status_code, 401)
+
+    def test_article_publish_review_moderation_and_login_history(self):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from .models import AdminLogin, Article, ProductReview
+
+        guest = Client(enforce_csrf_checks=True)
+        product_url = f"/api/v1/products/{self.slug}/reviews/"
+        review_headers = {"X-CSRFToken": guest.get(product_url).json()["csrf"]}
+        self.assertEqual(guest.post(product_url, {"name": "مشتری", "body": "تجربهٔ خرید آزمایشی"}, headers=review_headers).status_code, 201)
+        review = ProductReview.objects.get()
+        self.assertEqual(review.status, ProductReview.Status.PENDING)
+        self.assertEqual(guest.get(product_url).json()["count"], 0)
+        moderation = f"/api/management/reviews/{review.pk}/"
+        self.assertEqual(guest.post(moderation, {"status": "approved"}, headers=review_headers).status_code, 401)
+
+        self.assertEqual(Article.objects.count(), 4)
+        older = AdminLogin.objects.create(username="expired")
+        AdminLogin.objects.filter(pk=older.pk).update(created_at=timezone.now() - timedelta(days=11))
+        get_user_model().objects.create_superuser("article-admin", password="temporary-test-password")
+        manager = Client(enforce_csrf_checks=True)
+        session_url = "/api/management/session/"
+        token = manager.get(session_url).json()["csrf"]
+        session = manager.post(session_url, {"username": "article-admin", "password": "temporary-test-password"},
+                               headers={"X-CSRFToken": token}).json()
+        manager_headers = {"X-CSRFToken": session["csrf"]}
+        self.assertEqual([row["username"] for row in manager.get("/api/management/login-logs/").json()["logs"]],
+                         ["article-admin"])
+        self.assertFalse(AdminLogin.objects.filter(pk=older.pk).exists())
+        self.assertEqual(manager.post(moderation, {"status": "approved"}, headers=manager_headers).status_code, 200)
+        self.assertEqual(guest.get(product_url).json()["reviews"][0]["name"], "مشتری")
+        self.assertEqual(manager.post(moderation, {"status": "rejected"}, headers=manager_headers).status_code, 200)
+        self.assertEqual(guest.get(product_url).json()["count"], 0)
+
+        fields = {
+            "title": "مقالهٔ تازه", "excerpt": "چکیده", "author": "article-admin", "date_label": "۵ آذر",
+            "read_time": "۵ دقیقه", "cover_image": "/images/articles/cover-matte.webp", "cover_theme": "matte",
+            "topic": "آرایش", "summary": "خلاصه", "body": "## آشنایی\nمتن کامل مقاله",
+        }
+        created = manager.post("/api/management/articles/new/", fields, headers=manager_headers)
+        self.assertEqual(created.status_code, 201, created.content)
+        pk = created.json()["id"]
+        self.assertGreater(pk, 4)
+        self.assertEqual(guest.get("/api/v1/articles/").json()["articles"][0]["id"], 4)
+        edited = manager.post(f"/api/management/articles/{pk}/", {**fields, "is_published": "on"}, headers=manager_headers)
+        self.assertEqual(edited.status_code, 200)
+        self.assertEqual(guest.get("/api/v1/articles/").json()["articles"][0]["id"], pk)

@@ -44,7 +44,7 @@ export default function FragranceFinderPage({ onAddToCart, onToggleWishlist, wis
   return (
     <main className="arena-container fragrance-finder flex-1" dir="rtl">
       <header className="finder-hero">
-        <img src="/images/banners/category-fragrance-v2.png" alt="" width="1536" height="1024" fetchPriority="high" />
+        <img src="/images/banners/category-fragrance-v2.webp" srcSet="/images/banners/category-fragrance-v2-sm.webp 800w, /images/banners/category-fragrance-v2.webp 1440w" sizes="(max-width: 800px) 100vw, 1250px" alt="" width="1536" height="1024" fetchPriority="high" />
         <div>
           <h1 id="fragrance-finder-title" tabIndex={-1}>عطر مناسبم رو پیدا کن</h1>
           <p>با سلیقهٔ بویایی، موقعیت استفاده و بودجه‌ات، عطرهای مناسب را از کاتالوگ آرنا پیور پیدا کن.</p>

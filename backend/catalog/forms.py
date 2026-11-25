@@ -5,7 +5,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from .models import Product
+from .models import Article, Product
 
 
 IMAGE_LIMIT = 5 * 1024 * 1024
@@ -93,3 +93,14 @@ class ProductAdminForm(ProductContentForm):
             raise ValidationError("فایل تصویر معتبر JPG، PNG یا WebP نیست.") from exc
         data = output.getvalue()
         return {"data": data, "digest": hashlib.sha256(data).hexdigest(), "content_type": "image/webp"}
+
+
+class ArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = "__all__"
+
+
+class ReviewSubmissionForm(forms.Form):
+    name = forms.CharField(max_length=80)
+    body = forms.CharField(min_length=5, max_length=1500)

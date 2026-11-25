@@ -4,7 +4,7 @@ import { AnimatedDonutChart } from './AnimatedChart';
 import DashboardPoster from './DashboardPoster';
 import { Button, Heading, Panel, number } from './ManagementUI';
 
-const colors = ['#9333ea', '#db2777', '#6366f1', '#0891b2', '#a21caf', '#d97706', '#0f766e'];
+const colors = ['#784d72', '#a9607f', '#806379', '#a17d70', '#8d607d', '#633a5f', '#b97990'];
 
 export default function Dashboard({ products, categories, name, onProducts, onRefresh }) {
   const active = products.filter((product) => product.active);
@@ -26,15 +26,15 @@ export default function Dashboard({ products, categories, name, onProducts, onRe
       <DashboardPoster name={name} onOpen={onProducts} />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(([Icon, label, value]) => <Panel key={label} className="space-y-4">
-          <span className="inline-flex rounded-2xl bg-purple-100 p-3 text-purple-600 dark:bg-purple-950 dark:text-purple-300"><Icon size={22} /></span>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+          <span className="inline-flex rounded-2xl bg-plum-100 p-3 text-plum-600 dark:bg-plum-950 dark:text-plum-300"><Icon size={22} /></span>
+          <p className="text-xs text-pearl-500 dark:text-pearl-400">{label}</p>
           <strong className="text-xl font-black sm:text-2xl">{number(value)}</strong>
         </Panel>)}
       </div>
       <div className="grid gap-5 xl:grid-cols-3">
         <Panel className="xl:col-span-2">
           <h2 className="mb-6 font-bold">سهم دسته‌ها از محصولات فعال</h2>
-          {chart.length ? <AnimatedDonutChart data={chart} /> : <p className="text-sm text-slate-500">محصول فعالی ثبت نشده است.</p>}
+          {chart.length ? <AnimatedDonutChart data={chart} /> : <p className="text-sm text-pearl-500">محصول فعالی ثبت نشده است.</p>}
         </Panel>
         <Panel>
           <h2 className="mb-4 font-bold">پیگیری موجودی</h2>
