@@ -74,6 +74,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 storefront_images = BASE_DIR.parent / "public" / "images"
 STATICFILES_DIRS = [("storefront", storefront_images)] if DEBUG and storefront_images.is_dir() else []
+MANAGEMENT_BUILD = BASE_DIR / "generated" / "management"
+if MANAGEMENT_BUILD.is_dir():
+    STATICFILES_DIRS.append(("management", MANAGEMENT_BUILD))
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": (

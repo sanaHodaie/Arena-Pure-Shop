@@ -2,11 +2,18 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
 
-from catalog import views
+from catalog import panel_views, views
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="catalog/index.html"), name="index"),
-    path("admin/", admin.site.urls),
+    path("admin/", panel_views.panel, name="management"),
+    path("admin/api/session/", panel_views.session),
+    path("admin/api/catalog/", panel_views.catalog),
+    path("admin/api/products/new/", panel_views.product_editor),
+    path("admin/api/products/<int:pk>/", panel_views.product_editor),
+    path("admin/api/products/<int:pk>/action/", panel_views.product_action),
+    path("admin/api/workbook/", panel_views.workbook),
+    path("django-admin/", admin.site.urls),
     path("media/products/<int:product_id>/<str:digest>/", views.product_photo, name="product-photo"),
     path("healthz/", views.health, name="health"),
     path("api/v1/catalog/", views.storefront, name="catalog"),

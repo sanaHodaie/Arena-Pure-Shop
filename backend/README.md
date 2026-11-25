@@ -36,9 +36,11 @@ npm ci
 VITE_API_BASE_URL=http://127.0.0.1:8000 npm run dev
 ```
 
-Alternatively put `VITE_API_BASE_URL=http://127.0.0.1:8000` in `.env.local` at the repository root and run `npm run dev`. Open the storefront at `http://localhost:3000` and Django Admin at `http://127.0.0.1:8000/admin/`. Change a product price in Django Admin, then reload its storefront page to see the new price. With no API environment variable, the storefront uses the original bundled catalog for standalone frontend development.
+Alternatively put `VITE_API_BASE_URL=http://127.0.0.1:8000` in `.env.local` at the repository root and run `npm run dev`. Open the storefront at `http://localhost:3000` and the React management panel at `http://127.0.0.1:8000/admin/` after building it. Change a product price in the management panel, then reload its storefront page to see the new price. With no API environment variable, the storefront uses the original bundled catalog for standalone frontend development.
 
 ## مدیریت کاتالوگ
+
+از ریشهٔ مخزن `npm ci` و سپس `npm run build:management` را اجرا کنید. Django باید بعد از ساخت پنل اجرا یا یک بار راه‌اندازی مجدد شود تا فایل‌های جدید را سرو کند. با همان حساب مدیر Django وارد پنل React در `/admin/` شوید. مسیر `/django-admin/` برای ابزار داخلی Django مانند مدیریت کاربران و دسترسی‌ها در دسترس است.
 
 در پنل `/admin/` وارد «محصولات» شوید. فیلتر دسته و برند در فهرست قرار دارد. با مداد فرم کامل محصول باز می‌شود. کلید نمایش محصول را بدون تغییر موجودی از کاتالوگ عمومی پنهان یا دوباره منتشر می‌کند.
 
@@ -63,7 +65,7 @@ Product image paths beginning with `/images/` resolve on the storefront origin. 
 
 1. In **Neon**, create a PostgreSQL project and select a region near your Render service. In the Neon **Connect** dialog, select the database and role, turn connection pooling off, and copy the **direct** connection string. Keep the SSL parameters Neon supplies.
 2. In **Render**, create a **Blueprint** from this GitHub repository on `main`. The root [render.yaml](../render.yaml) defines a Free Python web service. Set its secret `DATABASE_URL` to the Neon string and set `CORS_ALLOWED_ORIGINS` to the exact Vercel origin such as `https://your-project.vercel.app`, with no trailing slash. Separate multiple origins with commas. Render generates `DJANGO_SECRET_KEY`.
-3. Once the Render service is healthy, check `https://<render-service>.onrender.com/healthz/` and `/api/v1/catalog/`. The build collects Admin static files. The start command applies migrations before launching Gunicorn, since Render Free does not offer a separate pre-deploy command. The catalog is seeded once by a data migration and later restarts keep Admin edits in Neon.
+3. Once the Render service is healthy, check `https://<render-service>.onrender.com/healthz/` and `/api/v1/catalog/`. The build compiles the React management panel before collecting Django static files. If you created the Render web service manually, update its Root Directory, Build Command, Start Command, and Node version to match `render.yaml`. The Root Directory should be blank so the build can access both the Node and Python projects. The start command applies migrations before launching Gunicorn, since Render Free does not offer a separate pre-deploy command. The catalog is seeded once by a data migration and later restarts keep Admin edits in Neon.
 4. To create the first administrator, use the backend's activated local Python environment after Render has applied migrations. Render Free does not provide a service Shell. Run the following from `backend` in Bash and paste the Neon connection string at the hidden prompt.
 
    ```bash

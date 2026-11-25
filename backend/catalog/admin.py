@@ -1,19 +1,18 @@
 from urllib.parse import urlsplit
 
-from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .forms import ProductAdminForm
-from .models import Brand, Category, Product, ProductPhoto
+from .models import Brand, Category, Product
+from .photos import product_image_url, save_product_photo
 from .spreadsheets import import_products, sample_workbook
 
 
@@ -56,19 +55,8 @@ class ProductAdmin(admin.ModelAdmin):
             "category", "brand", "uploaded_photo",
         ).defer("uploaded_photo__data")
 
-    def photo_url(self, obj):
-        photo = getattr(obj, "uploaded_photo", None)
-        src = photo.url() if photo else obj.image
-        if src and src.startswith("/images/"):
-            if settings.STATICFILES_DIRS:
-                src = static("storefront/" + src.removeprefix("/images/"))
-            else:
-                origin = next(iter(settings.CORS_ALLOWED_ORIGINS), "http://localhost:3000")
-                src = f"{origin}{src}"
-        return src
-
     def thumbnail(self, obj):
-        src = self.photo_url(obj)
+        src = product_image_url(obj)
         if src:
             return format_html('<img class="arena-thumbnail" src="{}" alt="" loading="lazy">', src)
         return format_html('<span class="arena-thumbnail arena-thumbnail-empty">{}</span>', "بدون عکس")
@@ -104,7 +92,7 @@ class ProductAdmin(admin.ModelAdmin):
         selected_category = request.GET.get("category__id__exact", "")
         context.update({
             "product_cards": [
-                {"product": product, "photo": self.photo_url(product), "form": forms.get(product.pk)}
+                {"product": product, "photo": product_image_url(product), "form": forms.get(product.pk)}
                 for product in cl.result_list
             ],
             "category_choices": [
@@ -123,10 +111,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        if photo := form.cleaned_data.get("photo"):
-            ProductPhoto.objects.update_or_create(product=obj, defaults=photo)
-        elif form.cleaned_data.get("remove_photo"):
-            ProductPhoto.objects.filter(product=obj).delete()
+        save_product_photo(obj, form)
 
     def get_urls(self):
         return [

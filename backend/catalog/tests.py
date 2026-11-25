@@ -3,7 +3,7 @@ from io import BytesIO
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from openpyxl import Workbook, load_workbook
@@ -19,7 +19,7 @@ class CatalogTests(TestCase):
 
     def test_backend_home_links_to_health_catalog_and_admin(self):
         response = self.client.get(reverse("index"))
-        for name in ("health", "catalog", "admin:index"):
+        for name in ("health", "catalog", "management"):
             self.assertContains(response, f'href="{reverse(name)}"')
 
     def test_catalog_and_stable_storefront_paths(self):
@@ -138,3 +138,58 @@ class CatalogTests(TestCase):
         self.assertEqual(data["usage"], "روش مصرف نمونه")
         self.assertEqual(data["faq"][0]["question"], "How?")
         self.assertEqual(self.client.get(photo.url())["Content-Type"], "image/webp")
+
+    def test_react_panel_permissions_and_catalog_mutations(self):
+        client = Client(enforce_csrf_checks=True)
+        account = get_user_model()
+        admin = account.objects.create_superuser("react-admin", password="temporary-test-password")
+        account.objects.create_user("customer", password="temporary-test-password")
+        staff = account.objects.create_user("staff", is_staff=True)
+        session = "/admin/api/session/"
+        catalog = "/admin/api/catalog/"
+        self.assertEqual(client.get(catalog).status_code, 401)
+        credentials = {"username": "react-admin", "password": "temporary-test-password"}
+        self.assertEqual(client.post(session, credentials).status_code, 403)
+        headers = {"X-CSRFToken": client.get(session).json()["csrf"]}
+        self.assertEqual(client.post(session, {**credentials, "username": "customer"}, headers=headers).status_code, 400)
+        client.force_login(staff)
+        self.assertEqual(client.get(catalog).status_code, 403)
+        client.logout()
+        headers["X-CSRFToken"] = client.get(session).json()["csrf"]
+        login = client.post(session, credentials, headers=headers).json()
+        self.assertEqual(login["account"]["username"], admin.username)
+        headers["X-CSRFToken"] = login["csrf"]
+        self.assertEqual(len(client.get(catalog).json()["products"]), 70)
+
+        product = Product.objects.get(slug=self.slug)
+        editor = f"/admin/api/products/{product.pk}/"
+        fields = client.get(editor).json()["fields"]
+        values = {field["name"]: field["value"] for field in fields if field["value"] is not None}
+        values["price"] = 123456
+        values["suitability"] = "راهنمای انتخاب به‌روزشده"
+        values["is_active"] = "true"
+        bad_photo = client.post(editor, {**values, "photo": SimpleUploadedFile("invalid.png", b"not an image")},
+                                headers=headers)
+        self.assertIn("photo", bad_photo.json()["errors"])
+        output = BytesIO()
+        Image.new("RGB", (20, 20), "purple").save(output, "PNG")
+        saved = client.post(editor, {**values, "photo": SimpleUploadedFile("product.png", output.getvalue())},
+                            headers=headers)
+        self.assertEqual(saved.status_code, 200, saved.content)
+        public = reverse("product", args=[product.slug])
+        self.assertEqual(client.get(public).json()["price"], 123456)
+        self.assertTrue(client.get(public).json()["image"].endswith(ProductPhoto.objects.get(product=product).url()))
+        self.assertEqual(client.post(editor + "action/", {"action": "hide"}, headers=headers).status_code, 200)
+        self.assertEqual(client.get(public).status_code, 404)
+
+        workbook = Workbook()
+        workbook.active.append(("slug", "title", "category", "brand", "price"))
+        workbook.active.append(("react-panel-import", "Imported product", "skincare", "Example", 100000))
+        output = BytesIO()
+        workbook.save(output)
+        response = client.post("/admin/api/workbook/", {"workbook": SimpleUploadedFile("products.xlsx", output.getvalue())},
+                               headers=headers)
+        self.assertEqual(response.json(), {"count": 1})
+        self.assertTrue(Product.objects.filter(slug="react-panel-import").exists())
+        self.assertIsNone(client.post(session, {"action": "logout"}, headers=headers).json()["account"])
+        self.assertEqual(client.get(catalog).status_code, 401)
