@@ -36,6 +36,7 @@ export default defineConfig(() => {
         '/api/management/': backend,
         '/api/v1/': backend,
         '/media/products/': backend,
+        '/media/articles/': backend,
       },
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},

@@ -8,6 +8,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from .models import Article, Product
 
 
+ARTICLE_IMAGE_LIMIT = 3 * 1024 * 1024
 IMAGE_LIMIT = 5 * 1024 * 1024
 IMAGE_FORMATS = {"JPEG": {".jpg", ".jpeg"}, "PNG": {".png"}, "WEBP": {".webp"}}
 
@@ -69,36 +70,48 @@ class ProductAdminForm(ProductContentForm):
     remove_photo = forms.BooleanField(label="حذف عکس بارگذاری‌شده", required=False)
 
     def clean_photo(self):
-        upload = self.cleaned_data["photo"]
-        if not upload:
-            return None
-        if upload.size > IMAGE_LIMIT:
-            raise ValidationError("عکس نباید بیشتر از ۵ مگابایت باشد.")
-        suffix = "." + upload.name.rsplit(".", 1)[-1].lower()
-        source = BytesIO(upload.read(IMAGE_LIMIT + 1))
-        try:
-            with Image.open(source, formats=list(IMAGE_FORMATS)) as image:
-                if suffix not in IMAGE_FORMATS[image.format]:
-                    raise ValidationError("فرمت واقعی تصویر با پسوند فایل مطابقت ندارد.")
-                if max(image.size) > 4096 or getattr(image, "is_animated", False):
-                    raise ValidationError("عکس باید ثابت و حداکثر ۴۰۹۶ پیکسل در هر ضلع باشد.")
-                image.verify()
-            source.seek(0)
-            with Image.open(source, formats=list(IMAGE_FORMATS)) as image:
-                normalized = ImageOps.exif_transpose(image).convert("RGBA")
-                normalized.thumbnail((1600, 1600))
-                output = BytesIO()
-                normalized.save(output, format="WEBP", quality=88)
-        except (UnidentifiedImageError, OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
-            raise ValidationError("فایل تصویر معتبر JPG، PNG یا WebP نیست.") from exc
-        data = output.getvalue()
-        return {"data": data, "digest": hashlib.sha256(data).hexdigest(), "content_type": "image/webp"}
+        return normalize_photo(self.cleaned_data["photo"], IMAGE_LIMIT, "عکس نباید بیشتر از ۵ مگابایت باشد.")
+
+
+def normalize_photo(upload, limit, limit_message):
+    if not upload:
+        return None
+    if upload.size > limit:
+        raise ValidationError(limit_message)
+    suffix = "." + upload.name.rsplit(".", 1)[-1].lower()
+    source = BytesIO(upload.read(limit + 1))
+    try:
+        with Image.open(source, formats=list(IMAGE_FORMATS)) as image:
+            if suffix not in IMAGE_FORMATS[image.format]:
+                raise ValidationError("فرمت واقعی تصویر با پسوند فایل مطابقت ندارد.")
+            if max(image.size) > 4096 or getattr(image, "is_animated", False):
+                raise ValidationError("عکس باید ثابت و حداکثر ۴۰۹۶ پیکسل در هر ضلع باشد.")
+            image.verify()
+        source.seek(0)
+        with Image.open(source, formats=list(IMAGE_FORMATS)) as image:
+            normalized = ImageOps.exif_transpose(image).convert("RGBA")
+            normalized.thumbnail((1600, 1600))
+            output = BytesIO()
+            normalized.save(output, format="WEBP", quality=88)
+    except (UnidentifiedImageError, OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+        raise ValidationError("فایل تصویر معتبر JPG، PNG یا WebP نیست.") from exc
+    data = output.getvalue()
+    return {"data": data, "digest": hashlib.sha256(data).hexdigest(), "content_type": "image/webp"}
 
 
 class ArticleForm(forms.ModelForm):
+    photo = forms.FileField(required=False)
+
     class Meta:
         model = Article
-        fields = "__all__"
+        exclude = ("cover_image",)
+
+    def clean_photo(self):
+        photo = normalize_photo(self.cleaned_data["photo"], ARTICLE_IMAGE_LIMIT,
+                                "حجم تصویر نباید بیشتر از ۳ مگابایت باشد.")
+        if not photo and not self.instance.pk:
+            raise ValidationError("برای مقالهٔ جدید یک تصویر انتخاب کنید.")
+        return photo
 
 
 class ReviewSubmissionForm(forms.Form):

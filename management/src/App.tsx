@@ -22,6 +22,7 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [dialog, setDialog] = useState<number | "new" | "workbook" | null>(null);
   const [error, setError] = useState('');
+  const [loginNotice, setLoginNotice] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('arena-admin-theme') || 'auto');
@@ -63,8 +64,20 @@ export default function App() {
   useEffect(() => {
     loadSession();
     const updatePage = () => setPage(location.hash.slice(1) || 'dashboard');
+    const onSessionExpired = () => {
+      setLoginNotice('نشست مدیریت به پایان رسیده است. دوباره وارد شوید تا همین بخش باز شود.');
+      setAccount(null);
+      setCatalog(null);
+      setDialog(null);
+      setError('');
+      setNotice('');
+    };
     window.addEventListener('hashchange', updatePage);
-    return () => window.removeEventListener('hashchange', updatePage);
+    window.addEventListener('arena:admin-session-expired', onSessionExpired);
+    return () => {
+      window.removeEventListener('hashchange', updatePage);
+      window.removeEventListener('arena:admin-session-expired', onSessionExpired);
+    };
   }, []);
 
   function navigate(target: string) {
@@ -112,7 +125,7 @@ export default function App() {
       {error && <button className="font-bold text-plum-600" onClick={loadSession}>تلاش دوباره</button>}
     </main>
   );
-  if (!account) return <LoginModal isOpen onLoginSuccess={setAccount} themeMode={theme} onToggleTheme={toggleTheme} />;
+  if (!account) return <LoginModal isOpen initialError={loginNotice} onLoginSuccess={(user) => { setLoginNotice(''); setAccount(user); }} themeMode={theme} onToggleTheme={toggleTheme} />;
 
   const openNew = account.can_add ? () => setDialog('new') : undefined;
   return (

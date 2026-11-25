@@ -125,3 +125,13 @@ class AdminLogin(models.Model):
 
     class Meta:
         ordering = ["-created_at", "-id"]
+
+
+class ArticlePhoto(models.Model):
+    article = models.OneToOneField(Article, on_delete=models.CASCADE, related_name="uploaded_photo")
+    data = models.BinaryField()
+    content_type = models.CharField(max_length=32)
+    digest = models.CharField(max_length=64)
+
+    def url(self):
+        return reverse("article-photo", args=[self.article_id, self.digest])

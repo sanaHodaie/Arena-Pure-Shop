@@ -1,4 +1,5 @@
 import React from 'react';
+import ArticlePoster from '../components/ArticlePoster.jsx';
 import { articleSections } from '../data/articleContent.js';
 
 export default function ArticlePage({ article, articles }) {
@@ -13,17 +14,7 @@ export default function ArticlePage({ article, articles }) {
       <nav><a href="/">خانه</a> / <a href="/#blog">خواندنی‌ها</a></nav>
 
       <article>
-        <header className={`article-poster article-poster--${article.cover.theme}`}>
-          <div className="article-poster-copy">
-            <p className="article-poster-topic">{article.cover.topic}</p>
-            <h1 tabIndex={-1} id="article-title">{article.title}</h1>
-            <p className="article-poster-summary">{article.cover.summary}</p>
-            <p className="article-poster-meta">
-              <bdi>{article.author}</bdi> <span aria-hidden="true">·</span> <bdi>{article.readTime}</bdi>
-            </p>
-          </div>
-          <img className="article-poster-image" src={article.cover.image} alt="" fetchPriority="high" />
-        </header>
+        <ArticlePoster article={article} />
 
         <div className="article-layout">
           <aside>

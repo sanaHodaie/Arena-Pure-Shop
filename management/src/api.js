@@ -6,12 +6,43 @@ function connectionMessage(status) {
   return `درخواست پنل انجام نشد (خطای ${status}). دوباره تلاش کنید.`;
 }
 
-export async function request(path, data) {
-  const response = await fetch('/api/management/' + path, data ? {
+function send(path, data) {
+  return fetch('/api/management/' + path, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+    ...(data && {
     method: 'POST',
     headers: { 'X-CSRFToken': csrf || '' },
     body: data,
-  } : {});
+    }),
+  });
+}
+
+let sessionCheck;
+
+function verifySession() {
+  sessionCheck ??= send('session/').then(async (response) => {
+    if (!response.ok) throw new Error(connectionMessage(response.status));
+    const data = await response.json();
+    if (!('account' in data) || !data.csrf) throw new Error('پاسخ بررسی نشست معتبر نیست.');
+    csrf = data.csrf;
+    if (!data.account) window.dispatchEvent(new Event('arena:admin-session-expired'));
+    return Boolean(data.account);
+  }).finally(() => { sessionCheck = undefined; });
+  return sessionCheck;
+}
+
+export async function request(path, data) {
+  let response = await send(path, data);
+  if (response.status === 401 && path !== 'session/') {
+    if (await verifySession()) {
+      // Retry reads only. The user can explicitly retry writes after checking their session.
+      if (!data) response = await send(path);
+      if (response.status === 401) {
+        throw new Error('نشست مدیر فعال است، اما این مسیر آن را دریافت نمی‌کند. تنظیمات اتصال پنل به بک‌اند را بررسی کنید.');
+      }
+    }
+  }
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
     const error = new Error(payload?.error || connectionMessage(response.status));

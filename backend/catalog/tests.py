@@ -214,14 +214,30 @@ class CatalogTests(TestCase):
 
         fields = {
             "title": "مقالهٔ تازه", "excerpt": "چکیده", "author": "article-admin", "date_label": "۵ آذر",
-            "read_time": "۵ دقیقه", "cover_image": "/images/articles/cover-matte.webp", "cover_theme": "matte",
+            "read_time": "۵ دقیقه", "cover_theme": "matte",
             "topic": "آرایش", "summary": "خلاصه", "body": "## آشنایی\nمتن کامل مقاله",
         }
-        created = manager.post("/api/management/articles/new/", fields, headers=manager_headers)
+        article_url = "/api/management/articles/new/"
+        broken = manager.post(article_url, {**fields, "photo": SimpleUploadedFile("bad.png", b"bad")}, headers=manager_headers)
+        self.assertIn("photo", broken.json()["errors"])
+        too_large = manager.post(article_url, {**fields, "photo": SimpleUploadedFile("large.png", b"x" * (3 * 1024 * 1024 + 1))},
+                                 headers=manager_headers)
+        self.assertIn("photo", too_large.json()["errors"])
+        output = BytesIO()
+        Image.new("RGB", (32, 24), "purple").save(output, "PNG")
+        created = manager.post(article_url, {**fields, "photo": SimpleUploadedFile("poster.png", output.getvalue())},
+                               headers=manager_headers)
         self.assertEqual(created.status_code, 201, created.content)
         pk = created.json()["id"]
         self.assertGreater(pk, 4)
         self.assertEqual(guest.get("/api/v1/articles/").json()["articles"][0]["id"], 4)
+        media_url = manager.get("/api/management/articles/").json()["articles"][0]["cover"]["image"]
+        self.assertEqual(guest.get(media_url).status_code, 404)
         edited = manager.post(f"/api/management/articles/{pk}/", {**fields, "is_published": "on"}, headers=manager_headers)
         self.assertEqual(edited.status_code, 200)
         self.assertEqual(guest.get("/api/v1/articles/").json()["articles"][0]["id"], pk)
+        self.assertEqual(guest.get(media_url)["Content-Type"], "image/webp")
+        toggle = f"/api/management/articles/{pk}/visibility/"
+        self.assertEqual(manager.post(toggle, {"published": "false"}, headers=manager_headers).status_code, 200)
+        self.assertEqual(guest.get(media_url).status_code, 404)
+        self.assertNotIn(pk, [row["id"] for row in guest.get("/api/v1/articles/").json()["articles"]])

@@ -21,6 +21,10 @@
       "destination": "https://arena-pure-catalog.onrender.com/api/v1/:path*"
     },
     {
+      "source": "/media/articles/:path*",
+      "destination": "https://arena-pure-catalog.onrender.com/media/articles/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

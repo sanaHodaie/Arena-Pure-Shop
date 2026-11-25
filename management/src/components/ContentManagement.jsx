@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { Edit2, Eye, EyeOff, ImagePlus } from 'lucide-react';
+import ArticlePoster from '../../../src/components/ArticlePoster.jsx';
+import React, { useEffect, useRef, useState } from 'react';
 import { request, post } from '../api';
 import { Button, ErrorBox, Heading, Panel, inputClass } from './ManagementUI';
 
@@ -28,22 +30,69 @@ export function Articles({ account }) {
   const rows = useRows('articles/');
   const [selection, setSelection] = useState(null);
   const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const editor = useRef(null);
+
+  function openEditor(article) {
+    setSelection(article);
+    setNotice('');
+    setError('');
+  }
+
+  useEffect(() => {
+    if (selection) editor.current?.scrollIntoView({ block: 'start' });
+  }, [selection]);
+
+  async function changeVisibility(article) {
+    setError('');
+    setUpdating(true);
+    try {
+      await post(`articles/${article.id}/visibility/`, { published: String(!article.published) });
+      setNotice(article.published ? 'مقاله غیرفعال شد.' : 'مقاله منتشر شد.');
+      rows.refresh();
+    } catch (failure) {
+      setError(failure.message);
+    } finally {
+      setUpdating(false);
+    }
+  }
+
   return <div className="space-y-4">
     <Heading title="خواندنی‌ها" subtitle="مقاله‌های صفحهٔ اصلی و صفحهٔ هر مطلب">
-      {account.articleAdd && <Button onClick={() => setSelection({ author: account.username, published: true })}>مقالهٔ جدید</Button>}
+      {account.articleAdd && <Button disabled={!rows.resource} onClick={() => openEditor({ author: account.username })}>مقالهٔ جدید</Button>}
     </Heading>
     {notice && <p role="status">{notice}</p>}
+    <ErrorBox message={error} />
     <RowStatus {...rows} />
-    {selection && <ArticleEditor key={selection.id || 'new'} article={selection}
-      categories={rows.resource?.categories || []} onCancel={() => setSelection(null)} onSaved={() => {
-        setSelection(null); setNotice('مقاله ذخیره شد.'); rows.refresh();
-      }} />}
-    {rows.resource?.articles.map((article) => <Panel key={article.id} className="flex flex-wrap items-center justify-between gap-3">
-      <div><h2 className="font-bold">{article.title}</h2><p className="text-xs text-pearl-500 dark:text-pearl-300">
-        {article.author} · {article.published ? 'منتشر شده' : 'پیش‌نویس'}
-      </p></div>
-      {account.articleChange && <Button secondary onClick={() => setSelection(article)}>ویرایش</Button>}
-    </Panel>)}
+    {selection && <div ref={editor} className="scroll-mt-20">
+      <ArticleEditor key={selection.id || 'new'} article={selection}
+        categories={rows.resource?.categories || []} onCancel={() => setSelection(null)} onSaved={(published) => {
+          setSelection(null);
+          setNotice(published ? 'مقاله منتشر شد.' : 'پیش‌نویس ذخیره شد.');
+          rows.refresh();
+        }} />
+    </div>}
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      {rows.resource?.articles.map((article) => <article key={article.id} className="glass-panel grid aspect-square grid-rows-[minmax(0,1fr)_auto] overflow-hidden">
+        <img src={article.cover.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <div className="space-y-3 p-4">
+          <h2 className="line-clamp-2 text-sm font-bold">{article.title}</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs text-pearl-600 dark:text-pearl-300">{article.published ? 'فعال' : 'غیرفعال'}</span>
+            {account.articleChange && <div className="flex gap-2">
+              <Button type="button" secondary disabled={updating || Boolean(selection)} aria-pressed={article.published}
+                aria-label={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
+                title={article.published ? 'غیرفعال کردن مقاله' : 'فعال کردن مقاله'}
+                onClick={() => changeVisibility(article)}>
+                {article.published ? <Eye size={17} /> : <EyeOff size={17} />}
+              </Button>
+              <Button type="button" secondary aria-label="ویرایش مقاله" title="ویرایش مقاله" onClick={() => openEditor(article)}><Edit2 size={17} /></Button>
+            </div>}
+          </div>
+        </div>
+      </article>)}
+    </div>
   </div>;
 }
 
@@ -51,37 +100,96 @@ const articleFields = [
   ['title', 'عنوان', 220, 'title'], ['author', 'نام نویسنده', 120, 'author'],
   ['date_label', 'تاریخ نمایشی', 45, 'date'], ['read_time', 'زمان مطالعه', 45, 'readTime'],
   ['topic', 'موضوع پوستر', 140, 'topic'], ['summary', 'خلاصهٔ پوستر', 300, 'summary'],
-  ['cover_image', 'آدرس تصویر پوستر', 500, 'image'], ['excerpt', 'چکیدهٔ کارت', 800, 'excerpt'],
+  ['excerpt', 'چکیدهٔ کارت', 800, 'excerpt'],
 ];
+const imageLimit = 3 * 1024 * 1024;
 
 function ArticleEditor({ article, categories, onCancel, onSaved }) {
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
+  const [fileError, setFileError] = useState('');
+  const [image, setImage] = useState('');
+  const [preview, setPreview] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  async function submit(event) {
+  useEffect(() => () => { if (image) URL.revokeObjectURL(image); }, [image]);
+
+  function chooseImage(event) {
+    const file = event.currentTarget.files[0];
+    if (!file) return;
+    if (!/\.(jpe?g|png|webp)$/i.test(file.name) || file.size === 0 || file.size > imageLimit) {
+      event.currentTarget.value = '';
+      setImage('');
+      setFileError('تصویر JPG، PNG یا WebP با حجمی حداکثر ۳ مگابایت انتخاب کنید.');
+      return;
+    }
+    setFileError('');
+    setErrors((current) => ({ ...current, photo: undefined }));
+    setImage(URL.createObjectURL(file));
+  }
+
+  function showPreview(event) {
     event.preventDefault();
+    if (fileError) return;
+    const data = new FormData(event.currentTarget);
+    setError('');
+    setPreview({
+      data,
+      article: {
+        title: data.get('title'), author: data.get('author'), readTime: data.get('read_time'),
+        cover: { image: image || article.cover?.image, theme: data.get('cover_theme'),
+          topic: data.get('topic'), summary: data.get('summary') },
+      },
+    });
+  }
+
+  async function save(published) {
     setBusy(true);
     setErrors({});
     setError('');
     try {
-      await request(`articles/${article.id || 'new'}/`, new FormData(event.currentTarget));
-      onSaved();
+      if (published) preview.data.set('is_published', 'true');
+      else preview.data.delete('is_published');
+      await request(`articles/${article.id || 'new'}/`, preview.data);
+      onSaved(published);
     } catch (failure) {
       setError(failure.fields ? 'فیلدهای مشخص‌شده را بررسی کنید.' : failure.message);
       setErrors(failure.fields || {});
+      setPreview(null);
     } finally {
       setBusy(false);
     }
   }
+
   const defaultDate = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'medium', timeZone: 'Asia/Tehran' }).format();
-  const values = { date: defaultDate, readTime: '۵ دقیقه', image: '/images/articles/cover-matte.webp', ...article, ...article.cover };
+  const values = { date: defaultDate, readTime: '۵ دقیقه', ...article, ...article.cover };
   const feedback = (key) => errors[key]?.map((text) => <small key={text} className="text-rose-700 dark:text-rose-300">{text}</small>);
   return <Panel>
-    <Heading title={article.id ? 'ویرایش مقاله' : 'مقالهٔ جدید'} />
+    <Heading title={preview ? 'پیش‌نمایش پوستر' : article.id ? 'ویرایش مقاله' : 'مقالهٔ جدید'} />
     <ErrorBox message={error} />
     {feedback('__all__')}
-    <form className="grid gap-4 sm:grid-cols-2" onSubmit={submit}>
+    {preview && <div className="space-y-4">
+      <ArticlePoster article={preview.article} preview />
+      <div className="flex flex-wrap gap-2">
+        <Button disabled={busy} type="button" onClick={() => save(true)}>انتشار مقاله</Button>
+        <Button disabled={busy} secondary type="button" onClick={() => save(false)}>ذخیره به‌عنوان پیش‌نویس</Button>
+        <Button disabled={busy} secondary type="button" onClick={() => setPreview(null)}>بازگشت به ویرایش</Button>
+      </div>
+    </div>}
+    <form className={preview ? 'hidden' : 'grid gap-4 sm:grid-cols-2'} onSubmit={showPreview}>
+      <div className="space-y-2 sm:col-span-2">
+        <label className="group block cursor-pointer">
+          <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            onChange={chooseImage} required={!article.id} aria-label="انتخاب تصویر پوستر" className="sr-only" />
+          <span className="relative grid min-h-36 max-w-md place-items-center overflow-hidden rounded-2xl border border-dashed border-plum-500 bg-plum-50 group-focus-within:outline-2 group-focus-within:outline-plum-600 dark:bg-plum-950">
+            {(image || values.image) && <img src={image || values.image} alt="" className="h-40 w-full object-cover" />}
+            <span className="absolute flex items-center gap-2 rounded-xl bg-plum-900 px-4 py-2 text-xs font-bold text-white"><ImagePlus size={17} /> انتخاب تصویر پوستر</span>
+          </span>
+        </label>
+        <p className="text-xs text-pearl-600 dark:text-pearl-300">JPG، PNG یا WebP ثابت، حداکثر ۳ مگابایت و ۴۰۹۶ پیکسل در هر ضلع</p>
+        {fileError && <p role="alert" className="text-sm text-rose-700 dark:text-rose-300">{fileError}</p>}
+        {feedback('photo')}
+      </div>
       {articleFields.map(([name, label, length, key]) => <label key={name} className="grid gap-1 text-sm">
         {label}<input required name={name} className={inputClass} maxLength={length} defaultValue={values[key]} />
         {feedback(name)}
@@ -98,12 +206,9 @@ function ArticleEditor({ article, categories, onCancel, onSaved }) {
         <textarea required rows={12} name="body" className={inputClass} maxLength={20000} defaultValue={article.body} />
         <small>برای عنوان بخش، ابتدای خط از «##» و یک فاصله استفاده کنید.</small>{feedback('body')}
       </label>
-      <label className="flex items-center gap-2">
-        <input type="checkbox" name="is_published" defaultChecked={article.published} /> انتشار در سایت
-      </label>
       <div className="flex gap-2 sm:col-span-2">
-        <Button disabled={busy}>ذخیرهٔ مقاله</Button>
-        <Button secondary disabled={busy} type="button" onClick={onCancel}>انصراف</Button>
+        <Button disabled={Boolean(fileError)}>پیش‌نمایش</Button>
+        <Button secondary type="button" onClick={onCancel}>انصراف</Button>
       </div>
     </form>
   </Panel>;
