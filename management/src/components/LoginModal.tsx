@@ -1,5 +1,5 @@
 import React, {useEffect,useState} from 'react';
-import {LockKeyhole, Eye, EyeOff, Sun, Moon, BarChart3, ShoppingBag, Box, Users, Monitor, Zap, ShieldCheck, ArrowRight} from 'lucide-react';
+import {LockKeyhole, Eye, EyeOff, Sun, Moon, Sparkles, ArrowLeft} from 'lucide-react';
 import {post, request} from '../api';
 import type {Account} from '../types';
 import './login.css';
@@ -21,16 +21,15 @@ export default function LoginModal({isOpen,onLoginSuccess,themeMode,onToggleThem
   const dark=themeMode==='dark'||(themeMode==='auto'&&systemDark);
   return <main className="admin-login" dir="rtl">
     <div className="admin-login-inner">
-      <header className="login-header"><div className="login-brand"><b>A</b><span>ARENA PURE<small>BUSINESS CONTROL</small></span></div>
+      <header className="login-header"><div className="login-brand"><b>A</b><span>ARENA PURE</span></div>
         <button type="button" className="login-theme" onClick={onToggleTheme} aria-label={dark?'فعال کردن حالت روشن':'فعال کردن حالت تیره'}>{dark?<Sun size={22}/>:<Moon size={22}/>}</button>
       </header>
       <div className="login-columns">
         <section className="login-story" aria-label="معرفی پنل مدیریت">
-          <p className="login-pill"><BarChart3 size={18}/>راهکار جامع مدیریت فروشگاه</p>
-          <h1>مدیریت فروشگاه،<br/>با <em>دیدی روشن‌تر</em></h1>
-          <p className="login-description">محصولات، موجودی و گزارش کاتالوگ آرنا پیور را در یک فضای یکپارچه مدیریت کنید.</p>
-          <div className="login-artwork"><div className="login-laptop-hover"><img className="login-laptop" src="/assets/admin/login-laptop.webp" alt="تصویر لپ‌تاپ" width="800" height="533"/></div>
-            <div className="login-capabilities">{[[ShoppingBag,'مدیریت کاتالوگ'],[Box,'محصولات و موجودی'],[Users,'دسترسی مدیران']].map(([Icon,label]:any)=><div key={label}><Icon size={25}/><span>{label}</span></div>)}</div>
+          <p className="login-pill"><Sparkles size={15} /> مدیریت فروشگاه آرنا پیور</p>
+          <h1>ویترین آرنا پیور،<br /> <em>از نگاه شما</em></h1>
+          <div className="login-artwork">
+            <img src="/assets/admin/login-beauty.webp" alt="" width="960" height="640" fetchPriority="high" />
           </div>
         </section>
         <section className="login-form-wrap"><form className="login-glass-form" onSubmit={login} aria-label="ورود مدیران">
@@ -40,13 +39,13 @@ export default function LoginModal({isOpen,onLoginSuccess,themeMode,onToggleThem
           <label htmlFor="admin-password">رمز عبور</label><div className="login-password"><input id="admin-password" aria-label="رمز عبور" type={visible?'text':'password'} autoComplete="current-password" placeholder="رمز عبور خود را وارد کنید" value={password} onChange={e=>setPassword(e.target.value)} required maxLength={128} disabled={busy}/>
             <button type="button" onClick={()=>setVisible(v=>!v)} aria-label={visible?'پنهان کردن رمز':'نمایش رمز'} aria-pressed={visible}>{visible?<EyeOff size={21}/>:<Eye size={21}/>}</button></div>
           {error&&<p className="login-error" role="alert">{error}</p>}
-          <button className="login-submit" disabled={busy}>{busy?'در حال ورود…':'ورود به مرکز مدیریت'}<ArrowRight size={21}/></button>
+          <button className="login-submit" disabled={busy}>{busy?'در حال ورود…':'ورود به مرکز مدیریت'}<ArrowLeft size={20}/></button>
           <p className="login-note">دسترسی هر بخش با مجوز حساب شما تعیین می‌شود.</p>
         </form><div className="login-connection"><button type="button" onClick={()=>setConnection(v=>!v)}>اطلاعات اتصال</button><button type="button" disabled={checking} onClick={async()=>{setChecking(true);setHealth('');try{const result=await request('health/');setHealth(result.status==='ok'?'بک‌اند پاسخ می‌دهد؛ اعتبار حساب جداگانه بررسی می‌شود.':'پاسخ سلامت نامعتبر است.');}catch(e){setHealth(e instanceof Error?e.message:'خطای اتصال');}finally{setChecking(false);}}}>{checking?'در حال بررسی…':'بررسی اتصال'}</button></div>
         {(connection||health)&&<div className="login-connection-info">{connection&&<p dir="ltr">{location.origin}/api/management</p>}{health&&<p role="status">{health}</p>}</div>}
         </section>
       </div>
-      <section className="login-benefits" aria-label="امکانات پنل">{[[Monitor,'قابل استفاده در همه دستگاه‌ها'],[Zap,'مدیریت یکپارچهٔ فروشگاه'],[ShieldCheck,'دسترسی امن بر اساس نقش']].map(([Icon,label]:any)=><div key={label}><span>{label}</span><Icon size={23}/></div>)}</section>
+
     </div>
   </main>;
 }
