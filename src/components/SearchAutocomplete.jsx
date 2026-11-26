@@ -5,15 +5,15 @@ import { formatPrice } from '../data/mockData.js';
 import { normalizeSearch, searchProducts } from '../data/productSearch.js';
 import ProductImage from './ProductImage.jsx';
 
-export default function SearchAutocomplete({ searchTerm, setSearchTerm, onSelectProduct, onSearchSubmit }) {
+export default function SearchAutocomplete({ catalogLoading, searchTerm, setSearchTerm, onSelectProduct, onSearchSubmit }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const root = useRef(null);
   const input = useRef(null);
   const id = useId();
-  const results = searchProducts(products, searchTerm);
+  const results = catalogLoading ? [] : searchProducts(products, searchTerm);
   const suggestions = results.slice(0, 6);
-  const expanded = open && !!normalizeSearch(searchTerm);
+  const expanded = !catalogLoading && open && !!normalizeSearch(searchTerm);
   const activeOption = active >= 0 && active < suggestions.length ? active : -1;
 
   useEffect(() => {

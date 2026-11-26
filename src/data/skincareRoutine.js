@@ -10,7 +10,7 @@ export const skinConcerns = [
   ['pores', 'منافذ نمایان'], ['dullness', 'کدری و ناهماهنگی رنگ'], ['sensitivity', 'حساسیت و قرمزی'],
 ];
 
-const catalog = new Map(products.map(product => [product.id, product]));
+const catalogProduct = (id) => products.find(product => product.id === id);
 const steps = [
   { key: 'cleanser', label: 'شوینده', use: 'روی پوست مرطوب ماساژ بده و آبکشی کن؛ هنگام شست‌وشو پوست را نمال.', options: [
     [22, ['dry', 'sensitive', 'unknown'], ['dryness', 'sensitivity'], 'شویندهٔ کرمی با کف کم، برای وقتی که شست‌وشوی کف‌دار به پوستت حس کشیدگی می‌دهد.'],
@@ -40,7 +40,7 @@ export function buildSkincareRoutine(skin, concerns, budget = Infinity) {
   const cautious = skin === 'sensitive' || skin === 'unknown' || concerns.includes('sensitivity');
   const preferredSkin = cautious ? 'sensitive' : skin;
   const candidates = steps.map(({ key, label, use, options }) => options.flatMap(([id, skins, matches, reason]) => {
-    const product = catalog.get(id);
+    const product = catalogProduct(id);
     if (!product?.inStock || !skins.includes(preferredSkin)) return [];
     if (key === 'serum' && (!concerns.some(concern => matches.includes(concern)) || (cautious && id === 6))) return [];
     const score = (skins[0] === preferredSkin ? 2 : 1) + matches.filter(concern => concerns.includes(concern)).length * 3;
@@ -135,7 +135,7 @@ export function getRoutinePlacement(product, routine) {
 
 export function routineProducts(routine) {
   return [...new Map([...routine.morning, ...routine.evening].map(step => [
-    step.product.id, catalog.get(step.product.id) || { ...step.product, inStock: false },
+    step.product.id, catalogProduct(step.product.id) || { ...step.product, inStock: false },
   ])).values()];
 }
 
@@ -167,7 +167,7 @@ export function readCustomerRoutine(phone) {
   const saved = JSON.parse(localStorage.getItem('arena-demo-routine:' + phone));
   if (!saved) return null;
   const restore = steps => steps.map(step => ({
-    ...step, product: catalog.get(step.product.id) ?? { ...step.product, inStock: false, unlisted: true },
+    ...step, product: catalogProduct(step.product.id) ?? { ...step.product, inStock: false, unlisted: true },
   }));
   const routine = { preferredSkin: saved.preferredSkin, morning: restore(saved.morning), evening: restore(saved.evening) };
   return { ...routine, total: routineProducts(routine).reduce((total, product) => total + product.price, 0) };

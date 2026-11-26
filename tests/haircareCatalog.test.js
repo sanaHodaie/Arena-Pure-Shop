@@ -22,8 +22,8 @@ test('new hair products are searchable by model and Persian brand', () => {
 });
 
 test('haircare remains in the catalog but is excluded from the best-seller selection', async () => {
-  const { bestSellerProducts } = await import('../src/data/mockData.js');
-  assert.ok(bestSellerProducts.length > 0);
-  assert.ok(bestSellerProducts.every(product => product.category !== 'haircare'));
+  const { getBestSellerProducts } = await import('../src/data/mockData.js');
+  assert.ok(getBestSellerProducts().length > 0);
+  assert.ok(getBestSellerProducts().every(product => product.category !== 'haircare'));
   assert.equal(products.filter(product => product.category === 'haircare').length, 10);
 });

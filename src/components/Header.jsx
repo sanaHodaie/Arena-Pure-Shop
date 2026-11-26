@@ -4,11 +4,11 @@ import { navCategories } from '../data/mockData.js';
 import { categoryPages, categoryUrl } from '../data/categories.js';
 import SearchAutocomplete from './SearchAutocomplete.jsx';
 const icons = [Sparkles, Badge, Droplets, Scissors, Pipette, SprayCan, Droplets];
-export default function Header({ cartCount, onOpenCart, onOpenAuth, isSignedIn, wishlistCount, isWishlist, isRoutine, searchTerm, setSearchTerm, selectedCategory, onSelectCategory, onSelectProduct }) {
+export default function Header({ cartCount, onOpenCart, onOpenAuth, isSignedIn, wishlistCount, isWishlist, isRoutine, catalogLoading, searchTerm, setSearchTerm, selectedCategory, onSelectCategory, onSelectProduct }) {
  const [menuOpen, setMenuOpen] = useState(false);
  return <header className="arena-header"><div className="arena-header-main arena-container">
  <a href="/" className="arena-logo" aria-label="آرنا پیور، صفحه اصلی"><span>Arena</span><i>Pure</i></a>
- <SearchAutocomplete searchTerm={searchTerm} setSearchTerm={setSearchTerm} onSelectProduct={onSelectProduct} onSearchSubmit={() => onSelectCategory(null)}/>
+ <SearchAutocomplete catalogLoading={catalogLoading} searchTerm={searchTerm} setSearchTerm={setSearchTerm} onSelectProduct={onSelectProduct} onSearchSubmit={() => onSelectCategory(null)}/>
  <div className="arena-header-actions"><button className="arena-login" aria-label={isSignedIn ? 'پنل مشتری' : 'ورود یا ثبت‌نام'} onClick={onOpenAuth}><UserRound size={19} strokeWidth={1.3}/><span>{isSignedIn ? 'پنل مشتری' : 'ورود / ثبت‌نام'}</span></button>
  <a className="arena-cart arena-wishlist-link" href="/wishlist" aria-current={isWishlist ? 'page' : undefined} aria-label={`علاقه‌مندی‌ها، ${wishlistCount.toLocaleString('fa-IR')} محصول`} title="علاقه‌مندی‌ها"><Heart size={21} strokeWidth={1.5} fill={isWishlist ? 'currentColor' : 'none'} aria-hidden="true"/>{wishlistCount > 0 && <span aria-hidden="true">{wishlistCount.toLocaleString('fa-IR')}</span>}</a>
  <button className="arena-cart" onClick={onOpenCart} aria-label={`سبد خرید، ${cartCount} کالا`}><ShoppingBag size={21} strokeWidth={1.5}/>{cartCount > 0 && <span>{cartCount.toLocaleString('fa-IR')}</span>}</button></div>

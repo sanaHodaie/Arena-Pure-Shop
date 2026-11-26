@@ -90,9 +90,9 @@ export const mainCategories = [
   },
 ];
 
-export const specialOfferProducts = products.slice(0, 8);
+export const getSpecialOfferProducts = () => products.slice(0, 8);
 
-export const bestSellerProducts = products.filter(product => product.id <= 12 && product.category !== 'haircare');
+export const getBestSellerProducts = () => products.filter(product => product.id <= 12 && product.category !== 'haircare');
 
 export const valueProps = [
   {

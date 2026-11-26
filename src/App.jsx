@@ -31,7 +31,7 @@ import AuthModal from './components/AuthModal.jsx';
 import { readDemoSession, writeDemoSession } from './data/demoAccount.js';
 import Toast from './components/Toast.jsx';
 
-export default function App({ catalogOffline = false }) {
+export default function App({ catalogLoading = false, catalogOffline = false }) {
   const previousProduct = useRef(null);
   const previousPath = useRef(null);
   const pendingRoutine = useRef(null);
@@ -100,7 +100,7 @@ export default function App({ catalogOffline = false }) {
       else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('fragrance-finder-title') || document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
-  }, [location, article?.id, Boolean(articles && location === '/#blog')]);
+  }, [location, catalogLoading, article?.id, Boolean(articles && location === '/#blog')]);
   const handleLink = event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest('a[href]');
@@ -165,6 +165,7 @@ export default function App({ catalogOffline = false }) {
   };
 
   const handleAddToCart = (product) => {
+    if (catalogLoading) return;
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
@@ -180,6 +181,7 @@ export default function App({ catalogOffline = false }) {
   };
 
   const handleAddRoutineToCart = routine => {
+    if (catalogLoading) return;
     const items = routineProducts(routine);
     if (!items.length || items.some(product => !product.inStock)) {
       showToast('بعضی محصولات روتین موجود نیستند. سبد خرید تغییری نکرد.', 'info');
@@ -238,6 +240,10 @@ export default function App({ catalogOffline = false }) {
   };
 
   const handleCheckout = async () => {
+    if (catalogLoading) {
+      showToast('پس از دریافت قیمت و موجودی می‌توانید سفارش را ثبت کنید.', 'info');
+      return;
+    }
     if (catalogOffline) {
       showToast('برای ثبت سفارش، ابتدا اتصال به کاتالوگ زنده را دوباره بررسی کنید.', 'info');
       return;
@@ -318,6 +324,7 @@ export default function App({ catalogOffline = false }) {
         wishlistCount={favoriteProducts.length}
         isWishlist={isWishlist}
         isRoutine={isRoutine}
+        catalogLoading={catalogLoading}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedCategory={activeCategory || selectedCategory}
@@ -326,7 +333,10 @@ export default function App({ catalogOffline = false }) {
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {isFragranceFinder ? (
+      {catalogLoading && !isHome && !articlePage && !isAccount ? (
+        <main className="arena-container catalog-placeholder" aria-busy="true"
+          aria-label="دریافت اطلاعات محصول"><div aria-hidden="true" /></main>
+      ) : isFragranceFinder ? (
         <FragranceFinderPage wishlist={wishlist} comparison={comparison}
           onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
       ) : isRoutine ? <SkincareRoutinePage draft={routineDraft} onDraftChange={setRoutineDraft} onSaveRoutine={handleSaveRoutine} onAddRoutineToCart={handleAddRoutineToCart} /> : isWishlist ? (
@@ -351,12 +361,12 @@ export default function App({ catalogOffline = false }) {
         <HeroBanners />
 
         {/* Screenshot 1 & 2: Special Offers (پیشنهاد شگفت‌انگیز) */}
-        <SpecialOffers
+        {!catalogLoading && <SpecialOffers
           onAddToCart={handleAddToCart}
           onToggleWishlist={handleToggleWishlist}
           wishlist={wishlist}
           onQuickView={(p) => setQuickViewProduct(p)}
-        />
+        />}
 
         {/* Screenshot 2: Circular Categories (دسته‌بندی‌ها) */}
         <Categories
@@ -365,14 +375,14 @@ export default function App({ catalogOffline = false }) {
         />
 
         {/* Screenshot 2: Best Sellers (پرفروش‌ترین‌های این ماه) */}
-        <BestSellers
+        {!catalogLoading && <BestSellers
           onAddToCart={handleAddToCart}
           onToggleWishlist={handleToggleWishlist}
           wishlist={wishlist}
           onQuickView={(p) => setQuickViewProduct(p)}
           selectedCategory={selectedCategory}
           onClearCategory={() => setSelectedCategory(null)}
-        />
+        />}
 
         {/* Screenshot 3: Middle Promotional Banners */}
         <MiddleBanners />

@@ -1,12 +1,12 @@
 import SectionHeading from './SectionHeading.jsx';
 import React from 'react';
 import { ChevronLeft, SlidersHorizontal } from 'lucide-react';
-import { bestSellerProducts } from '../data/mockData.js';
+import { getBestSellerProducts } from '../data/mockData.js';
 import { products as catalogProducts } from '../data/catalog.js';
 import { categoryNames } from '../data/productDetails.js';
 import ProductCard from './ProductCard.jsx';
 export default function BestSellers({onAddToCart,onToggleWishlist,wishlist=[],onQuickView,selectedCategory,onClearCategory}) {
  const filterCategory = selectedCategory && !['weekly-deals','brands'].includes(selectedCategory) ? selectedCategory : null;
- const products=filterCategory ? catalogProducts.filter(p=>p.category===filterCategory) : bestSellerProducts;
+ const products=filterCategory ? catalogProducts.filter(p=>p.category===filterCategory) : getBestSellerProducts();
  return <section id="products" className="arena-container beauty-bestsellers"><SectionHeading title={filterCategory ? categoryNames[filterCategory] : "پرفروش‌ترین‌های این ماه"} eyebrow={filterCategory ? "انتخاب و مقایسه محصولات" : "انتخاب‌های محبوب شما"} action={<button className="beauty-view-all" onClick={onClearCategory}>مشاهده همه <ChevronLeft size={15}/></button>}/>{filterCategory&&<div className="beauty-filter-status"><SlidersHorizontal size={15}/><span>{products.length.toLocaleString('fa-IR')} محصول در این دسته</span><button onClick={onClearCategory}>حذف فیلتر ×</button></div>}<div className="beauty-product-grid">{products.map(product=><ProductCard key={product.id} product={product} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist} onQuickView={onQuickView}/>)}</div>{!products.length&&<div className="beauty-empty"><p>محصولی با این مشخصات پیدا نشد.</p><button onClick={onClearCategory}>نمایش همه دسته‌ها</button></div>}</section>;
 }

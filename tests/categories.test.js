@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { categoryPages, categoryUrl, findCategory } from '../src/data/categories.js';
 import { products } from '../src/data/catalog.js';
-import { bestSellerProducts } from '../src/data/mockData.js';
+import { getBestSellerProducts } from '../src/data/mockData.js';
 import { findProduct, getProductDetails, productUrl } from '../src/data/productDetails.js';
 
 test('both supported categories resolve from direct and trailing-slash URLs', () => {
@@ -22,5 +22,5 @@ test('skincare has ten distinct products with complete model identities and dedi
   }
 });
 test('new category products do not silently change the home best-seller selection', () => {
-  assert.ok(bestSellerProducts.every(product => product.id <= 12 && product.category !== 'haircare'));
+  assert.ok(getBestSellerProducts().every(product => product.id <= 12 && product.category !== 'haircare'));
 });

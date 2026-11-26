@@ -1,7 +1,7 @@
 import SectionHeading from './SectionHeading.jsx';
 import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { specialOfferProducts } from '../data/mockData.js';
+import { getSpecialOfferProducts } from '../data/mockData.js';
 import ProductCard from './ProductCard.jsx';
 import useAutoScroll from '../hooks/useAutoScroll.js';
 
@@ -23,7 +23,7 @@ export default function SpecialOffers({ onAddToCart, onToggleWishlist, wishlist 
         <div className="arena-rail-controls"><button aria-label="محصولات قبلی" onClick={() => scroll(320)}><ChevronRight size={19}/></button><button aria-label="محصولات بعدی" onClick={() => scroll(-320)}><ChevronLeft size={19}/></button></div>
       </div>
       <div className="arena-product-rail no-scrollbar" ref={rail} role="region" aria-label="محصولات پیشنهاد شگفت‌انگیز" tabIndex={0}>
-        {specialOfferProducts.map(product => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist}/>)}
+        {getSpecialOfferProducts().map(product => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} wishlist={wishlist}/>)}
       </div>
     </div>
   </section>;
