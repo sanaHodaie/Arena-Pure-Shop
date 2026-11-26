@@ -22,7 +22,7 @@ def storefront(request):
     return Response({
         "categories": CategorySerializer(Category.objects.all(), many=True).data,
         "products": ProductSerializer(product_query(), many=True, context={"request": request}).data,
-    })
+    }, headers={"Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=120"})
 
 
 class Categories(generics.ListAPIView):

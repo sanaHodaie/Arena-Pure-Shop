@@ -31,7 +31,7 @@ import AuthModal from './components/AuthModal.jsx';
 import { readDemoSession, writeDemoSession } from './data/demoAccount.js';
 import Toast from './components/Toast.jsx';
 
-export default function App({ catalogLoading = false, catalogOffline = false }) {
+export default function App({ hasCachedCatalog = false, catalogLoading = false, catalogOffline = false }) {
   const previousProduct = useRef(null);
   const previousPath = useRef(null);
   const pendingRoutine = useRef(null);
@@ -140,6 +140,14 @@ export default function App({ catalogLoading = false, catalogOffline = false }) 
   const [orderVersion, setOrderVersion] = useState(0);
   const checkoutPending = useRef(false);
 
+  useEffect(() => {
+    if (!catalogLoading && !catalogOffline) {
+      setQuickViewProduct(current => current ? products.find(item => item.id === current.id) || null : null);
+      setCompareProducts(current => current.flatMap(item => products.find(product => product.id === item.id) || []));
+      setRoutineDraft(current => current.result ? { ...current, result: null } : current);
+    }
+  }, [catalogLoading, catalogOffline]);
+
   const showToast = (message, type = 'cart') => {
     setToast({ message, type });
     setTimeout(() => {
@@ -165,7 +173,10 @@ export default function App({ catalogLoading = false, catalogOffline = false }) 
   };
 
   const handleAddToCart = (product) => {
-    if (catalogLoading) return;
+    if (catalogLoading) {
+      showToast('قیمت و موجودی هنوز تأیید نشده‌اند.', 'info');
+      return;
+    }
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
@@ -181,7 +192,10 @@ export default function App({ catalogLoading = false, catalogOffline = false }) 
   };
 
   const handleAddRoutineToCart = routine => {
-    if (catalogLoading) return;
+    if (catalogLoading) {
+      showToast('قیمت و موجودی هنوز تأیید نشده‌اند.', 'info');
+      return;
+    }
     const items = routineProducts(routine);
     if (!items.length || items.some(product => !product.inStock)) {
       showToast('بعضی محصولات روتین موجود نیستند. سبد خرید تغییری نکرد.', 'info');
@@ -324,7 +338,7 @@ export default function App({ catalogLoading = false, catalogOffline = false }) 
         wishlistCount={favoriteProducts.length}
         isWishlist={isWishlist}
         isRoutine={isRoutine}
-        catalogLoading={catalogLoading}
+        catalogLoading={catalogLoading && !hasCachedCatalog}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedCategory={activeCategory || selectedCategory}
@@ -333,7 +347,7 @@ export default function App({ catalogLoading = false, catalogOffline = false }) 
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {catalogLoading && !isHome && !articlePage && !isAccount ? (
+      {catalogLoading && !hasCachedCatalog && !isHome && !articlePage && !isAccount ? (
         <main className="arena-container catalog-placeholder" aria-busy="true"
           aria-label="دریافت اطلاعات محصول"><div aria-hidden="true" /></main>
       ) : isFragranceFinder ? (
@@ -361,12 +375,15 @@ export default function App({ catalogLoading = false, catalogOffline = false }) 
         <HeroBanners />
 
         {/* Screenshot 1 & 2: Special Offers (پیشنهاد شگفت‌انگیز) */}
-        {!catalogLoading && <SpecialOffers
+        {catalogLoading && <p className="arena-container catalog-preview-note" role="status">
+          {hasCachedCatalog ? 'آخرین قیمت و موجودی ذخیره‌شده' : 'قیمت و موجودی نمایشی تا تأیید کاتالوگ'}
+        </p>}
+        <SpecialOffers
           onAddToCart={handleAddToCart}
           onToggleWishlist={handleToggleWishlist}
           wishlist={wishlist}
           onQuickView={(p) => setQuickViewProduct(p)}
-        />}
+        />
 
         {/* Screenshot 2: Circular Categories (دسته‌بندی‌ها) */}
         <Categories
@@ -375,14 +392,14 @@ export default function App({ catalogLoading = false, catalogOffline = false }) 
         />
 
         {/* Screenshot 2: Best Sellers (پرفروش‌ترین‌های این ماه) */}
-        {!catalogLoading && <BestSellers
+        <BestSellers
           onAddToCart={handleAddToCart}
           onToggleWishlist={handleToggleWishlist}
           wishlist={wishlist}
           onQuickView={(p) => setQuickViewProduct(p)}
           selectedCategory={selectedCategory}
           onClearCategory={() => setSelectedCategory(null)}
-        />}
+        />
 
         {/* Screenshot 3: Middle Promotional Banners */}
         <MiddleBanners />
