@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -106,7 +108,7 @@ class ProductReview(models.Model):
         APPROVED = "approved", "تأییدشده"
         REJECTED = "rejected", "ردشده"
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="reviews")
     name = models.CharField(max_length=80)
     body = models.TextField(max_length=1500)
     status = models.CharField(max_length=12, choices=Status, default=Status.PENDING, db_index=True)
@@ -135,3 +137,18 @@ class ArticlePhoto(models.Model):
 
     def url(self):
         return reverse("article-photo", args=[self.article_id, self.digest])
+
+
+class CustomerAccount(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    phone = models.CharField(max_length=11, unique=True)
+    password = models.CharField(max_length=128)
+    is_active = models.BooleanField(default=True)
+    profile = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AuthAttempt(models.Model):
+    key = models.CharField(max_length=64, primary_key=True)
+    expires_at = models.DateTimeField(db_index=True)
+    count = models.PositiveSmallIntegerField(default=0)

@@ -279,3 +279,60 @@ class CatalogTests(TestCase):
             report = self.client.get(endpoint, query).json()
             self.assertFalse(report["demo"])
             self.assertEqual(report["totals"], {"revenue": 0, "orders": 0})
+
+    def test_customer_auth_csrf_session_isolation_and_attempt_limit(self):
+        from .models import CustomerAccount
+
+        path = "/api/v1/account/session/"
+        member = Client(enforce_csrf_checks=True)
+        other = Client(enforce_csrf_checks=True)
+        phone = "09123456789"
+        password = "A-distinct-test-passphrase!26"
+        data = {"action": "register", "phone": "+۹۸۹۱۲۳۴۵۶۷۸۹", "password": password}
+        self.assertEqual(member.post(path, data).status_code, 403)
+        csrf = member.get(path).json()["csrf"]
+        headers = {"X-CSRFToken": csrf}
+        self.assertEqual(member.post(path, {**data, "password": "123456"}, headers=headers).status_code, 400)
+        self.assertEqual(member.post(path, data, headers=headers).status_code, 202)
+        self.assertEqual(member.post(path, {**data, "password": "Different-test-password#71"},
+                                     headers=headers).status_code, 202)
+        account = CustomerAccount.objects.get(phone=phone)
+        self.assertNotEqual(account.password, password)
+        login = member.post(path, {**data, "action": "login"}, headers=headers)
+        self.assertEqual(login.status_code, 200)
+        self.assertTrue(login.cookies["sessionid"]["httponly"])
+        self.assertIn("no-store", login["Cache-Control"])
+        self.assertEqual(login.json()["account"], {"id": str(account.pk), "phone": phone})
+        self.assertIsNone(member.get("/api/management/session/").json()["account"])
+        self.assertEqual(member.get("/api/management/catalog/").status_code, 401)
+        profile = "/api/v1/account/profile/"
+        values = {"firstName": "ثنا", "lastName": "نمونه", "email": "", "province": "گیلان", "city": "رشت",
+                  "postalCode": "1234567890", "address": "نشانی آزمایشی"}
+        self.assertEqual(other.get(profile).status_code, 401)
+        csrf_headers = {"X-CSRFToken": login.json()["csrf"]}
+        self.assertEqual(member.post(profile, values, headers=csrf_headers).status_code, 200)
+        self.assertEqual(member.get(profile).json()["profile"], values)
+        self.assertEqual(other.get(profile).status_code, 401)
+        self.assertEqual(member.post(path, {"action": "logout"}, headers=csrf_headers).status_code, 200)
+        self.assertEqual(member.get(profile).status_code, 401)
+
+        bad_phone = "09999999999"
+        headers = {"X-CSRFToken": other.get(path).json()["csrf"]}
+        for _ in range(8):
+            self.assertEqual(other.post(path, {"action": "login", "phone": bad_phone, "password": password},
+                                        headers=headers).status_code, 401)
+        self.assertEqual(other.post(path, {"action": "login", "phone": bad_phone, "password": password},
+                                    headers=headers).status_code, 429)
+
+    def test_deleting_product_cannot_cascade_through_review_history(self):
+        from .models import ProductReview
+
+        product = Product.objects.get(slug=self.slug)
+        review = ProductReview.objects.create(product=product, name="Test", body="A test review.")
+        manager = get_user_model().objects.create_superuser("deletion-admin", password=None)
+        self.client.force_login(manager)
+        endpoint = f"/api/management/products/{product.pk}/action/"
+        self.assertEqual(self.client.post(endpoint, {"action": "delete"}).status_code, 409)
+        self.assertTrue(ProductReview.objects.filter(pk=review.pk).exists())
+        self.assertEqual(self.client.post(endpoint, {"action": "hide"}).status_code, 200)
+        self.assertTrue(ProductReview.objects.filter(pk=review.pk).exists())

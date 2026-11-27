@@ -56,14 +56,6 @@ export async function resolveCustomerOrder(phone, id, status) {
   });
 }
 
-export function readCustomerProfile(phone) {
-  return JSON.parse(localStorage.getItem('arena-demo-profile:' + phone) || '{}');
-}
-
-export function saveCustomerProfile(phone, profile) {
-  localStorage.setItem('arena-demo-profile:' + phone, JSON.stringify(profile));
-}
-
 export function readCustomerFavorites(phone) {
   try {
     return JSON.parse(localStorage.getItem('arena-demo-favorites:' + (phone ?? 'guest'))) || [];

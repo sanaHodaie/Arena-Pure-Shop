@@ -29,7 +29,7 @@ import Footer from './components/Footer.jsx';
 import CartDrawer from './components/CartDrawer.jsx';
 import ProductQuickView from './components/ProductQuickView.jsx';
 import AuthModal from './components/AuthModal.jsx';
-import { readDemoSession, writeDemoSession } from './data/demoAccount.js';
+import { getCustomerSession, logoutCustomer } from './data/customerSession.js';
 import Toast from './components/Toast.jsx';
 
 export default function App({ hasCachedCatalog = false, catalogLoading = false, catalogOffline = false }) {
@@ -128,8 +128,10 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
   // Cart state
   const [cart, setCart] = useState([]);
 
-  const [accountPhone, setAccountPhone] = useState(readDemoSession);
-  const [wishlist, setWishlist] = useState(() => readCustomerFavorites(accountPhone));
+  const [account, setAccount] = useState(null);
+  const accountKey = account?.id || null;
+  const authVersion = useRef(0);
+  const [wishlist, setWishlist] = useState(() => readCustomerFavorites(accountKey));
 
   // UI state
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -142,6 +144,18 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
   const [compareProducts, setCompareProducts] = useState([]);
   const [showComparison, setShowComparison] = useState(false);
   const [orderVersion, setOrderVersion] = useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const attemptedAt = authVersion.current;
+    getCustomerSession(controller.signal).then(({ account: current }) => {
+      if (!controller.signal.aborted && authVersion.current === attemptedAt && current) {
+        setAccount(current);
+        setWishlist(readCustomerFavorites(current.id));
+      }
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
   const checkoutPending = useRef(false);
 
   useEffect(() => {
@@ -227,7 +241,7 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
   };
 
   const handleSaveRoutine = routine => {
-    if (accountPhone) persistRoutine(accountPhone, routine);
+    if (accountKey) persistRoutine(accountKey, routine);
     else {
       pendingRoutine.current = routine;
       setIsAuthOpen(true);
@@ -249,7 +263,7 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
     const exists = wishlist.includes(productId);
     const next = exists ? wishlist.filter(id => id !== productId) : [...wishlist, productId];
     try {
-      saveCustomerFavorites(accountPhone, next);
+      saveCustomerFavorites(accountKey, next);
       setWishlist(next);
       showToast(exists ? 'از علاقه‌مندی‌ها حذف شد' : 'به علاقه‌مندی‌ها افزوده شد', exists ? 'info' : 'wishlist');
     } catch {
@@ -268,14 +282,14 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
     }
     if (!cart.length || checkoutPending.current) return;
     setIsCartOpen(false);
-    if (!accountPhone) {
+    if (!accountKey) {
       setIsAuthOpen(true);
       return;
     }
 
     checkoutPending.current = true;
     try {
-      await createCustomerOrder(accountPhone, cart);
+      await createCustomerOrder(accountKey, cart);
       setCart(current => current.flatMap(item => {
         const quantity = item.quantity - (cart.find(saved => saved.id === item.id)?.quantity || 0);
         return quantity > 0 ? [{ ...item, quantity }] : [];
@@ -289,31 +303,37 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
     }
   };
 
-  const handleLoginSuccess = phoneNumber => {
-    const favorites = [...new Set([...readCustomerFavorites(phoneNumber), ...wishlist])];
+  const handleLoginSuccess = customer => {
+    authVersion.current += 1;
+    const key = customer.id;
+    const favorites = [...new Set([...readCustomerFavorites(key), ...wishlist])];
     try {
-      saveCustomerFavorites(phoneNumber, favorites);
+      saveCustomerFavorites(key, favorites);
       saveCustomerFavorites(null, []);
     }
     catch { showToast('ذخیرهٔ علاقه‌مندی‌ها ممکن نیست.', 'info'); }
     setWishlist(favorites);
-    writeDemoSession(phoneNumber);
-    setAccountPhone(phoneNumber);
+    setAccount(customer);
     setIsAuthOpen(false);
     const routine = pendingRoutine.current;
     pendingRoutine.current = null;
     if (routine) {
-      persistRoutine(phoneNumber, routine);
+      persistRoutine(key, routine);
       return;
     }
     if (!isAccount) navigate('/account');
   };
 
-  const handleLogout = () => {
-    writeDemoSession(null);
-    setAccountPhone(null);
-    setWishlist(readCustomerFavorites(null));
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await logoutCustomer();
+      authVersion.current += 1;
+      setAccount(null);
+      setWishlist(readCustomerFavorites(null));
+      navigate('/');
+    } catch (failure) {
+      showToast(failure.message, 'info');
+    }
   };
 
   const handleSelectCategory = (catId, hash = '#products') => {
@@ -337,8 +357,8 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
         cartCount={cartCount}
         cartTotal={cartTotal}
         onOpenCart={() => setIsCartOpen(true)}
-        isSignedIn={!!accountPhone}
-        onOpenAuth={() => accountPhone ? navigate('/account') : setIsAuthOpen(true)}
+        isSignedIn={!!accountKey}
+        onOpenAuth={() => accountKey ? navigate('/account') : setIsAuthOpen(true)}
         wishlistCount={favoriteProducts.length}
         isWishlist={isWishlist}
         isRoutine={isRoutine}
@@ -364,8 +384,9 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
           onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} />
       ) : isAccount ? (
         <CustomerAccount
-          key={accountPhone}
-          phone={accountPhone}
+          key={accountKey}
+          phone={account?.phone}
+          accountKey={accountKey}
           orderVersion={orderVersion}
           activePanel={location.split('#')[1]}
           onSelectPanel={panel => navigate('/account#' + panel)}
@@ -421,7 +442,7 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
         {articles && <BlogSection articles={articles} />}
-      </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} accountPhone={accountPhone} onSaveRoutine={handleSaveRoutine} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
+      </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} accountPhone={accountKey} onSaveRoutine={handleSaveRoutine} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
 
       {/* Screenshot 4: Grand Purple Footer */}
       <Footer />

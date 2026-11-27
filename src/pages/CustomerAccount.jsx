@@ -5,8 +5,9 @@ import RoutineSchedules from '../components/RoutineSchedules.jsx';
 import { readCustomerRoutine } from '../data/skincareRoutine.js';
 import { formatPrice } from '../data/mockData.js';
 import {
-  orderStatuses, readCustomerOrders, readCustomerProfile, resolveCustomerOrder, saveCustomerProfile,
+  orderStatuses, readCustomerOrders, resolveCustomerOrder,
 } from '../data/customerAccount.js';
+import { getCustomerProfile, saveCustomerProfile } from '../data/customerSession.js';
 import './CustomerAccount.css';
 
 const dateFormat = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'long', timeZone: 'Asia/Tehran' });
@@ -32,7 +33,7 @@ const fields = [
   ['address', 'نشانی کامل، پلاک و واحد', 'street-address'],
 ];
 
-export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogout, orderVersion, activePanel, onSelectPanel, onAddRoutineToCart }) {
+export default function CustomerAccount({ phone, accountKey, favoriteCount, onLogin, onLogout, orderVersion, activePanel, onSelectPanel, onAddRoutineToCart }) {
   const selectedPanel = sections.some(([id]) => id === activePanel) ? activePanel : sections[0][0];
   const [savedRoutine, setSavedRoutine] = useState(null);
   const [routineError, setRoutineError] = useState(false);
@@ -42,37 +43,43 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
   const [filter, setFilter] = useState('all');
   const [orderPending, setOrderPending] = useState(false);
   const [orderError, setOrderError] = useState('');
+  const [profileBusy, setProfileBusy] = useState(false);
   const [profileMessage, setProfileMessage] = useState(null);
 
   useEffect(() => {
-    if (!phone) return;
+    if (!accountKey) return;
     function refresh() {
-      try { setOrders(readCustomerOrders(phone)); }
+      try { setOrders(readCustomerOrders(accountKey)); }
       catch { setOrderError('خواندن تاریخچه سفارش‌ها ممکن نیست.'); }
     }
     refresh();
     window.addEventListener('storage', refresh);
     return () => window.removeEventListener('storage', refresh);
-  }, [phone, orderVersion]);
+  }, [accountKey, orderVersion]);
 
   useEffect(() => {
-    if (!phone) return;
-    try { setSavedRoutine(readCustomerRoutine(phone)); }
+    if (!accountKey) return;
+    try { setSavedRoutine(readCustomerRoutine(accountKey)); }
     catch { setRoutineError(true); }
-    try {
-      const saved = readCustomerProfile(phone);
+    const controller = new AbortController();
+    setProfileBusy(true);
+    getCustomerProfile(controller.signal).then(({ profile: saved }) => {
       setProfile(saved);
       setSavedFirstName(saved.firstName?.trim() || '');
-    }
-    catch { setProfileMessage({ error: true, text: 'خواندن مشخصات ذخیره‌شده ممکن نیست.' }); }
-  }, [phone]);
+    }).catch((failure) => {
+      if (!controller.signal.aborted) setProfileMessage({ error: true, text: failure.message });
+    }).finally(() => {
+      if (!controller.signal.aborted) setProfileBusy(false);
+    });
+    return () => controller.abort();
+  }, [accountKey]);
 
   async function setStatus(id, status) {
     setOrderError('');
     setOrderPending(true);
     try {
-      await resolveCustomerOrder(phone, id, status);
-      setOrders(readCustomerOrders(phone));
+      await resolveCustomerOrder(accountKey, id, status);
+      setOrders(readCustomerOrders(accountKey));
     } catch {
       setOrderError('به‌روزرسانی وضعیت سفارش ممکن نیست.');
     } finally {
@@ -80,20 +87,24 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
     }
   }
 
-  function saveProfile(event) {
+  async function saveProfile(event) {
     event.preventDefault();
+    if (profileBusy) return;
     const values = Object.fromEntries(fields.map(([name]) => [name, profile[name]?.trim() || '']));
     if (fields.some(([name]) => name !== 'email' && !values[name])) {
       setProfileMessage({ error: true, text: 'همهٔ مشخصات و نشانی را کامل کنید.' });
       return;
     }
+    setProfileBusy(true);
     try {
-      saveCustomerProfile(phone, values);
+      await saveCustomerProfile(values);
       setProfile(values);
       setSavedFirstName(values.firstName);
       setProfileMessage({ text: 'مشخصات و آدرس ذخیره شد.' });
-    } catch {
-      setProfileMessage({ error: true, text: 'ذخیرهٔ مشخصات در این مرورگر ممکن نیست.' });
+    } catch (failure) {
+      setProfileMessage({ error: true, text: failure.message });
+    } finally {
+      setProfileBusy(false);
     }
   }
 
@@ -182,7 +193,7 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
 
           <section id="account-profile" className="customer-card" role="tabpanel" aria-labelledby="account-profile-tab" hidden={selectedPanel !== 'account-profile'}>
             <h2>مشخصات و آدرس تحویل</h2>
-            <p className="customer-empty">این اطلاعات آزمایشی در همین مرورگر ذخیره می‌شوند.</p>
+            <p className="customer-empty">نشانی ذخیره‌شده فقط در حساب شما نمایش داده می‌شود.</p>
             <form className="customer-profile" onSubmit={saveProfile}>
               <label>شماره موبایل<input value={phone} dir="ltr" readOnly /></label>
               {fields.map(([name, label, autoComplete]) => {
@@ -203,7 +214,7 @@ export default function CustomerAccount({ phone, favoriteCount, onLogin, onLogou
                   />
                 </label>;
               })}
-              <button type="submit" className="account-primary">ذخیره مشخصات</button>
+              <button type="submit" disabled={profileBusy} className="account-primary">ذخیره مشخصات</button>
               {profileMessage && <p className={profileMessage.error ? 'account-error' : 'account-notice'} role={profileMessage.error ? 'alert' : 'status'}>{profileMessage.text}</p>}
             </form>
           </section>

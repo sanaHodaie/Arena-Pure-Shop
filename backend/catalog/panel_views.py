@@ -10,6 +10,9 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from django.db.models.deletion import ProtectedError
+
+from .auth_limits import take_attempt
 from .forms import ProductAdminForm
 from .login_history import recent_logins
 from .models import AdminLogin, Brand, Category, Product
@@ -47,7 +50,14 @@ def session(request):
         if request.POST.get("action") == "logout":
             logout(request)
         else:
-            user = authenticate(request, username=request.POST.get("username"), password=request.POST.get("password"))
+            username = request.POST.get("username", "").strip()
+            password = request.POST.get("password", "")
+            if not 1 <= len(username) <= 150 or not 1 <= len(password) <= 128:
+                return JsonResponse({"error": "نام کاربری یا رمز عبور مدیر درست نیست."}, status=400)
+            if not take_attempt("admin-login", username.casefold(), 10):
+                return JsonResponse({"error": "تعداد تلاش‌ها زیاد است. چند دقیقه دیگر دوباره امتحان کنید."}, status=429,
+                                    headers={"Retry-After": "900"})
+            user = authenticate(request, username=username, password=password)
             if not user or not user.is_active or not user.is_staff:
                 return JsonResponse({"error": "نام کاربری یا رمز عبور مدیر درست نیست."}, status=400)
             recent_logins()
@@ -141,7 +151,10 @@ def product_action(request, pk):
     if action == "delete":
         if not allowed(request.user, "delete"):
             return forbidden()
-        get_object_or_404(Product, pk=pk).delete()
+        try:
+            get_object_or_404(Product, pk=pk).delete()
+        except ProtectedError:
+            return JsonResponse({"error": "این محصول دیدگاه ثبت‌شده دارد. برای خروج از فروشگاه آن را غیرفعال کنید."}, status=409)
     elif action in {"hide", "show"}:
         if not allowed(request.user, "change"):
             return forbidden()

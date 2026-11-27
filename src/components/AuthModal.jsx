@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Smartphone, X } from 'lucide-react';
-import { normalizePhone, registerDemoAccount, signInToDemoAccount } from '../data/demoAccount.js';
+import { normalizePhone, registerCustomer, loginCustomer } from '../data/customerSession.js';
 import './AuthModal.css';
 
 export default function AuthModal({ onClose, onLoginSuccess }) {
   const dialogRef = useRef(null);
   const titleRef = useRef(null);
   const activeRef = useRef(false);
+  const requestRef = useRef(null);
   const [step, setStep] = useState('welcome');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +23,7 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
     dialog.showModal();
     return () => {
       activeRef.current = false;
+      requestRef.current?.abort();
       dialog.close();
     };
   }, []);
@@ -45,28 +47,28 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
       setError('شماره موبایل معتبر وارد کنید، مثل ۰۹۱۲۳۴۵۶۷۸۹.');
       return;
     }
-    if (registering && password.length < 8) {
-      setError('رمز عبور باید حداقل ۸ نویسه داشته باشد.');
+    if (registering && password.length < 12) {
+      setError('رمز عبور باید حداقل ۱۲ نویسه داشته باشد.');
       return;
     }
 
     setPending(true);
+    const controller = new AbortController();
+    requestRef.current = controller;
     try {
-      const success = await (registering
-        ? registerDemoAccount(normalized, password)
-        : signInToDemoAccount(normalized, password));
-      if (!activeRef.current) return;
-      if (!success) {
-        setError(registering ? 'این شماره قبلاً ثبت شده است. وارد حساب شوید.' : 'شماره موبایل یا رمز عبور درست نیست.');
-      } else if (registering) {
+      const result = await (registering
+        ? registerCustomer(normalized, password, controller.signal)
+        : loginCustomer(normalized, password, controller.signal));
+      if (!activeRef.current || controller.signal.aborted) return;
+      if (registering) {
         changeStep('login');
         setPhone(normalized);
-        setNotice('حساب آزمایشی ساخته شد. برای ورود، رمز عبور را وارد کنید.');
+        setNotice('اگر ثبت‌نام انجام شده باشد، می‌توانید با همین شماره و رمز وارد شوید.');
       } else {
-        onLoginSuccess(normalized);
+        onLoginSuccess(result.account);
       }
-    } catch {
-      if (activeRef.current) setError('ذخیره یا بررسی حساب در این مرورگر ممکن نیست. دوباره تلاش کنید.');
+    } catch (failure) {
+      if (activeRef.current && !controller.signal.aborted) setError(failure.message);
     } finally {
       if (activeRef.current) setPending(false);
     }
@@ -116,8 +118,8 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
               <LockKeyhole size={18} aria-hidden="true" />
               <input id="account-password" type={visible ? 'text' : 'password'} dir="ltr"
                 autoComplete={registering ? 'new-password' : 'current-password'} required
-                minLength={registering ? 8 : undefined} maxLength={128} disabled={pending}
-                value={password} placeholder={registering ? 'حداقل ۸ نویسه' : undefined}
+                minLength={registering ? 12 : undefined} maxLength={128} disabled={pending}
+                value={password} placeholder={registering ? 'حداقل ۱۲ نویسه' : undefined}
                 onChange={event => setPassword(event.target.value)} />
               <button type="button" className="account-password-toggle" aria-label={visible ? 'پنهان کردن رمز' : 'نمایش رمز'} onClick={() => setVisible(!visible)}>
                 {visible ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -133,7 +135,7 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
           </button>
         </>}
 
-        <p className="account-demo">حساب آزمایشی در همین مرورگر. از رمز واقعی استفاده نکنید.</p>
+        <p className="account-demo">برای این حساب یک رمز منحصربه‌فرد انتخاب کنید.</p>
       </div>
     </dialog>
   );
