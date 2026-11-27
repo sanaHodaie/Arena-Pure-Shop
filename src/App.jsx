@@ -1,3 +1,4 @@
+import StorefrontError from './pages/StorefrontError.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import FragranceFinderPage from './pages/FragranceFinderPage.jsx';
 import { CompareTray } from './components/CompareControls.jsx';
@@ -41,7 +42,8 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
   const product = findProduct(window.location.pathname);
   const [articles, setArticles] = useState(import.meta.env.VITE_API_BASE_URL ? null : blogArticles);
   const [articleError, setArticleError] = useState(false);
-  const articlePage = /^\/articles\/\d+\/?$/.test(window.location.pathname);
+  const articlePage = window.location.pathname.startsWith('/articles/');
+  const isProductPath = window.location.pathname.startsWith('/products/');
   const wantsArticles = articlePage || window.location.pathname === '/';
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
     return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); };
   }, []);
   useEffect(() => {
-    document.title = isSearch ? 'جست‌وجوی محصولات | آرنا پیور' : isFragranceFinder ? 'عطریاب | آرنا پیور' : isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : articlePage ? 'خواندنی‌ها | آرنا پیور' : 'محصول پیدا نشد | آرنا پیور';
+    document.title = isSearch ? 'جست‌وجوی محصولات | آرنا پیور' : isFragranceFinder ? 'عطریاب | آرنا پیور' : isRoutine ? 'روتین‌ساز پوست | آرنا پیور' : isWishlist ? 'علاقه‌مندی‌ها | آرنا پیور' : isAccount ? 'پنل مشتری | آرنا پیور' : article ? article.title : product ? `${product.title} | آرنا پیور` : activeCategory ? `${categoryPages[activeCategory].title} | آرنا پیور` : isHome ? 'آرنا پیور | زیبایی و مراقبت' : articlePage && !articles ? 'خواندنی‌ها | آرنا پیور' : isProductPath ? 'محصول پیدا نشد | آرنا پیور' : 'صفحه پیدا نشد | آرنا پیور';
     const wasAccount = previousPath.current === '/account';
     previousPath.current = window.location.pathname;
     const previous = previousProduct.current;
@@ -100,10 +102,10 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
       }
       const target = !isAccount && window.location.hash && document.getElementById(window.location.hash.slice(1));
       if (target) target.scrollIntoView();
-      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('search-title') || document.getElementById('fragrance-finder-title') || document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
+      else { window.scrollTo({ top: 0, behavior: 'instant' }); (document.getElementById('storefront-error-title') || document.getElementById('search-title') || document.getElementById('fragrance-finder-title') || document.getElementById('routine-title') || document.getElementById('wishlist-title') || document.getElementById('customer-account-title') || document.getElementById('article-title') || document.getElementById('product-title') || document.getElementById('category-title'))?.focus({ preventScroll: true }); }
     });
     return () => cancelAnimationFrame(frame);
-  }, [location, catalogLoading, article?.id, Boolean(articles && location === '/#blog')]);
+  }, [location, catalogLoading, catalogOffline, articleError, article?.id, Boolean(articles && location === '/#blog')]);
   const handleLink = event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest('a[href]');
@@ -372,7 +374,7 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
       />
 
       {/* Main Content Sections strictly adhering to screenshots */}
-      {catalogLoading && !hasCachedCatalog && !isHome && !articlePage && !isAccount ? (
+      {catalogLoading && !hasCachedCatalog && (isProductPath || window.location.pathname.startsWith('/categories/') || isSearch || isFragranceFinder || isRoutine || isWishlist) ? (
         <main className="arena-container catalog-placeholder" aria-busy="true"
           aria-label="دریافت اطلاعات محصول"><div aria-hidden="true" /></main>
       ) : isSearch ? <SearchPage key={query} query={query} wishlist={wishlist} comparison={comparison}
@@ -396,7 +398,8 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
           onLogout={handleLogout}
         />
       ) : article ? <ArticlePage article={article} articles={articles}/> : articlePage && !articles ? (
-        <main className="arena-container py-12" role="status">{articleError ? 'خواندنی‌ها در دسترس نیستند.' : 'در حال دریافت خواندنی…'}</main>
+        articleError ? <StorefrontError kind="unavailable" /> :
+          <main className="arena-container catalog-placeholder" aria-busy="true" aria-label="دریافت خواندنی"><div aria-hidden="true" /></main>
       ) : isHome ? <main className="flex-1 space-y-2 sm:space-y-4">
         {/* Screenshot 1: Hero Banners */}
         <HeroBanners />
@@ -442,7 +445,7 @@ export default function App({ hasCachedCatalog = false, catalogLoading = false, 
 
         {/* Screenshot 4: Articles & Magazine (خواندنی‌ها) */}
         {articles && <BlogSection articles={articles} />}
-      </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} accountPhone={accountKey} onSaveRoutine={handleSaveRoutine} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <main className="arena-container pd-not-found"><h1>محصول پیدا نشد</h1><p>ممکن است نشانی محصول تغییر کرده باشد.</p><a href="/">بازگشت به فروشگاه</a></main>}
+      </main> : activeCategory ? <CategoryPage key={activeCategory} category={activeCategory} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist}/> : product ? <ProductPage product={product} accountPhone={accountKey} onSaveRoutine={handleSaveRoutine} comparison={comparison} onAddToCart={handleAddToCart} onToggleWishlist={handleToggleWishlist} wishlist={wishlist} onQuickView={setQuickViewProduct}/> : <StorefrontError kind={articlePage ? 'article' : isProductPath ? (catalogOffline ? 'unavailable' : 'product') : 'page'} />}
 
       {/* Screenshot 4: Grand Purple Footer */}
       <Footer />

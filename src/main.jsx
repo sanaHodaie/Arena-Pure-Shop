@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { loadStorefrontCatalog, restoreStorefrontCatalog } from './data/catalogApi.js';
 import App from './App.jsx';
+import { StorefrontErrorBoundary } from './pages/StorefrontError.jsx';
 import './index.css';
 import './brand.css';
 import './theme.css';
@@ -53,5 +54,5 @@ function Storefront() {
 }
 
 createRoot(document.getElementById('root')).render(
-  <React.StrictMode><Storefront /></React.StrictMode>,
+  <React.StrictMode><StorefrontErrorBoundary><Storefront /></StorefrontErrorBoundary></React.StrictMode>,
 );
