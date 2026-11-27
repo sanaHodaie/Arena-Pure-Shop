@@ -14,9 +14,12 @@ function accountError(status) {
 }
 
 async function accountRequest(endpoint, options) {
+  const path = import.meta.env.PROD
+    ? '/api/customer-account?' + new URLSearchParams({ endpoint })
+    : `/api/v1/account/${endpoint}/`;
   let response;
   try {
-    response = await fetch(`/api/v1/account/${endpoint}/`, {
+    response = await fetch(path, {
       cache: 'no-store',
       credentials: 'same-origin',
       ...options,
