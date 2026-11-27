@@ -2,7 +2,10 @@ export const config = { api: { bodyParser: false } };
 export default async function managementProxy(request, response) {
  response.setHeader('Cache-Control', 'private, no-store');
  const incoming = new URL(request.url, 'https://local.invalid');
- const path = incoming.searchParams.get('path') || '';
+ const rawPath = incoming.searchParams.get('path') || '';
+ const requested = new URL(rawPath, 'https://management.invalid/');
+ const path = requested.pathname.slice(1);
+ for (const [key,value] of requested.searchParams) incoming.searchParams.append(key,value);
  incoming.searchParams.delete('path');
  if (!/^[a-zA-Z0-9_/-]+$/.test(path) || path.includes('..')) return response.status(400).json({error:'Invalid management path'});
  const headers = new Headers({Accept:'application/json'});

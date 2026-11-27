@@ -353,7 +353,7 @@ export function Reviews({ account }) {
     )}</div>
     <ErrorBox message={error} />
     <RowStatus {...rows} />
-    {rows.resource?.reviews.length === 0 && <p>دیدگاهی با این وضعیت وجود ندارد.</p>}
+    {rows.resource?.reviews.length === 0 && <p>نظری نیست.</p>}
     {rows.resource?.reviews.map((review) => <Panel key={review.id} className="space-y-3">
       <h2 className="font-bold">{review.name} · <a href={`/products/${review.slug}`}>{review.product}</a></h2>
       <time className="text-xs" dateTime={review.createdAt}>{displayDate(review.createdAt)}</time>

@@ -1,3 +1,4 @@
+import Orders from './components/Orders';
 import React, { useEffect, useState } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -11,7 +12,6 @@ import { post, request } from './api';
 import { errorMessage, type Account, type Catalog, type Product } from './types';
 
 const pendingPages: Record<string, string> = {
-  orders: 'سفارش‌ها و فاکتورها',
   customers: 'مشتریان',
 };
 
@@ -136,6 +136,7 @@ export default function App() {
       onToggleTheme={toggleTheme}>
       {error && <p role="alert" className="mb-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-950 dark:text-rose-200">{error}</p>}
       {notice && <p role="status" className="mb-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">{notice}</p>}
+      {page === 'orders' && <Orders/>}
       {pendingPages[page] && <section className="glass-panel p-6"><h1 className="text-xl font-black">{pendingPages[page]}</h1><p className="mt-2 text-sm text-pearl-500 dark:text-pearl-400">این بخش هنوز به داده‌های فروشگاه متصل نشده است.</p></section>}
       {page === 'articles' && account.articles && <Articles account={account} />}
       {page === 'reviews' && account.reviews && <Reviews account={account} />}

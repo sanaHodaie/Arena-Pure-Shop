@@ -1,9 +1,12 @@
+from catalog import order_views
 from django.urls import path, re_path
 from django.views.generic import TemplateView
 
 from catalog import customer_views, content_views, panel_views, sales_reports, views
 
 urlpatterns = [
+    path("api/v1/account/orders/", order_views.customer_orders),
+    path("api/management/orders/", order_views.management_orders),
     path("", TemplateView.as_view(template_name="catalog/index.html"), name="index"),
     re_path(r"^api/management/session/?$", panel_views.session),
     path("api/management/articles/", content_views.articles),

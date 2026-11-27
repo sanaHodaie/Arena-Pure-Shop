@@ -409,3 +409,10 @@
 .dark .article-delete-dialog {
   background: color-mix(in srgb, var(--color-pearl-900) 92%, transparent);
 }
+
+@media print {
+ body * { visibility:hidden; }
+ .arena-invoice,.arena-invoice * { visibility:visible; }
+ .arena-invoice { position:absolute; inset:0; width:100%; border:0!important; }
+ .arena-invoice button { display:none; }
+}

@@ -1,5 +1,5 @@
 const upstreamOrigin = 'https://arena-pure-catalog.onrender.com';
-const endpoints = new Set(['session', 'profile']);
+const endpoints = new Set(['session', 'profile', 'orders']);
 
 export default async function customerAccount(request, response) {
   response.setHeader('Cache-Control', 'private, no-store');

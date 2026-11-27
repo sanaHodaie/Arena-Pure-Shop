@@ -152,3 +152,9 @@ class AuthAttempt(models.Model):
     key = models.CharField(max_length=64, primary_key=True)
     expires_at = models.DateTimeField(db_index=True)
     count = models.PositiveSmallIntegerField(default=0)
+
+class CustomerOrder(models.Model):
+    customer = models.ForeignKey(CustomerAccount, on_delete=models.PROTECT)
+    snapshot = models.JSONField(default=dict)
+    status = models.CharField(max_length=20, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)

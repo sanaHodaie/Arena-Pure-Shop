@@ -1,3 +1,4 @@
+import Invoice from '../../shared/Invoice.jsx';
 import React, { useEffect, useState } from 'react';
 import { LayoutDashboard, LogOut, MapPin, ListFilter, Package, ShoppingBag, Sparkles } from 'lucide-react';
 import SelectMenu from '../components/SelectMenu.jsx';
@@ -48,8 +49,8 @@ export default function CustomerAccount({ phone, accountKey, favoriteCount, onLo
 
   useEffect(() => {
     if (!accountKey) return;
-    function refresh() {
-      try { setOrders(readCustomerOrders(accountKey)); }
+    async function refresh() {
+      try { setOrders(await readCustomerOrders(accountKey)); }
       catch { setOrderError('خواندن تاریخچه سفارش‌ها ممکن نیست.'); }
     }
     refresh();
@@ -79,7 +80,7 @@ export default function CustomerAccount({ phone, accountKey, favoriteCount, onLo
     setOrderPending(true);
     try {
       await resolveCustomerOrder(accountKey, id, status);
-      setOrders(readCustomerOrders(accountKey));
+      setOrders(await readCustomerOrders(accountKey));
     } catch {
       setOrderError('به‌روزرسانی وضعیت سفارش ممکن نیست.');
     } finally {
@@ -175,7 +176,7 @@ export default function CustomerAccount({ phone, accountKey, favoriteCount, onLo
                   <span className={`customer-status customer-status--${order.status}`}>{orderStatuses[order.status]}</span>
                   <strong>{formatPrice(order.total)} تومان</strong>
                 </summary>
-                <ul>{order.items.map(item => (
+                <Invoice order={order}/><ul>{order.items.map(item => (
                   <li key={item.id}>{item.title} × {formatPrice(item.quantity)} <span>{formatPrice(item.price * item.quantity)} تومان</span></li>
                 ))}</ul>
                 <p>هزینه ارسال: {order.shipping ? `${formatPrice(order.shipping)} تومان` : 'رایگان'}</p>

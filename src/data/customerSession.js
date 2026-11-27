@@ -53,3 +53,6 @@ export const loginCustomer = (phone, password, signal) => writeAccount('session'
 export const logoutCustomer = () => writeAccount('session', { action: 'logout' });
 export const getCustomerProfile = (signal) => accountRequest('profile', { signal });
 export const saveCustomerProfile = (fields, signal) => writeAccount('profile', fields, signal);
+
+export const getOrders = () => accountRequest('orders', {});
+export const writeOrder = payload => writeAccount('orders', {payload:JSON.stringify(payload)});
