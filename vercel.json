@@ -17,14 +17,6 @@
       "destination": "https://arena-pure-catalog.onrender.com/api/v1/account/profile/"
     },
     {
-      "source": "/api/management/session/:rest*",
-      "destination": "https://arena-pure-catalog.onrender.com/api/management/session/"
-    },
-    {
-      "source": "/api/management/:path*",
-      "destination": "https://arena-pure-catalog.onrender.com/api/management/:path*"
-    },
-    {
       "source": "/media/products/:path*",
       "destination": "https://arena-pure-catalog.onrender.com/media/products/:path*"
     },
@@ -75,6 +67,9 @@
   ],
   "functions": {
     "api/customer-account.js": {
+      "maxDuration": 60
+    },
+    "api/management/[...path].js": {
       "maxDuration": 60
     }
   }
