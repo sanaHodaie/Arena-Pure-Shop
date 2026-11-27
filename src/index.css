@@ -623,3 +623,21 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   padding-block: .4rem;
   font-size: .78rem;
 }
+
+.product-search-page { padding-block: 34px 64px; flex: 1; }
+.product-search-heading { display: grid; gap: .5rem; margin-bottom: 24px; }
+.product-search-heading > span, .product-search-filter-heading { display: inline-flex; align-items: center; gap: 8px; color: var(--color-brand-secondary); font-size: .83rem; font-weight: 800; }
+.product-search-heading h1 { overflow-wrap: anywhere; font-size: clamp(1.35rem, 3vw, 2rem); font-weight: 900; color: #47294d; }
+.product-search-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding: 16px; border-radius: 19px; background: #f8f1f8; border: 1px solid #eaddea; }
+.product-search-filters label { display: grid; gap: 5px; font-size: .8rem; font-weight: 700; }
+.product-search-filters input[type=text], .product-search-filters select { min-height: 40px; padding: 8px 10px; border: 1px solid #dacee1; border-radius: 11px; background: #fff; color: #39233e; }
+.product-search-filters .product-search-stock { display: flex; min-height: 40px; align-items: center; gap: 7px; }
+.product-search-stock input { accent-color: #67426f; }
+.product-search-reset { min-height: 40px; display: inline-flex; align-items: center; gap: 5px; color: #67426f; font-size: .8rem; font-weight: 800; }
+.product-search-count { margin: 18px 0 14px; font-size: .84rem; color: #67426f; }
+.product-search-error { color: #9b2849; flex-basis: 100%; }
+@media (max-width: 540px) {
+  .product-search-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .product-search-filter-heading, .product-search-error { grid-column: 1 / -1; }
+  .product-search-filters input[type=text], .product-search-filters select { width: 100%; min-width: 0; }
+}

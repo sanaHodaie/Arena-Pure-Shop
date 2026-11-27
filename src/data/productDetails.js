@@ -14,11 +14,14 @@ const identities = {
   11: { type: 'میسلار واتر', model: 'SkinActive All-in-1', extra: [['نسخه محصول', 'درب صورتی']] },
   12: { type: 'عطر زنانه', model: 'La Vie Est Belle', extra: [['غلظت', 'ادو پرفیوم (Eau de Parfum)']] },
 };
-export function getProductDetails(product) {
-  const identity = product.storefrontPath
+export function productIdentity(product) {
+  return product.storefrontPath
     ? { type: product.type, model: product.model, family: product.family, shade: product.shade,
         color: product.color, undertone: product.undertone, shadeNote: product.shadeNote, extra: product.extra }
     : identities[product.id] || { type: product.type, model: product.model };
+}
+export function getProductDetails(product) {
+  const identity = productIdentity(product);
   return { ...identity,
     specs: [['برند', product.brand], ['نام انگلیسی', product.englishName], ['نوع محصول', identity.type], ['مدل', identity.model], ...(identity.shade ? [['رنگ / شماره', identity.shade]] : []), ['دسته‌بندی', categoryNames[product.category]], ...(identity.extra || [])].filter(([, value]) => value),
     variants: identity.family ? products.filter(item => (item.family ?? identities[item.id]?.family) === identity.family) : [],

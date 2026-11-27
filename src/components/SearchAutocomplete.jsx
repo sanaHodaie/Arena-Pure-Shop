@@ -35,7 +35,7 @@ export default function SearchAutocomplete({ catalogLoading, searchTerm, setSear
     event.preventDefault();
     close();
     input.current?.blur();
-    onSearchSubmit();
+    onSearchSubmit(searchTerm.slice(0, 150));
   };
   const onKeyDown = event => {
     if (event.nativeEvent.isComposing) return;
@@ -59,7 +59,7 @@ export default function SearchAutocomplete({ catalogLoading, searchTerm, setSear
 
   return <form ref={root} className="arena-search" role="search" onSubmit={submit} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) close(); }}>
     <Search size={22} strokeWidth={1.2}/>
-    <input ref={input} type="search" role="combobox" aria-label="جستجوی محصولات" placeholder="جستجوی محصول یا برند…" autoComplete="off"
+    <input ref={input} type="search" maxLength={150} role="combobox" aria-label="جستجوی محصولات" placeholder="جستجوی محصول یا برند…" autoComplete="off"
       aria-autocomplete="list" aria-expanded={expanded} aria-controls={expanded ? `${id}-list` : undefined}
       aria-activedescendant={expanded && activeOption >= 0 ? `${id}-${activeOption}` : undefined}
       value={searchTerm} onChange={event => { setSearchTerm(event.target.value); setActive(-1); setOpen(true); }}
