@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.middleware.csrf import get_token, rotate_token
 from django.utils.crypto import constant_time_compare, get_random_string, salted_hmac
+from django.views.csrf import csrf_failure as default_csrf_failure
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
@@ -49,6 +50,16 @@ def session_response(request, account):
         "account": {"id": str(account.pk), "phone": account.phone} if account else None,
         "csrf": get_token(request),
     })
+
+
+@never_cache
+def csrf_failure(request, reason=""):
+    if request.path.startswith(("/api/v1/account/", "/api/management/")):
+        return JsonResponse({
+            "error": "نشست یا مبدأ این درخواست تأیید نشد. صفحه را تازه کنید و دوباره تلاش کنید.",
+            "code": "csrf_rejected",
+        }, status=403)
+    return default_csrf_failure(request, reason=reason)
 
 
 @never_cache

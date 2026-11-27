@@ -9,6 +9,18 @@
       "destination": "/management/index.html"
     },
     {
+      "source": "/api/v1/account/session/:rest*",
+      "destination": "https://arena-pure-catalog.onrender.com/api/v1/account/session/"
+    },
+    {
+      "source": "/api/v1/account/profile/:rest*",
+      "destination": "https://arena-pure-catalog.onrender.com/api/v1/account/profile/"
+    },
+    {
+      "source": "/api/management/session/:rest*",
+      "destination": "https://arena-pure-catalog.onrender.com/api/management/session/"
+    },
+    {
       "source": "/api/management/:path*",
       "destination": "https://arena-pure-catalog.onrender.com/api/management/:path*"
     },

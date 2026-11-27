@@ -87,7 +87,10 @@ CORS_ALLOWED_ORIGINS = [
         "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000" if DEBUG else "",
     )
 ]
-CSRF_TRUSTED_ORIGINS = csv_env("ADMIN_FRONTEND_ORIGINS") or CORS_ALLOWED_ORIGINS
+CSRF_TRUSTED_ORIGINS = csv_env("ADMIN_FRONTEND_ORIGINS") or CORS_ALLOWED_ORIGINS.copy()
+if render_host == "arena-pure-catalog.onrender.com":
+    CSRF_TRUSTED_ORIGINS = list(dict.fromkeys([*CSRF_TRUSTED_ORIGINS, "https://arena-pure-shop.vercel.app"]))
+CSRF_FAILURE_VIEW = "catalog.customer_views.csrf_failure"
 CORS_URLS_REGEX = r"^/api/v1/"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [],

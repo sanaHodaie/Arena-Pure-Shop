@@ -101,3 +101,21 @@ Run `python manage.py test` inside `backend` with the environment from local set
 پیش از عرضهٔ عمومی، تأیید شماره، بازیابی امن حساب و پرداخت واقعی را به مسیر فروش وصل کنید. نقش اجرای روزمرهٔ دیتابیس باید جدا از نقش مالک/مهاجرت باشد. برای نقش اجرا فقط مجوز اتصال، استفاده از schema و خواندن/نوشتن جدول‌ها و sequenceهای لازم را بدهید. اجرای مهاجرت‌ها باید با نقش جداگانه در مرحلهٔ انتشار انجام شود. سرویس Render فعلی مهاجرت و اجرای برنامه را با یک اتصال انجام می‌دهد و این جداسازی در زیرساخت آنلاین هنوز اعمال نشده است.
 
 پیش از مهاجرت تولید، از دیتابیس نسخهٔ پشتیبان بگیرید و بازیابی آن را روی دیتابیس جداگانه آزمایش کنید. کلیدهای خارجی برند و دسته از حذف رکورد مرجع محصول جلوگیری می‌کنند. حذف محصول دارای دیدگاه هم مسدود است. حذف مقاله یا محصول می‌تواند تصویر وابستهٔ همان رکورد را پاک کند. حذف دستهٔ مرتبطِ مقاله فقط رابطه را خالی می‌کند. دستور `DROP TABLE ... CASCADE` در عملیات عادی جایی ندارد و یکپارچگی مدل‌ها جای نسخهٔ پشتیبان و محدودیت دسترسی DDL را نمی‌گیرد.
+
+برای ساخت مدیر آنلاین از PowerShell و روی همان پروژهٔ Neon متصل به Render، در پوشهٔ `backend` و پس از مشاهدهٔ موفقیت مهاجرت‌ها در Render اجرا کنید:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+$arenaNeon = Read-Host "Neon connection URL for the deployed project" -AsSecureString
+try {
+  $env:DJANGO_DEBUG = "1"
+  $env:DATABASE_URL = [System.Net.NetworkCredential]::new("", $arenaNeon).Password
+  python manage.py createsuperuser
+} finally {
+  Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue
+  Remove-Item Env:DJANGO_DEBUG -ErrorAction SilentlyContinue
+  Remove-Variable arenaNeon -ErrorAction SilentlyContinue
+}
+```
+
+با نام کاربری و رمز انتخاب‌شده در `https://arena-pure-shop.vercel.app/admin` وارد شوید. این حساب مدیر کامل است و باید خصوصی بماند. در نسخهٔ آنلاین، مسیر `/api/v1/account/session/` باید JSON برگرداند. پاسخ HTML نشانهٔ مشکل پروکسی یا نسخهٔ بک‌اند است. در صورت رد شدن CSRF، دامنهٔ دقیق Vercel را در `ADMIN_FRONTEND_ORIGINS` بررسی کنید.

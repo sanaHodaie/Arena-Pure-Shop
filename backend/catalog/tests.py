@@ -336,3 +336,17 @@ class CatalogTests(TestCase):
         self.assertTrue(ProductReview.objects.filter(pk=review.pk).exists())
         self.assertEqual(self.client.post(endpoint, {"action": "hide"}).status_code, 200)
         self.assertTrue(ProductReview.objects.filter(pk=review.pk).exists())
+
+    @override_settings(CSRF_TRUSTED_ORIGINS=["https://arena-pure-shop.vercel.app"])
+    def test_account_proxy_accepts_canonical_paths_and_only_trusted_origin(self):
+        browser = Client(enforce_csrf_checks=True)
+        path = "/api/v1/account/session"
+        self.assertEqual(browser.get(path + "/").status_code, 200)
+        token = browser.get(path).json()["csrf"]
+        headers = {"X-CSRFToken": token, "Origin": "https://untrusted.example"}
+        blocked = browser.post(path, {"action": "logout"}, headers=headers)
+        self.assertEqual(blocked.status_code, 403)
+        self.assertEqual(blocked.json()["code"], "csrf_rejected")
+        headers["Origin"] = "https://arena-pure-shop.vercel.app"
+        self.assertEqual(browser.post(path, {"action": "logout"}, headers=headers).status_code, 200)
+        self.assertEqual(browser.get("/api/management/session").status_code, 200)
