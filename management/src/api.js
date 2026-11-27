@@ -7,7 +7,10 @@ function connectionMessage(status) {
 }
 
 function send(path, data) {
-  return fetch('/api/management/' + path, {
+  const target = import.meta.env.PROD
+    ? '/api/admin-panel?' + new URLSearchParams({ path })
+    : '/api/management/' + path;
+  return fetch(target, {
     credentials: 'same-origin',
     cache: 'no-store',
     ...(data && {

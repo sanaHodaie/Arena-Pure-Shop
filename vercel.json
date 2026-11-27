@@ -71,6 +71,9 @@
     },
     "api/management/[...path].js": {
       "maxDuration": 60
+    },
+    "api/admin-panel.js": {
+      "maxDuration": 60
     }
   }
 }
